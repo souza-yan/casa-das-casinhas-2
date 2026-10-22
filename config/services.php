@@ -8,6 +8,13 @@ return [
         'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
     ],
 
+    'melhor_envio' => [
+        'url' => env('MELHOR_ENVIO_URL', 'https://sandbox.melhorenvio.com.br'),
+        'token' => env('MELHOR_ENVIO_TOKEN'),
+        'origin_zip_code' => env('MELHOR_ENVIO_ORIGIN_ZIP_CODE'),
+        'user_agent' => env('MELHOR_ENVIO_USER_AGENT', 'Casa das Casinhas contato@example.com'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

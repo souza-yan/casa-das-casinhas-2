@@ -40,6 +40,11 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function shipment(): HasOne
+    {
+        return $this->hasOne(Shipment::class);
+    }
+
     public function transitionTo(OrderStatus $status): void
     {
         $this->status->assertCanTransitionTo($status);
