@@ -1,3 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Painel</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
-<body class="bg-[#f8f5ef] text-[#261d17]"><main class="mx-auto max-w-5xl px-5 py-16"><p class="text-sm uppercase tracking-[.2em] text-[#8b5e3c]">{{ auth()->user()->role->label() }}</p><h1 class="mt-3 font-serif text-4xl">Olá, {{ auth()->user()->name }}</h1><form method="POST" action="{{ route('logout') }}" class="mt-8">@csrf<button class="border border-[#261d17]/20 px-5 py-3">Sair</button></form></main></body></html>
+<x-layouts.public>
+    <div class="mx-auto max-w-5xl px-5 py-14 sm:px-8">
+        <x-page-header eyebrow="Minha conta" title="Olá, {{ auth()->user()->name }}">Acesse seus pedidos e acompanhe cada encomenda.</x-page-header>
+        <div class="mt-8 flex flex-wrap gap-3"><a href="{{ route('orders.index') }}" class="bg-blue-700 px-5 py-3 font-semibold text-white">Meus pedidos</a><a href="{{ route('store') }}" class="border border-slate-300 bg-white px-5 py-3 font-semibold">Continuar comprando</a>@if(auth()->user()->role === \App\Enums\Role::ADMIN)<a href="{{ route('admin.dashboard') }}" class="border border-blue-300 bg-blue-50 px-5 py-3 font-semibold text-blue-800">Administração</a>@endif</div>
+    </div>
+</x-layouts.public>

@@ -10,15 +10,15 @@
     <tallstackui:script />
     @livewireStyles
 </head>
-<body class="min-h-screen bg-[#f8f5ef] font-sans text-[#261d17] antialiased">
+<body class="min-h-screen bg-[#f8fafc] font-sans text-[#0f172a] antialiased">
     <main class="grid min-h-screen lg:grid-cols-2">
-        <section class="hidden bg-[#4b2d1b] p-12 text-[#fffdf9] lg:flex lg:flex-col lg:justify-between">
+        <section class="hidden bg-[#1d4ed8] p-12 text-[#ffffff] lg:flex lg:flex-col lg:justify-between">
             <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-0.04em]">Casa das Casinhas</a>
             <div class="max-w-lg">
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#e3cbb4]">Feito com afeto</p>
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#bfdbfe]">Feito com afeto</p>
                 <h1 class="mt-5 font-serif text-5xl leading-tight">Artesanato que encontra um lugar especial na sua casa.</h1>
             </div>
-            <p class="text-sm text-[#fffdf9]/60">Peças produzidas sob demanda.</p>
+            <p class="text-sm text-[#ffffff]/60">Peças produzidas sob demanda.</p>
         </section>
         <section class="flex items-center justify-center px-5 py-12 sm:px-8">
             <div class="w-full max-w-md">

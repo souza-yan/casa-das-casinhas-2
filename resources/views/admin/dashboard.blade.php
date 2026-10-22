@@ -1,3 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Administração</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
-<body class="bg-stone-50 text-stone-900"><main class="mx-auto max-w-6xl px-5 py-16"><p class="text-sm uppercase tracking-[.2em] text-[#8b5e3c]">Administração</p><h1 class="mt-3 text-4xl font-semibold">Painel da loja</h1><div class="mt-8 grid gap-4 sm:grid-cols-3"><div class="border bg-white p-5"><p class="text-sm text-stone-500">Produtos ativos</p><strong class="mt-2 block text-3xl">{{ $indicators['products'] }}</strong></div><div class="border bg-white p-5"><p class="text-sm text-stone-500">Pedidos pagos</p><strong class="mt-2 block text-3xl">{{ $indicators['paid'] }}</strong></div><div class="border bg-white p-5"><p class="text-sm text-stone-500">Em produção</p><strong class="mt-2 block text-3xl">{{ $indicators['production'] }}</strong></div></div></main></body></html>
+<x-layouts.admin title="Dashboard — Administração">
+    <x-page-header eyebrow="Administração" title="Visão geral">Indicadores reais para validar a operação da loja.</x-page-header>
+    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+        <a href="{{ route('admin.products.index') }}" class="border border-slate-200 bg-white p-5"><p class="text-sm text-slate-500">Produtos ativos</p><strong class="mt-2 block text-3xl text-blue-800">{{ $indicators['products'] }}</strong></a>
+        <a href="{{ route('admin.orders.index') }}" class="border border-slate-200 bg-white p-5"><p class="text-sm text-slate-500">Pedidos totais</p><strong class="mt-2 block text-3xl text-blue-800">{{ $indicators['orders'] }}</strong></a>
+        <a href="{{ route('admin.orders.index') }}" class="border border-slate-200 bg-white p-5"><p class="text-sm text-slate-500">Aguardando pagamento</p><strong class="mt-2 block text-3xl text-blue-800">{{ $indicators['pending'] }}</strong></a>
+    </div>
+    <div class="mt-8 border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900"><strong>Ambiente de desenvolvimento.</strong> As integrações externas devem permanecer configuradas nos respectivos Sandboxes.</div>
+</x-layouts.admin>
