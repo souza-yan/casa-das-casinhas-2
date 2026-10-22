@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Enums\NotificationStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Models\OrderNotification;
 use App\Models\Payment;
 use App\Models\WebhookEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +45,16 @@ class ProcessAsaasWebhook implements ShouldQueue
                 }
                 if (! $terminal && $status === PaymentStatus::CONFIRMED && $payment->order->status === OrderStatus::PENDING_PAYMENT) {
                     $payment->order->update(['status' => OrderStatus::PAID, 'paid_at' => now()]);
+                    $recipient = (string) config('services.whatsapp.recipient');
+                    if ($recipient !== '') {
+                        $notification = OrderNotification::firstOrCreate(
+                            ['order_id' => $payment->order_id, 'type' => 'paid_order', 'channel' => 'whatsapp', 'recipient' => $recipient],
+                            ['status' => NotificationStatus::PENDING],
+                        );
+                        if ($notification->wasRecentlyCreated) {
+                            SendWhatsAppNotification::dispatch($notification)->afterCommit();
+                        }
+                    }
                 }
             }
             $event->update(['payment_id' => $payment->id, 'status' => 'processed', 'processed_at' => now()]);

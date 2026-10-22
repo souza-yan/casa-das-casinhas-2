@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AsaasWebhookController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Products\Index as ProductsIndex;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
@@ -25,3 +26,8 @@ Route::post('/webhooks/asaas', AsaasWebhookController::class)
     ->middleware('throttle:60,1')
     ->withoutMiddleware(ValidateCsrfToken::class)
     ->name('webhooks.asaas');
+
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('webhooks.whatsapp.verify');
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'update'])
+    ->withoutMiddleware(ValidateCsrfToken::class)
+    ->name('webhooks.whatsapp.update');
