@@ -19,7 +19,10 @@ use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'featuredProducts' => Product::where('is_active', true)->latest()->take(4)->get(),
+        'heroProduct' => Product::where('is_active', true)->where('slug', 'casas-da-vila')->first(),
+    ]);
 })->name('home');
 
 Route::get('/loja', Store::class)->name('store');

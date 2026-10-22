@@ -8,6 +8,6 @@
         <x-form-field label="E-mail" name="email" type="email" :value="old('email', request('email'))" required />
         <x-form-field label="Nova senha" name="password" type="password" autocomplete="new-password" required />
         <x-form-field label="Confirme a senha" name="password_confirmation" type="password" autocomplete="new-password" required />
-        <button type="submit" class="h-12 bg-[#1d4ed8] px-5 text-sm font-semibold uppercase tracking-[0.12em] text-white">Redefinir senha</button>
+        <button type="submit" class="h-12 bg-[#4a2a16] px-5 text-sm font-semibold uppercase tracking-[0.12em] text-white">Redefinir senha</button>
     </form>
 @endsection

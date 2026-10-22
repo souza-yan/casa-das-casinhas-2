@@ -15,7 +15,7 @@
                     <tbody class="divide-y divide-stone-100">
                     @forelse ($products as $product)
                         <tr wire:key="product-{{ $product->id }}">
-                            <td class="px-4 py-4 font-medium"><div class="flex items-center gap-3">@if($product->image_path)<img src="{{ Storage::url($product->image_path) }}" alt="" class="size-11 rounded object-cover">@else<div class="size-11 rounded bg-slate-100"></div>@endif<span>{{ $product->name }}</span></div></td><td class="px-4 py-4">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</td><td class="px-4 py-4">{{ $product->production_days }} dias</td>
+                            <td class="px-4 py-4 font-medium"><div class="flex items-center gap-3">@if($product->image_path)<img src="{{ $product->image_url }}" alt="" class="size-11 rounded object-cover">@else<div class="size-11 rounded bg-slate-100"></div>@endif<span>{{ $product->name }}</span></div></td><td class="px-4 py-4">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</td><td class="px-4 py-4">{{ $product->production_days }} dias</td>
                             <td class="px-4 py-4"><button wire:click="toggleActive({{ $product->id }})" class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-stone-100 text-stone-600' }}">{{ $product->is_active ? 'Ativo' : 'Inativo' }}</button></td>
                             <td class="px-4 py-4 text-right"><button wire:click="edit({{ $product->id }})" class="font-semibold text-[#1d4ed8]">Editar</button><button wire:click="delete({{ $product->id }})" wire:confirm="Remover este produto do catálogo?" class="ml-4 font-semibold text-red-700">Excluir</button></td>
                         </tr>
