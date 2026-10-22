@@ -1,0 +1,3 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Painel</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head>
+<body class="bg-[#f8f5ef] text-[#261d17]"><main class="mx-auto max-w-5xl px-5 py-16"><p class="text-sm uppercase tracking-[.2em] text-[#8b5e3c]">{{ auth()->user()->role->label() }}</p><h1 class="mt-3 font-serif text-4xl">Olá, {{ auth()->user()->name }}</h1><form method="POST" action="{{ route('logout') }}" class="mt-8">@csrf<button class="border border-[#261d17]/20 px-5 py-3">Sair</button></form></main></body></html>
