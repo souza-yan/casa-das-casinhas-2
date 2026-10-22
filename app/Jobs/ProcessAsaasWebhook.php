@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Models\Payment;
+use App\Models\WebhookEvent;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\DB;
+use RuntimeException;
+
+class ProcessAsaasWebhook implements ShouldQueue
+{
+    use Queueable;
+
+    public int $tries = 3;
+
+    public function __construct(public WebhookEvent $webhookEvent) {}
+
+    public function handle(): void
+    {
+        DB::transaction(function (): void {
+            $event = WebhookEvent::lockForUpdate()->findOrFail($this->webhookEvent->id);
+            if ($event->status === 'processed') {
+                return;
+            }
+            $payment = Payment::where('provider', 'asaas')->where('provider_payment_id', data_get($event->payload, 'payment.id'))->lockForUpdate()->firstOrFail();
+            $amount = (float) data_get($event->payload, 'payment.value');
+            throw_unless(abs($amount - (float) $payment->amount) < 0.01, RuntimeException::class, 'Valor do pagamento divergente.');
+            $status = match ($event->event_type) {
+                'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED' => PaymentStatus::CONFIRMED,
+                'PAYMENT_OVERDUE' => PaymentStatus::OVERDUE,
+                'PAYMENT_REFUNDED' => PaymentStatus::REFUNDED,
+                'PAYMENT_CHARGEBACK_REQUESTED' => PaymentStatus::CHARGEBACK,
+                default => null,
+            };
+            if ($status) {
+                $terminal = in_array($payment->status, [PaymentStatus::REFUNDED, PaymentStatus::CHARGEBACK], true);
+                if (! ($terminal && $status === PaymentStatus::CONFIRMED)) {
+                    $payment->update(['status' => $status, 'confirmed_at' => $status === PaymentStatus::CONFIRMED ? ($payment->confirmed_at ?? now()) : $payment->confirmed_at]);
+                }
+                if (! $terminal && $status === PaymentStatus::CONFIRMED && $payment->order->status === OrderStatus::PENDING_PAYMENT) {
+                    $payment->order->update(['status' => OrderStatus::PAID, 'paid_at' => now()]);
+                }
+            }
+            $event->update(['payment_id' => $payment->id, 'status' => 'processed', 'processed_at' => now()]);
+        });
+    }
+}

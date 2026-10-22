@@ -2,6 +2,12 @@
 
 return [
 
+    'asaas' => [
+        'url' => env('ASAAS_URL', 'https://api-sandbox.asaas.com'),
+        'token' => env('ASAAS_TOKEN'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
