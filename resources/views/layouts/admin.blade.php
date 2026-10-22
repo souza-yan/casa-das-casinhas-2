@@ -15,6 +15,7 @@
             <nav class="mt-8 flex gap-2 lg:grid" aria-label="Administração">
                 <a href="{{ route('admin.dashboard') }}" class="px-3 py-2 text-sm font-medium hover:bg-stone-100">Visão geral</a>
                 <a href="{{ route('admin.products.index') }}" class="bg-[#4b2d1b] px-3 py-2 text-sm font-medium text-white">Produtos</a>
+                <a href="{{ route('admin.orders.index') }}" class="px-3 py-2 text-sm font-medium hover:bg-stone-100">Pedidos</a>
             </nav>
         </aside>
         <main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main>

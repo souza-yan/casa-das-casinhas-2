@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Models\Product;
+use App\Services\CartService;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+#[Layout('layouts.public')]
+class Store extends Component
+{
+    use WithPagination;
+
+    public string $search = '';
+
+    public string $sort = 'latest';
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function add(Product $product, CartService $cart): void
+    {
+        $cart->add($product);
+        $this->dispatch('cart-updated');
+        session()->flash('status', 'Produto adicionado ao carrinho.');
+    }
+
+    public function render()
+    {
+        $query = Product::query()->where('is_active', true)->when($this->search, fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'));
+        match ($this->sort) {
+            'price_asc' => $query->orderBy('price'), 'price_desc' => $query->orderByDesc('price'), default => $query->latest()
+        };
+
+        return view('livewire.store', ['products' => $query->paginate(12)]);
+    }
+}
