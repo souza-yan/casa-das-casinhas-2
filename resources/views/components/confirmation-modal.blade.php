@@ -1,0 +1,2 @@
+@props(['name', 'title'])
+<div x-data="{open:false}" @open-modal.window="if($event.detail === '{{ $name }}') open=true" x-show="open" x-cloak class="fixed inset-0 z-50 grid place-items-center bg-black/40 p-5" role="dialog" aria-modal="true"><div @click.outside="open=false" class="w-full max-w-md bg-white p-6"><h2 class="font-serif text-2xl">{{ $title }}</h2><div class="mt-3 text-sm text-stone-600">{{ $slot }}</div><div class="mt-6 flex justify-end gap-3"><button type="button" @click="open=false" class="border px-4 py-2">Cancelar</button>{{ $actions ?? '' }}</div></div></div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Orders\Index as AdminOrdersIndex;
@@ -10,6 +11,8 @@ use App\Livewire\Orders\Index as OrdersIndex;
 use App\Livewire\Orders\Show as OrderShow;
 use App\Livewire\ProductDetail;
 use App\Livewire\Store;
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -30,9 +33,11 @@ Route::view('/dashboard', 'dashboard')
     ->middleware('auth')
     ->name('dashboard');
 
-Route::view('/admin', 'admin.dashboard')
-    ->middleware(['auth', 'admin'])
-    ->name('admin.dashboard');
+Route::get('/admin', fn () => view('admin.dashboard', ['indicators' => [
+    'products' => Product::where('is_active', true)->count(),
+    'paid' => Order::where('status', OrderStatus::PAID)->count(),
+    'production' => Order::where('status', OrderStatus::IN_PRODUCTION)->count(),
+]]))->middleware(['auth', 'admin'])->name('admin.dashboard');
 
 Route::get('/admin/produtos', ProductsIndex::class)
     ->middleware(['auth', 'admin'])
