@@ -6,11 +6,13 @@ use App\Enums\Role;
 use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 use TallStackUi\Traits\Interactions;
 
 #[Layout('layouts.public')]
+#[Title('Produtos')]
 class Store extends Component
 {
     use Interactions, WithPagination;

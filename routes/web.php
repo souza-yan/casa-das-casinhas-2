@@ -26,7 +26,8 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('/loja', Store::class)->name('store');
+Route::get('/produtos', Store::class)->name('store');
+Route::redirect('/loja', '/produtos', 301);
 Route::get('/produtos/{product:slug}', ProductDetail::class)->name('products.show');
 Route::get('/carrinho', Cart::class)->middleware('customer-area')->name('cart');
 Route::middleware(['auth', 'customer-area'])->group(function (): void {

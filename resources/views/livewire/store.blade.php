@@ -1,6 +1,6 @@
 <div>
     <header class="border-b border-clay px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-        <div class="mx-auto max-w-[1400px]"><p class="text-sm font-semibold uppercase tracking-[.24em] text-clay">Loja online</p><h1 class="mt-4 font-serif text-5xl tracking-[-.05em] sm:text-7xl">Coleção de casinhas</h1><p class="mt-5 max-w-xl text-base leading-7 text-ink/55">Peças feitas à mão, uma por vez. Escolha a paisagem que vai levar cor, memória e presença ao seu espaço.</p></div>
+        <div class="mx-auto max-w-[1400px]"><h1 class="font-serif text-5xl tracking-[-.05em] sm:text-7xl">Produtos</h1><p class="mt-5 max-w-xl text-base leading-7 text-ink/55">Peças feitas à mão, uma por vez. Escolha a paisagem que vai levar cor, memória e presença ao seu espaço.</p></div>
     </header>
 
     <div class="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-12 lg:py-20">

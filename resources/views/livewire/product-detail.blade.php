@@ -1,6 +1,6 @@
 <div>
     <div class="mx-auto max-w-[1400px] px-5 pb-20 pt-6 sm:px-8 lg:px-12 lg:pb-28">
-        <nav class="mb-6 text-sm text-ink/45"><a href="{{ route('home') }}" class="hover:text-bark">Início</a><span class="mx-2">/</span><a href="{{ route('store') }}" class="hover:text-bark">Loja</a><span class="mx-2">/</span><span class="text-ink">{{ $product->name }}</span></nav>
+        <nav class="mb-6 text-sm text-ink/45"><a href="{{ route('home') }}" class="hover:text-bark">Início</a><span class="mx-2">/</span><a href="{{ route('store') }}" class="hover:text-bark">Produtos</a><span class="mx-2">/</span><span class="text-ink">{{ $product->name }}</span></nav>
         <div class="grid gap-10 lg:grid-cols-[1.28fr_.72fr] lg:gap-20">
             <div class="overflow-hidden rounded-sm bg-sand"><div class="aspect-[4/3]">@if ($product->image_path)<img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="size-full object-cover">@else<div class="grid size-full place-items-center font-serif text-3xl">Feito à mão</div>@endif</div></div>
             <div class="self-center lg:py-8">
