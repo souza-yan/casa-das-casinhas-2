@@ -8,7 +8,7 @@
 </head>
 <body class="min-h-screen bg-paper font-sans text-ink antialiased">
     <x-toast />
-    <main class="grid min-h-screen lg:grid-cols-[.92fr_1.08fr]">
+    <main class="page-enter grid min-h-screen lg:grid-cols-[.92fr_1.08fr]">
         <section class="relative hidden min-h-screen overflow-hidden bg-ink text-paper lg:block">
             <img src="{{ asset('images/products/casas-da-vila.png') }}" alt="Painel artesanal Casas da Vila" class="absolute inset-0 size-full object-cover opacity-65">
             <div class="absolute inset-0 bg-ink/45"></div>

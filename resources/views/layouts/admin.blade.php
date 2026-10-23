@@ -8,7 +8,7 @@
 </head>
 <body class="admin-shell min-h-screen bg-cream font-sans text-ink antialiased">
     <x-toast />
-    <div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]"><x-admin-sidebar /><main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main></div>
+    <div class="page-enter min-h-screen lg:grid lg:grid-cols-[260px_1fr]"><x-admin-sidebar /><main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main></div>
     @livewireScripts
 </body>
 </html>

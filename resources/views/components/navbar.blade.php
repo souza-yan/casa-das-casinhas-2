@@ -15,9 +15,6 @@
     x-data="{
         menuOpen: false,
         profileOpen: false,
-        visible: true,
-        lastY: window.scrollY,
-        scrollThreshold: 12,
         activeSection: '{{ $initialSection }}',
         isHome: {{ $isHome ? 'true' : 'false' }},
         init() {
@@ -34,29 +31,11 @@
 
                 if (current) this.activeSection = current.target.id
             }, { rootMargin: '-35% 0px -55% 0px', threshold: [0.1, 0.5] })
-
             sections.forEach(section => observer.observe(section))
-        },
-        handleScroll() {
-            const currentY = Math.max(window.scrollY, 0)
-
-            if (this.menuOpen || this.profileOpen || currentY < 80) {
-                this.visible = true
-                this.lastY = currentY
-                return
-            }
-
-            const distance = currentY - this.lastY
-            if (Math.abs(distance) < this.scrollThreshold) return
-
-            this.visible = distance < 0
-            this.lastY = currentY
         }
     }"
-    @scroll.window.throttle.100ms="handleScroll()"
     @keydown.escape.window="menuOpen = false; profileOpen = false"
-    :class="visible || menuOpen || profileOpen ? 'translate-y-0' : '-translate-y-full'"
-    class="sticky top-0 z-50 border-b border-clay bg-paper transition-transform duration-300 ease-out will-change-transform"
+    class="relative z-50 border-b border-clay bg-paper"
 >
     <div class="bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper">
         Produção artesanal em até 15 dias
@@ -92,7 +71,7 @@
             <div class="flex items-center justify-end gap-1">
                 @auth
                     <div class="relative" @click.outside="profileOpen = false">
-                        <button type="button" @click="profileOpen = ! profileOpen; visible = true" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
+                        <button type="button" @click="profileOpen = ! profileOpen" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
                             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                         </button>
                         <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2" role="menu">
@@ -122,7 +101,7 @@
     </nav>
 
     <nav class="flex h-20 items-center justify-between px-4 md:hidden" aria-label="Navegação principal">
-        <button type="button" @click="menuOpen = true; visible = true" class="grid size-11 place-items-center" aria-label="Abrir menu">
+        <button type="button" @click="menuOpen = true" class="grid size-11 place-items-center" aria-label="Abrir menu">
             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 10h22M5 16h22M5 22h22"/></svg>
         </button>
 
@@ -133,7 +112,7 @@
         <div class="flex items-center gap-1">
             @auth
                 <div class="relative" @click.outside="profileOpen = false">
-                    <button type="button" @click="profileOpen = ! profileOpen; visible = true" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
+                    <button type="button" @click="profileOpen = ! profileOpen" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
                         <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                     </button>
                     <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2" role="menu">
