@@ -21,9 +21,7 @@
     <section id="sobre" class="scroll-mt-24 border-y border-clay px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
         <div class="mx-auto grid max-w-[1280px] gap-10 lg:grid-cols-2 lg:items-center lg:gap-20">
             <div class="min-h-80 overflow-hidden bg-clay sm:min-h-[500px]">
-                @if ($heroProduct?->image_url)
-                    <img src="{{ $heroProduct->image_url }}" alt="Peça artesanal {{ $heroProduct->name }}" class="size-full object-cover">
-                @endif
+                <img src="{{ asset('images/home-artesoes.png') }}" alt="Artesãos produzindo peças de madeira feitas à mão" class="size-full object-cover">
             </div>
             <div><h2 class="font-serif text-5xl leading-[1.02] tracking-[-.04em] sm:text-6xl">Sobre nós</h2><p class="mt-7 max-w-xl text-lg leading-8 text-ink/65">A Casa das Casinhas reúne peças de madeira feitas à mão por artesãos. Cada casinha é montada e pintada individualmente, por isso nenhuma é idêntica à outra.</p></div>
         </div>
