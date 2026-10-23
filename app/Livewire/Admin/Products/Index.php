@@ -22,6 +22,8 @@ class Index extends Component
 
     public ?int $editingId = null;
 
+    public bool $productModal = false;
+
     public string $name = '';
 
     public string $description = '';
@@ -52,6 +54,12 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function openCreate(): void
+    {
+        $this->resetForm();
+        $this->productModal = true;
+    }
+
     public function edit(Product $product): void
     {
         $this->authorize('update', $product);
@@ -67,7 +75,7 @@ class Index extends Component
         $this->is_active = $product->is_active;
         $this->image = null;
         $this->resetValidation();
-        $this->toast()->info('Produto carregado', 'Faça as alterações e salve quando terminar.')->send();
+        $this->productModal = true;
     }
 
     public function save(): void
@@ -101,7 +109,8 @@ class Index extends Component
         $product->fill($validated)->save();
 
         $message = $this->editingId ? 'Produto atualizado.' : 'Produto cadastrado.';
-        $this->cancelEdit(false);
+        $this->resetForm();
+        $this->productModal = false;
         $this->toast()->success('Alterações salvas', $message)->send();
     }
 
@@ -123,7 +132,13 @@ class Index extends Component
         $this->toast()->info('Produto removido', "{$name} saiu do catálogo.")->send();
     }
 
-    public function cancelEdit(bool $notify = true): void
+    public function cancelEdit(): void
+    {
+        $this->resetForm();
+        $this->productModal = false;
+    }
+
+    private function resetForm(): void
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'weight_kg', 'height_cm',
@@ -132,10 +147,6 @@ class Index extends Component
         $this->production_days = 1;
         $this->is_active = true;
         $this->resetValidation();
-
-        if ($notify) {
-            $this->toast()->info('Formulário limpo', 'Você pode cadastrar um novo produto.')->send();
-        }
     }
 
     public function render()
