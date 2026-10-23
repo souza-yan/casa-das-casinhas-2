@@ -35,13 +35,13 @@
         }
     }"
     @keydown.escape.window="menuOpen = false; profileOpen = false"
-    class="relative z-50 border-b border-clay bg-paper"
+    class="relative z-50 border-b border-paper/15 bg-ink text-paper"
 >
-    <div class="bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper">
+    <div class="border-b border-paper/15 bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper/75">
         Produção artesanal em até 15 dias
     </div>
 
-    <div class="hidden h-20 items-center justify-center border-b border-clay md:flex">
+    <div class="hidden h-20 items-center justify-center border-b border-paper/15 md:flex">
         <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-.04em]" aria-label="Ir para a página inicial">
             Casa das Casinhas
         </a>
@@ -63,7 +63,7 @@
                         href="{{ $sectionUrl($item['section']) }}"
                         @click="activeSection = '{{ $item['section'] }}'"
                         class="border-b py-1 text-sm font-medium transition-colors"
-                        :class="activeSection === '{{ $item['section'] }}' ? 'border-ink' : 'border-transparent hover:border-clay'"
+                        :class="activeSection === '{{ $item['section'] }}' ? 'border-paper' : 'border-transparent hover:border-paper/50'"
                         :aria-current="activeSection === '{{ $item['section'] }}' ? 'page' : null"
                     >{{ $item['label'] }}</a>
                 @endforeach
@@ -74,7 +74,7 @@
                         <button type="button" @click="profileOpen = ! profileOpen" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
                             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                         </button>
-                        <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2" role="menu">
+                        <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2 text-ink" role="menu">
                             <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">Perfil</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -115,7 +115,7 @@
                     <button type="button" @click="profileOpen = ! profileOpen" class="grid size-11 place-items-center" aria-label="Abrir menu do perfil" :aria-expanded="profileOpen">
                         <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                     </button>
-                    <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2" role="menu">
+                    <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2 text-ink" role="menu">
                         <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">Perfil</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -140,8 +140,8 @@
         </div>
     </nav>
 
-    <div x-show="menuOpen" x-cloak x-transition.opacity class="fixed inset-0 z-[60] min-h-screen bg-paper px-6 py-5 md:hidden">
-        <div class="flex items-center justify-between border-b border-clay pb-5">
+    <div x-show="menuOpen" x-cloak x-transition.opacity class="fixed inset-0 z-[60] min-h-screen bg-ink px-6 py-5 text-paper md:hidden">
+        <div class="flex items-center justify-between border-b border-paper/20 pb-5">
             <a href="{{ route('home') }}" class="font-serif text-xl tracking-[-.04em]" aria-label="Ir para a página inicial">
                 Casa das Casinhas
             </a>
@@ -154,7 +154,7 @@
                 <a
                     href="{{ $sectionUrl($item['section']) }}"
                     @click="menuOpen = false; activeSection = '{{ $item['section'] }}'"
-                    class="border-b border-clay py-4"
+                    class="border-b border-paper/20 py-4"
                 >{{ $item['label'] }}</a>
             @endforeach
         </div>
