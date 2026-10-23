@@ -62,15 +62,11 @@
         Produção artesanal em até 15 dias
     </div>
 
-    <div class="hidden h-24 items-center justify-center md:flex">
-        <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-.04em]" aria-label="Ir para a página inicial">
-            Casa das Casinhas
-        </a>
-    </div>
-
-    <nav class="hidden border-t border-clay md:block" aria-label="Navegação principal">
+    <nav class="hidden md:block" aria-label="Navegação principal">
         <div class="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8 lg:px-12">
-            <div aria-hidden="true"></div>
+            <a href="{{ route('home') }}" class="justify-self-start font-serif text-xl tracking-[-.04em] lg:text-2xl" aria-label="Ir para a página inicial">
+                Casa das Casinhas
+            </a>
             <div class="flex items-center justify-center gap-8 lg:gap-11">
                 @foreach ($navigation as $item)
                     <a
