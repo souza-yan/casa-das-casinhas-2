@@ -15,7 +15,7 @@
         <div class="mt-3 flex items-center justify-between gap-3">
             <strong class="text-base">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</strong>
             @if ($interactive)
-                <button wire:click="add({{ $product->id }})" wire:loading.attr="disabled" class="grid size-9 place-items-center border border-ink bg-ink text-paper transition hover:bg-paper hover:text-ink disabled:opacity-50" aria-label="Adicionar {{ $product->name }} ao carrinho">
+                <button wire:click="add({{ $product->id }})" wire:loading.attr="disabled" class="grid size-9 place-items-center border border-clay bg-ink text-paper transition hover:bg-paper hover:text-ink disabled:opacity-50" aria-label="Adicionar {{ $product->name }} ao carrinho">
                     <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 7H6"/><path d="M12 9v5M9.5 11.5h5"/></svg>
                 </button>
             @else
