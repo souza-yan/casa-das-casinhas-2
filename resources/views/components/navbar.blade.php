@@ -62,11 +62,22 @@
         Produção artesanal em até 15 dias
     </div>
 
+    <div class="hidden h-20 items-center justify-center border-b border-clay md:flex">
+        <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-.04em]" aria-label="Ir para a página inicial">
+            Casa das Casinhas
+        </a>
+    </div>
+
     <nav class="hidden md:block" aria-label="Navegação principal">
         <div class="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8 lg:px-12">
-            <a href="{{ route('home') }}" class="justify-self-start font-serif text-xl tracking-[-.04em] lg:text-2xl" aria-label="Ir para a página inicial">
-                Casa das Casinhas
-            </a>
+            <div class="flex items-center gap-1">
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="grid size-11 place-items-center" aria-label="Instagram">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg>
+                </a>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="grid size-11 place-items-center" aria-label="Facebook">
+                    <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 8h3V4h-3c-3.1 0-5 2.1-5 5.2V12H6v4h3v5h4v-5h3l1-4h-4V9.5c0-.9.3-1.5 1-1.5Z"/></svg>
+                </a>
+            </div>
             <div class="flex items-center justify-center gap-8 lg:gap-11">
                 @foreach ($navigation as $item)
                     <a
