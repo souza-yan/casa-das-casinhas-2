@@ -26,6 +26,19 @@ class FrontendAccessTest extends TestCase
         $this->get(route('orders.index'))->assertRedirect(route('login'));
     }
 
+    public function test_customer_profile_shows_account_and_recent_orders(): void
+    {
+        $customer = User::factory()->create(['name' => 'Maria Cliente']);
+        $order = $this->createOrderFor($customer, Product::factory()->create());
+
+        $this->actingAs($customer)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Maria Cliente')
+            ->assertSee('Pedido')
+            ->assertSee('#'.$order->id);
+    }
+
     public function test_customer_cannot_access_admin_order_details(): void
     {
         $customer = User::factory()->create();

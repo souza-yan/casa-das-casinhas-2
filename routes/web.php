@@ -37,11 +37,16 @@ Route::middleware(['auth', 'customer-area'])->group(function (): void {
 });
 
 Route::get('/dashboard', function () {
-    if (auth()->user()->role === Role::ADMIN) {
+    $user = auth()->user();
+
+    if ($user->role === Role::ADMIN) {
         return redirect()->route('admin.dashboard');
     }
 
-    return view('dashboard');
+    return view('dashboard', [
+        'ordersCount' => $user->orders()->count(),
+        'latestOrders' => $user->orders()->latest()->take(3)->get(),
+    ]);
 })->middleware('auth')->name('dashboard');
 
 Route::get('/admin', fn () => view('admin.dashboard', ['indicators' => [

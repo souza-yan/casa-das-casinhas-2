@@ -15,14 +15,14 @@ class AuthenticationTest extends TestCase
         $this->get('/login')->assertOk()->assertSee('Entre na sua conta');
     }
 
-    public function test_customer_can_authenticate_and_is_redirected_to_customer_dashboard(): void
+    public function test_customer_can_authenticate_and_is_redirected_to_home(): void
     {
         $user = User::factory()->create();
 
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
-        ])->assertRedirect('/dashboard');
+        ])->assertRedirect('/');
 
         $this->assertAuthenticatedAs($user);
     }
