@@ -11,7 +11,7 @@
     $initialSection = $isHome ? 'inicio' : (request()->routeIs('store', 'products.*') ? 'produtos' : '');
 @endphp
 
-<header
+<div
     x-data="{
         menuOpen: false,
         profileOpen: false,
@@ -35,18 +35,19 @@
         }
     }"
     @keydown.escape.window="menuOpen = false; profileOpen = false"
-    class="relative z-50 border-b border-paper/15 bg-ink text-paper"
+    class="contents"
 >
     <div class="border-b border-paper/15 bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper/75">
         Produção artesanal em até 15 dias
     </div>
 
-    <div class="hidden h-20 items-center justify-center border-b border-paper/15 md:flex">
+    <div class="sticky top-0 z-50 flex h-16 items-center justify-center border-b border-clay bg-paper text-ink md:h-20">
         <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-.04em]" aria-label="Ir para a página inicial">
             Casa das Casinhas
         </a>
     </div>
 
+    <header class="relative z-40 border-b border-paper/15 bg-ink text-paper">
     <nav class="hidden md:block" aria-label="Navegação principal">
         <div class="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center px-8 lg:px-12">
             <div class="flex items-center gap-1">
@@ -105,10 +106,6 @@
             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 10h22M5 16h22M5 22h22"/></svg>
         </button>
 
-        <a href="{{ route('home') }}" class="font-serif text-lg tracking-[-.04em]" aria-label="Ir para a página inicial">
-            Casa das Casinhas
-        </a>
-
         <div class="flex items-center gap-1">
             @auth
                 <div class="relative" @click.outside="profileOpen = false">
@@ -159,4 +156,5 @@
             @endforeach
         </div>
     </div>
-</header>
+    </header>
+</div>
