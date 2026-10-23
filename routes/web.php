@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\OrderStatus;
-use App\Enums\Role;
 use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Orders\Index as AdminOrdersIndex;
@@ -13,6 +12,7 @@ use App\Livewire\Orders\Index as OrdersIndex;
 use App\Livewire\Orders\Payment as OrderPayment;
 use App\Livewire\Orders\Show as OrderShow;
 use App\Livewire\ProductDetail;
+use App\Livewire\Profile;
 use App\Livewire\Store;
 use App\Models\Order;
 use App\Models\Product;
@@ -36,18 +36,9 @@ Route::middleware(['auth', 'customer-area'])->group(function (): void {
     Route::get('/pedidos/{order}/pagamento', OrderPayment::class)->name('orders.payment');
 });
 
-Route::get('/dashboard', function () {
-    $user = auth()->user();
-
-    if ($user->role === Role::ADMIN) {
-        return redirect()->route('admin.dashboard');
-    }
-
-    return view('dashboard', [
-        'ordersCount' => $user->orders()->count(),
-        'latestOrders' => $user->orders()->latest()->take(3)->get(),
-    ]);
-})->middleware('auth')->name('dashboard');
+Route::get('/dashboard', Profile::class)
+    ->middleware(['auth', 'customer-area'])
+    ->name('dashboard');
 
 Route::get('/admin', fn () => view('admin.dashboard', ['indicators' => [
     'products' => Product::where('is_active', true)->count(),

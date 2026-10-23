@@ -9,6 +9,7 @@ use App\Livewire\Cart;
 use App\Livewire\Checkout;
 use App\Livewire\Orders\Payment;
 use App\Livewire\ProductDetail;
+use App\Livewire\Profile;
 use App\Livewire\Store;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,6 +31,7 @@ class LivewireInteractionsTest extends TestCase
             [Cart::class],
             [Checkout::class],
             [Payment::class],
+            [Profile::class],
             [AdminProducts::class],
             [AdminOrders::class],
             [AdminOrder::class],
