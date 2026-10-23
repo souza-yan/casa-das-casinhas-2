@@ -27,7 +27,6 @@
         </button>
         <a href="{{ route('home') }}" class="group leading-none">
             <span class="block font-serif text-xl tracking-[-.04em] lg:text-2xl">Casa das Casinhas</span>
-            <span class="mt-1 block text-center text-sm font-semibold uppercase tracking-[.34em] text-ink/55">arte em madeira</span>
         </a>
         <div class="hidden items-center gap-9 text-sm font-medium uppercase tracking-[.12em] md:flex">
             <a href="{{ route('home') }}" class="transition hover:text-clay">Início</a>
