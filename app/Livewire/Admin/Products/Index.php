@@ -30,15 +30,11 @@ class Index extends Component
 
     public string $price = '';
 
-    public string $weight_kg = '';
-
     public string $height_cm = '';
 
     public string $width_cm = '';
 
     public string $length_cm = '';
-
-    public int|string $production_days = 1;
 
     public bool $is_active = true;
 
@@ -67,11 +63,9 @@ class Index extends Component
         $this->name = $product->name;
         $this->description = $product->description;
         $this->price = $product->price;
-        $this->weight_kg = $product->weight_kg;
         $this->height_cm = $product->height_cm;
         $this->width_cm = $product->width_cm;
         $this->length_cm = $product->length_cm;
-        $this->production_days = $product->production_days;
         $this->is_active = $product->is_active;
         $this->image = null;
         $this->resetValidation();
@@ -87,11 +81,9 @@ class Index extends Component
             'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
             'price' => ['required', 'numeric', 'min:0.01', 'max:9999999999.99'],
-            'weight_kg' => ['required', 'numeric', 'min:0.001', 'max:99999.999'],
             'height_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
-            'production_days' => ['required', 'integer', 'min:1', 'max:365'],
             'is_active' => ['boolean'],
             'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'max:4096'],
         ]);
@@ -105,6 +97,8 @@ class Index extends Component
         }
 
         unset($validated['image']);
+        $validated['weight_kg'] = $product->exists ? $product->weight_kg : Product::DEFAULT_WEIGHT_KG;
+        $validated['production_days'] = Product::PRODUCTION_DAYS;
         $validated['slug'] = $this->uniqueSlug($this->name, $product);
         $product->fill($validated)->save();
 
@@ -141,10 +135,9 @@ class Index extends Component
     private function resetForm(): void
     {
         $this->reset([
-            'editingId', 'name', 'description', 'price', 'weight_kg', 'height_cm',
-            'width_cm', 'length_cm', 'production_days', 'is_active', 'image',
+            'editingId', 'name', 'description', 'price', 'height_cm',
+            'width_cm', 'length_cm', 'is_active', 'image',
         ]);
-        $this->production_days = 1;
         $this->is_active = true;
         $this->resetValidation();
     }

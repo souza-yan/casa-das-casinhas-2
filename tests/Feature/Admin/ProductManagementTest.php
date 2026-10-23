@@ -31,11 +31,9 @@ class ProductManagementTest extends TestCase
             ->set('name', 'Casinha Azul')
             ->set('description', 'Peça artesanal produzida sob demanda.')
             ->set('price', '129.90')
-            ->set('weight_kg', '0.750')
             ->set('height_cm', '20')
             ->set('width_cm', '15')
             ->set('length_cm', '12')
-            ->set('production_days', 10)
             ->set('image', UploadedFile::fake()->image('casinha.jpg'))
             ->call('save')
             ->assertHasNoErrors();
@@ -43,6 +41,8 @@ class ProductManagementTest extends TestCase
         $product = Product::query()->sole();
         $this->assertSame('casinha-azul', $product->slug);
         $this->assertSame('129.90', $product->price);
+        $this->assertSame('1.000', $product->weight_kg);
+        $this->assertSame(Product::PRODUCTION_DAYS, $product->production_days);
         Storage::disk('public')->assertExists($product->image_path);
     }
 
@@ -53,17 +53,15 @@ class ProductManagementTest extends TestCase
         Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)
             ->set('name', '')
             ->set('price', '-1')
-            ->set('weight_kg', '0')
-            ->set('production_days', 0)
             ->set('image', UploadedFile::fake()->create('produto.pdf', 50, 'application/pdf'))
             ->call('save')
-            ->assertHasErrors(['name', 'description', 'price', 'weight_kg', 'height_cm', 'width_cm', 'length_cm', 'production_days', 'image']);
+            ->assertHasErrors(['name', 'description', 'price', 'height_cm', 'width_cm', 'length_cm', 'image']);
     }
 
     public function test_admin_can_update_toggle_and_soft_delete_product(): void
     {
         $admin = User::factory()->admin()->create();
-        $product = Product::factory()->create(['name' => 'Original']);
+        $product = Product::factory()->create(['name' => 'Original', 'weight_kg' => 2.5, 'production_days' => 8]);
 
         Livewire::actingAs($admin)->test(Index::class)
             ->call('edit', $product->id)
@@ -75,6 +73,8 @@ class ProductManagementTest extends TestCase
 
         $this->assertSoftDeleted($product);
         $this->assertFalse(Product::withTrashed()->findOrFail($product->id)->is_active);
+        $this->assertSame('2.500', Product::withTrashed()->findOrFail($product->id)->weight_kg);
+        $this->assertSame(Product::PRODUCTION_DAYS, Product::withTrashed()->findOrFail($product->id)->production_days);
     }
 
     public function test_products_can_be_searched_by_name(): void

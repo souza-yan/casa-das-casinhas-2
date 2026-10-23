@@ -23,7 +23,7 @@ class ProductFactory extends Factory
             'height_cm' => fake()->randomFloat(2, 2, 100),
             'width_cm' => fake()->randomFloat(2, 2, 100),
             'length_cm' => fake()->randomFloat(2, 2, 100),
-            'production_days' => fake()->numberBetween(1, 30),
+            'production_days' => Product::PRODUCTION_DAYS,
             'is_active' => true,
         ];
     }

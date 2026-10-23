@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,6 +13,10 @@ class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
     use HasFactory, SoftDeletes;
+
+    public const DEFAULT_WEIGHT_KG = 1.000;
+
+    public const PRODUCTION_DAYS = 15;
 
     protected $fillable = [
         'name',
@@ -38,6 +43,14 @@ class Product extends Model
             'production_days' => 'integer',
             'is_active' => 'boolean',
         ];
+    }
+
+    protected function productionDays(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): int => self::PRODUCTION_DAYS,
+            set: fn (): int => self::PRODUCTION_DAYS,
+        );
     }
 
     public function getImageUrlAttribute(): ?string
