@@ -10,29 +10,38 @@
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Marcellus', ui-serif, Georgia, serif;
-    --color-ink: #1a1315;
-    --color-bark: #1a1315;
-    --color-clay: #176f8e;
-    --color-sand: #ded8ce;
-    --color-cream: #f3f1ed;
-    --color-paper: #ffffff;
+    --color-paper: #F6F1E9;
+    --color-ink: #1E1A16;
+    --color-clay: #DCCDB6;
+    --color-terracotta: #B4532E;
+    --color-moss: #4E5B3B;
+    --color-bark: var(--color-ink);
+    --color-sand: var(--color-clay);
+    --color-cream: var(--color-paper);
 }
 
 [x-cloak] { display: none !important; }
 
-html { scroll-behavior: smooth; }
-body { text-rendering: optimizeLegibility; }
-::selection { background: #b9dce8; color: #1a1315; }
+html { scroll-behavior: smooth; font-size: 18px; }
+body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    letter-spacing: -.01em;
+    text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4, h5, h6 { font-family: var(--font-serif); }
+::selection { background: var(--color-clay); color: var(--color-ink); }
 button, a { -webkit-tap-highlight-color: transparent; }
-body { letter-spacing: -.01em; }
 
 .editorial-button {
     display: inline-flex;
     min-height: 3rem;
     align-items: center;
     justify-content: center;
-    border: 1px solid #1a1315;
-    background: #1a1315;
+    border: 1px solid var(--color-ink);
+    background: var(--color-ink);
     padding: .75rem 1.5rem;
     color: white;
     font-size: .75rem;
@@ -41,9 +50,9 @@ body { letter-spacing: -.01em; }
     text-transform: uppercase;
     transition: background-color .25s, color .25s;
 }
-.editorial-button:hover { background: transparent; color: #1a1315; }
+.editorial-button:hover { background: transparent; color: var(--color-ink); }
 .editorial-link { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
-.admin-shell .text-blue-700 { color: #176f8e; }
+.admin-shell .text-blue-700 { color: var(--color-terracotta); }
 
 [x-data^='tallstackui_toastBase'] { z-index: 100 !important; }
 
