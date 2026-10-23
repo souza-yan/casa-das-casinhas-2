@@ -9,7 +9,7 @@
 @endphp
 
 <section
-    class="mx-auto w-full max-w-5xl"
+    class="mx-auto w-full max-w-4xl"
     aria-label="As mais pedidas"
     aria-roledescription="carousel"
     aria-live="off"
@@ -48,7 +48,7 @@
         cardStyle(index) {
             const position = this.position(index)
             const offset = this.total === 3
-                ? (this.desktop ? 92 : 58)
+                ? (this.desktop ? 105 : 58)
                 : (this.desktop ? 105 : 75)
             const scale = this.total === 3 && position === 0 ? 1 : (this.total === 3 ? .8 : .9)
             const opacity = this.total === 3 && position !== 0 ? .6 : 1
@@ -80,11 +80,11 @@
     <h2 class="font-serif text-4xl tracking-[-.04em] sm:text-5xl">As mais pedidas</h2>
 
     @if ($slides->isNotEmpty())
-        <div class="relative mt-8 h-[420px] w-full overflow-visible sm:mt-10 md:h-[480px]">
+        <div class="relative mt-8 h-[320px] w-full overflow-visible sm:mt-10 md:h-[400px]">
             @foreach ($slides as $product)
                 <a
                     href="{{ route('products.show', $product) }}"
-                    class="absolute w-[60%] rounded-sm border border-clay bg-paper transition-[transform,opacity] duration-700 ease-in-out motion-reduce:transition-none md:w-[34%]"
+                    class="absolute w-[52%] rounded-sm border border-clay bg-paper transition-[transform,opacity] duration-700 ease-in-out motion-reduce:transition-none md:w-[28%]"
                     :style="cardStyle({{ $loop->index }})"
                     @click="select({{ $loop->index }}, $event)"
                     :aria-current="active === {{ $loop->index }} ? 'true' : 'false'"
