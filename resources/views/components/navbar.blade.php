@@ -3,7 +3,7 @@
     $sectionUrl = fn (string $section) => request()->routeIs('home') ? "#{$section}" : route('home')."#{$section}";
     $navigation = [
         ['label' => 'Início', 'section' => 'inicio'],
-        ['label' => 'Produtos', 'section' => 'produtos'],
+        ['label' => 'Produtos', 'href' => route('store')],
         ['label' => 'Sobre nós', 'section' => 'sobre'],
         ['label' => 'Como produzimos', 'section' => 'como-produzimos'],
     ];
@@ -47,7 +47,7 @@
 
         <div class="hidden items-center justify-center gap-7 text-sm font-medium md:flex lg:gap-10">
             @foreach ($navigation as $item)
-                <a href="{{ $sectionUrl($item['section']) }}" class="transition hover:text-terracotta">{{ $item['label'] }}</a>
+                <a href="{{ $item['href'] ?? $sectionUrl($item['section']) }}" class="transition hover:text-terracotta">{{ $item['label'] }}</a>
             @endforeach
         </div>
 
@@ -91,7 +91,7 @@
         </div>
         <div class="grid py-8 font-serif text-4xl">
             @foreach ($navigation as $item)
-                <a href="{{ $sectionUrl($item['section']) }}" @click="menuOpen = false" class="border-b border-clay py-4">{{ $item['label'] }}</a>
+                <a href="{{ $item['href'] ?? $sectionUrl($item['section']) }}" @click="menuOpen = false" class="border-b border-clay py-4">{{ $item['label'] }}</a>
             @endforeach
         </div>
     </div>
