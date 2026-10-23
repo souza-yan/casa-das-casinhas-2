@@ -9,7 +9,18 @@
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-    --font-serif: 'Lora', ui-serif, Georgia, serif;
+    --font-serif: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    --color-ink: #2c1b12;
+    --color-bark: #4b2b18;
+    --color-clay: #9b5d36;
+    --color-sand: #e9dccb;
+    --color-cream: #f7f1e8;
+    --color-paper: #fffdf8;
 }
 
 [x-cloak] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+body { text-rendering: optimizeLegibility; }
+::selection { background: #d8b995; color: #2c1b12; }
+button, a { -webkit-tap-highlight-color: transparent; }

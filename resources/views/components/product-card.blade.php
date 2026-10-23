@@ -1,2 +1,26 @@
 @props(['product', 'interactive' => true])
-<article class="group min-w-0"><a href="{{ route('products.show', $product) }}" class="relative block aspect-[1.18] overflow-hidden bg-[#e8ded1]">@if($product->image_path)<img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="size-full object-cover transition duration-500 group-hover:scale-[1.03]">@else<div class="grid size-full place-items-center text-[#6b3b20]">Feito à mão</div>@endif<span class="absolute left-3 top-3 bg-[#fffdf8] px-2 py-1 text-[10px] font-semibold uppercase tracking-[.12em]">Feito à mão</span></a><div class="pt-4"><div class="flex justify-between gap-3"><div class="min-w-0"><h2 class="truncate font-semibold">{{ $product->name }}</h2><p class="mt-1 truncate text-sm text-[#2a1b13]/55">Painel artesanal em madeira MDF</p></div><strong class="shrink-0">R$ {{ number_format((float)$product->price,2,',','.') }}</strong></div>@if($interactive)<button wire:click="add({{ $product->id }})" wire:loading.attr="disabled" class="mt-4 w-full border border-[#4a2a16]/25 py-2.5 text-sm font-semibold uppercase tracking-[.1em] transition hover:bg-[#4a2a16] hover:text-white disabled:opacity-50">Adicionar +</button>@else<a href="{{ route('products.show',$product) }}" class="mt-4 block w-full border border-[#4a2a16]/25 py-2.5 text-center text-sm font-semibold uppercase tracking-[.1em] transition hover:bg-[#4a2a16] hover:text-white">Ver produto</a>@endif</div></article>
+
+<article class="group min-w-0">
+    <a href="{{ route('products.show', $product) }}" class="relative block aspect-[4/3] overflow-hidden rounded-[3px] bg-sand">
+        @if ($product->image_path)
+            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="size-full object-cover transition duration-700 ease-out group-hover:scale-[1.025]">
+        @else
+            <div class="grid size-full place-items-center font-serif text-2xl text-bark">Feito à mão</div>
+        @endif
+        <span class="absolute left-3 top-3 rounded-full bg-paper/95 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[.14em] shadow-sm">Sob encomenda</span>
+    </a>
+    <div class="pt-4">
+        <a href="{{ route('products.show', $product) }}" class="font-serif text-[1.45rem] font-semibold leading-none transition group-hover:text-clay">{{ $product->name }}</a>
+        <p class="mt-1.5 text-xs text-ink/50">Painel artesanal em madeira MDF</p>
+        <div class="mt-3 flex items-center justify-between gap-3">
+            <strong class="text-sm">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</strong>
+            @if ($interactive)
+                <button wire:click="add({{ $product->id }})" wire:loading.attr="disabled" class="grid size-9 place-items-center rounded-full bg-bark text-white transition hover:bg-clay disabled:opacity-50" aria-label="Adicionar {{ $product->name }} ao carrinho">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 7H6"/><path d="M12 9v5M9.5 11.5h5"/></svg>
+                </button>
+            @else
+                <span class="text-xs font-semibold uppercase tracking-[.12em] text-bark">Ver peça →</span>
+            @endif
+        </div>
+    </div>
+</article>
