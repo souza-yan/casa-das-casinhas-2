@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#2c1b12">
     <title>{{ $title ?? 'Administração — Casa das Casinhas' }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <tallstackui:script />
-    @livewireStyles
+    <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=cormorant-garamond:500,600,700|instrument-sans:400,500,600" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])<tallstackui:script />@livewireStyles
 </head>
-<body class="min-h-screen bg-stone-50 font-sans text-stone-900 antialiased">
-    <div class="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
-        <x-admin-sidebar />
-        <main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main>
-    </div>
+<body class="min-h-screen bg-[#f3efe9] font-sans text-ink antialiased">
+    <div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]"><x-admin-sidebar /><main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main></div>
     @livewireScripts
 </body>
 </html>
