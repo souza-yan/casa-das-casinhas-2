@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])<tallstackui:script />@livewireStyles
 </head>
 <body class="min-h-screen bg-[#f3efe9] font-sans text-ink antialiased">
+    <x-toast />
     <div class="min-h-screen lg:grid lg:grid-cols-[260px_1fr]"><x-admin-sidebar /><main class="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{{ $slot }}</main></div>
     @livewireScripts
 </body>

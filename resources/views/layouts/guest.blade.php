@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])<tallstackui:script />@livewireStyles
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased">
+    <x-toast />
     <main class="grid min-h-screen lg:grid-cols-[.92fr_1.08fr]">
         <section class="relative hidden min-h-screen overflow-hidden bg-bark text-white lg:block">
             <img src="{{ asset('images/products/casas-da-vila.png') }}" alt="Painel artesanal Casas da Vila" class="absolute inset-0 size-full object-cover opacity-70">

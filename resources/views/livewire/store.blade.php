@@ -5,7 +5,6 @@
     </header>
 
     <div class="mx-auto max-w-[1320px] px-5 py-12 sm:px-8 lg:py-16">
-        @if (session('status'))<div class="mb-8 border border-emerald-800/15 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{{ session('status') }}</div>@endif
         <div class="flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
             <label class="relative block w-full sm:max-w-sm"><span class="mb-2 block text-[10px] font-semibold uppercase tracking-[.18em] text-ink/45">Buscar</span><svg class="absolute bottom-3 left-0 size-4 text-ink/40" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input wire:model.live.debounce.300ms="search" type="search" placeholder="Nome da peça..." class="w-full border-0 border-b border-ink/20 bg-transparent py-2.5 pl-6 pr-2 text-sm focus:border-bark focus:ring-0"></label>
             <label class="block sm:w-52"><span class="mb-2 block text-[10px] font-semibold uppercase tracking-[.18em] text-ink/45">Ordenar por</span><select wire:model.live="sort" class="w-full border-0 border-b border-ink/20 bg-transparent py-2.5 pl-0 text-sm focus:border-bark focus:ring-0"><option value="latest">Mais recentes</option><option value="price_asc">Menor preço</option><option value="price_desc">Maior preço</option></select></label>

@@ -4,9 +4,6 @@
         <x-status-badge :status="$order->status" />
     </div>
 
-    @if(session('status'))<div class="mt-5 border border-green-200 bg-green-50 p-3 text-sm text-green-800">{{ session('status') }}</div>@endif
-    @if($integrationMessage)<div class="mt-5 border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">{{ $integrationMessage }}</div>@endif
-
     <div class="mt-8 grid gap-6 lg:grid-cols-2">
         <section class="border border-slate-200 bg-white p-5"><h2 class="text-lg font-semibold">Cliente e entrega</h2><dl class="mt-4 grid gap-2 text-sm"><div><dt class="text-slate-500">Cliente</dt><dd>{{ $order->customer_name }} — {{ $order->customer_email }}</dd></div><div><dt class="text-slate-500">Telefone</dt><dd>{{ $order->customer_phone }}</dd></div><div><dt class="text-slate-500">Endereço</dt><dd>{{ $order->address->street }}, {{ $order->address->number }}{{ $order->address->complement ? ' — '.$order->address->complement : '' }}<br>{{ $order->address->district }}, {{ $order->address->city }}/{{ $order->address->state }} — {{ $order->address->zip_code }}</dd></div></dl></section>
         <section class="border border-slate-200 bg-white p-5"><h2 class="text-lg font-semibold">Alterar produção</h2><select wire:change="transition($event.target.value)" class="mt-4 w-full border-slate-300"><option selected disabled>{{ $order->status->label() }}</option>@foreach(\App\Enums\OrderStatus::cases() as $status)@if($order->status->canTransitionTo($status))<option value="{{ $status->value }}">{{ $status->label() }}</option>@endif @endforeach</select><p class="mt-3 text-xs text-slate-500">Somente transições permitidas pela regra de negócio são exibidas.</p></section>

@@ -10,7 +10,6 @@
                 <p class="mt-2 text-xs text-ink/45">Produção em até {{ $product->production_days }} dias úteis</p>
                 <div class="my-7 h-px bg-ink/10"></div>
                 <p class="text-sm leading-7 text-ink/65">{{ $product->description }}</p>
-                @if (session('status'))<p class="mt-5 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">{{ session('status') }}</p>@endif
                 <div class="mt-8 grid grid-cols-[88px_1fr] gap-3"><label><span class="sr-only">Quantidade</span><input wire:model="quantity" type="number" min="1" max="99" class="h-13 w-full rounded-full border-ink/15 bg-paper text-center focus:border-bark focus:ring-bark"></label><button wire:click="add" wire:loading.attr="disabled" class="h-13 rounded-full bg-bark px-6 text-sm font-semibold text-white transition hover:bg-clay disabled:opacity-50">Adicionar ao carrinho</button></div>
                 <div class="mt-8 grid grid-cols-3 gap-3 border-t border-ink/10 pt-6 text-center"><div><strong class="block text-xs">Feito à mão</strong><span class="mt-1 block text-[10px] text-ink/45">peça única</span></div><div class="border-x border-ink/10"><strong class="block text-xs">MDF</strong><span class="mt-1 block text-[10px] text-ink/45">material resistente</span></div><div><strong class="block text-xs">Compra segura</strong><span class="mt-1 block text-[10px] text-ink/45">via Asaas</span></div></div>
             </div>

@@ -12,6 +12,7 @@
     @livewireStyles
 </head>
 <body class="min-h-screen bg-cream font-sans text-ink antialiased">
+    <x-toast />
     <x-navbar />
     <main>{{ $slot }}</main>
     <x-footer />

@@ -8,16 +8,18 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
+use TallStackUi\Traits\Interactions;
 
 #[Layout('layouts.admin')]
 class Index extends Component
 {
-    use AuthorizesRequests, WithPagination;
+    use AuthorizesRequests, Interactions, WithPagination;
 
     public function transition(Order $order, string $status): void
     {
         $this->authorize('view', $order);
         $order->transitionTo(OrderStatus::from($status));
+        $this->toast()->success('Status atualizado', "O pedido #{$order->id} avançou para {$order->status->label()}.")->send();
     }
 
     public function render()

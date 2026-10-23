@@ -11,11 +11,12 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use TallStackUi\Traits\Interactions;
 
 #[Layout('layouts.admin')]
 class Index extends Component
 {
-    use AuthorizesRequests, WithFileUploads, WithPagination;
+    use AuthorizesRequests, Interactions, WithFileUploads, WithPagination;
 
     public string $search = '';
 
@@ -66,6 +67,7 @@ class Index extends Component
         $this->is_active = $product->is_active;
         $this->image = null;
         $this->resetValidation();
+        $this->toast()->info('Produto carregado', 'Faça as alterações e salve quando terminar.')->send();
     }
 
     public function save(): void
@@ -98,24 +100,30 @@ class Index extends Component
         $validated['slug'] = $this->uniqueSlug($this->name, $product);
         $product->fill($validated)->save();
 
-        session()->flash('status', $this->editingId ? 'Produto atualizado.' : 'Produto cadastrado.');
-        $this->cancelEdit();
+        $message = $this->editingId ? 'Produto atualizado.' : 'Produto cadastrado.';
+        $this->cancelEdit(false);
+        $this->toast()->success('Alterações salvas', $message)->send();
     }
 
     public function toggleActive(Product $product): void
     {
         $this->authorize('update', $product);
         $product->update(['is_active' => ! $product->is_active]);
+        $this->toast()->success(
+            $product->is_active ? 'Produto ativado' : 'Produto desativado',
+            "O status de {$product->name} foi atualizado."
+        )->send();
     }
 
     public function delete(Product $product): void
     {
         $this->authorize('delete', $product);
+        $name = $product->name;
         $product->delete();
-        session()->flash('status', 'Produto removido do catálogo.');
+        $this->toast()->info('Produto removido', "{$name} saiu do catálogo.")->send();
     }
 
-    public function cancelEdit(): void
+    public function cancelEdit(bool $notify = true): void
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'weight_kg', 'height_cm',
@@ -124,6 +132,10 @@ class Index extends Component
         $this->production_days = 1;
         $this->is_active = true;
         $this->resetValidation();
+
+        if ($notify) {
+            $this->toast()->info('Formulário limpo', 'Você pode cadastrar um novo produto.')->send();
+        }
     }
 
     public function render()

@@ -8,12 +8,13 @@ use App\Models\Order;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use TallStackUi\Traits\Interactions;
 use Throwable;
 
 #[Layout('layouts.public')]
 class Payment extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, Interactions;
 
     public Order $order;
 
@@ -32,6 +33,7 @@ class Payment extends Component
 
         if (blank(config('services.asaas.token'))) {
             $this->message = 'Configure ASAAS_TOKEN para gerar a cobrança no Sandbox.';
+            $this->toast()->warning('Pagamento não configurado', $this->message)->send();
 
             return;
         }
@@ -42,14 +44,18 @@ class Payment extends Component
 
             if (blank($payment->payment_url)) {
                 $this->message = 'O Asaas Sandbox criou a cobrança, mas não retornou uma URL de pagamento.';
+                $this->toast()->warning('Cobrança sem link', $this->message)->send();
 
                 return;
             }
+
+            $this->toast()->info('Abrindo pagamento', 'Você será direcionado ao ambiente seguro do Asaas.')->send();
 
             return redirect()->away($payment->payment_url);
         } catch (Throwable $exception) {
             report($exception);
             $this->message = 'Não foi possível acessar o Asaas Sandbox. Consulte os logs e tente novamente.';
+            $this->toast()->error('Falha no pagamento', $this->message)->send();
         }
     }
 

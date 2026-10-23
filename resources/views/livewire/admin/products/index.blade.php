@@ -4,8 +4,6 @@
         <button type="button" wire:click="cancelEdit" class="rounded-full bg-bark px-5 py-3 text-sm font-semibold text-white">Novo produto</button>
     </header>
 
-    @if (session('status'))<div class="mt-6 border border-green-200 bg-green-50 p-3 text-sm text-green-800">{{ session('status') }}</div>@endif
-
     <div class="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
         <section>
             <label class="mb-5 block"><span class="sr-only">Pesquisar produtos</span><input wire:model.live.debounce.300ms="search" type="search" placeholder="Pesquisar por nome..." class="h-11 w-full border border-stone-300 bg-white px-4 text-sm sm:max-w-sm"></label>

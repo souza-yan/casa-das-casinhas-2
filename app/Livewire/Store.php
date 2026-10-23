@@ -7,11 +7,12 @@ use App\Services\CartService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
+use TallStackUi\Traits\Interactions;
 
 #[Layout('layouts.public')]
 class Store extends Component
 {
-    use WithPagination;
+    use Interactions, WithPagination;
 
     public string $search = '';
 
@@ -26,7 +27,7 @@ class Store extends Component
     {
         $cart->add($product);
         $this->dispatch('cart-updated');
-        session()->flash('status', 'Produto adicionado ao carrinho.');
+        $this->toast()->success('Produto adicionado', "{$product->name} já está no seu carrinho.")->send();
     }
 
     public function render()

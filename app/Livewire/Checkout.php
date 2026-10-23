@@ -9,11 +9,14 @@ use App\Services\CartService;
 use App\Services\Shipping\MelhorEnvioService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use TallStackUi\Traits\Interactions;
 use Throwable;
 
 #[Layout('layouts.public')]
 class Checkout extends Component
 {
+    use Interactions;
+
     public string $phone = '';
 
     public string $zip_code = '';
@@ -47,6 +50,7 @@ class Checkout extends Component
 
         if (blank(config('services.melhor_envio.token')) || blank(config('services.melhor_envio.origin_zip_code'))) {
             $this->error = 'O Melhor Envio Sandbox ainda não está configurado. Configure as credenciais para calcular o frete.';
+            $this->toast()->warning('Frete indisponível', $this->error)->send();
 
             return;
         }
@@ -54,9 +58,11 @@ class Checkout extends Component
         try {
             $this->shippingOptions = $shipping->quote($this->zip_code, $cart->items());
             $this->error = null;
+            $this->toast()->success('Frete calculado', 'Escolha uma das opções de entrega disponíveis.')->send();
         } catch (Throwable $e) {
             report($e);
             $this->error = 'Não foi possível consultar o Melhor Envio Sandbox agora.';
+            $this->toast()->error('Erro ao calcular o frete', $this->error)->send();
         }
     }
 
@@ -66,6 +72,7 @@ class Checkout extends Component
         $option = collect($this->shippingOptions)->firstWhere('id', $this->shippingId);
         if (! $option) {
             $this->addError('shippingId', 'Selecione um frete válido.');
+            $this->toast()->warning('Escolha uma entrega', 'Selecione uma opção de frete antes de finalizar.')->send();
 
             return;
         }
@@ -76,18 +83,19 @@ class Checkout extends Component
 
         try {
             $createPayment->execute($order);
+            $this->toast()->success('Pedido criado', 'Continue no ambiente seguro do Asaas para pagar.')->flash()->send();
 
-            return redirect()->route('orders.payment', $order)->with([
-                'status' => 'Pedido criado. Continue no ambiente seguro do Asaas Sandbox.',
-            ]);
+            return redirect()->route('orders.payment', $order);
         } catch (Throwable $exception) {
             report($exception);
 
-            return redirect()->route('orders.payment', $order)->with('warning',
-                blank(config('services.asaas.token'))
-                    ? 'Pedido criado, mas o Asaas Sandbox ainda não está configurado. Você poderá gerar a cobrança nesta página depois da configuração.'
-                    : 'Pedido criado, mas não foi possível gerar a cobrança no Asaas Sandbox. Tente novamente na página do pedido.'
-            );
+            $warning = blank(config('services.asaas.token'))
+                ? 'Pedido criado, mas o Asaas Sandbox ainda não está configurado. Você poderá gerar a cobrança nesta página depois da configuração.'
+                : 'Pedido criado, mas não foi possível gerar a cobrança no Asaas Sandbox. Tente novamente na página do pedido.';
+
+            $this->toast()->warning('Pedido criado sem cobrança', $warning)->flash()->send();
+
+            return redirect()->route('orders.payment', $order);
         }
     }
 

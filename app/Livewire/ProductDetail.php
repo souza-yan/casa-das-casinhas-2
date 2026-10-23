@@ -6,10 +6,13 @@ use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use TallStackUi\Traits\Interactions;
 
 #[Layout('layouts.public')]
 class ProductDetail extends Component
 {
+    use Interactions;
+
     public Product $product;
 
     public int $quantity = 1;
@@ -24,7 +27,8 @@ class ProductDetail extends Component
     {
         $this->validate(['quantity' => ['required', 'integer', 'min:1', 'max:99']]);
         $cart->add($this->product, $this->quantity);
-        session()->flash('status', 'Produto adicionado ao carrinho.');
+        $this->dispatch('cart-updated');
+        $this->toast()->success('Produto adicionado', "{$this->product->name} já está no seu carrinho.")->send();
     }
 
     public function render()
