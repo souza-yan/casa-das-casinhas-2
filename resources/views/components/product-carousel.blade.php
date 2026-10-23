@@ -9,7 +9,7 @@
 @endphp
 
 <section
-    class="mx-auto max-w-5xl"
+    class="mx-auto w-full max-w-5xl"
     aria-label="As mais pedidas"
     aria-roledescription="carousel"
     aria-live="off"
@@ -54,7 +54,7 @@
             const opacity = this.total === 3 && position !== 0 ? .6 : 1
             const zIndex = this.total === 3 && position === 0 ? 20 : 10
 
-            return `transform: translateX(calc(-50% + ${position * offset}%)) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex}`
+            return `left: 50%; top: 0; transform: translateX(calc(-50% + ${position * offset}%)) scale(${scale}); opacity: ${opacity}; z-index: ${zIndex}`
         },
         goTo(index) { if (this.total === 3) this.active = index },
         next() { this.active = (this.active + 1) % this.total },
@@ -80,11 +80,11 @@
     <h2 class="font-serif text-4xl tracking-[-.04em] sm:text-5xl">As mais pedidas</h2>
 
     @if ($slides->isNotEmpty())
-        <div class="relative mt-8 h-[420px] overflow-hidden sm:mt-10 lg:h-[480px]">
+        <div class="relative mt-8 h-[420px] w-full overflow-visible sm:mt-10 md:h-[480px]">
             @foreach ($slides as $product)
                 <a
                     href="{{ route('products.show', $product) }}"
-                    class="absolute left-1/2 top-0 w-[60%] rounded-sm border border-clay bg-paper transition-[transform,opacity] duration-700 ease-in-out motion-reduce:transition-none lg:w-[32.5%]"
+                    class="absolute w-[60%] rounded-sm border border-clay bg-paper transition-[transform,opacity] duration-700 ease-in-out motion-reduce:transition-none md:w-[34%]"
                     :style="cardStyle({{ $loop->index }})"
                     @click="select({{ $loop->index }}, $event)"
                     :aria-current="active === {{ $loop->index }} ? 'true' : 'false'"
