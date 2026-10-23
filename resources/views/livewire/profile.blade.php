@@ -14,15 +14,10 @@
     </header>
 
     <div class="mt-8 grid gap-5 lg:grid-cols-[.72fr_1.28fr]">
-        <aside class="space-y-5">
+        <aside>
             <section class="border border-ink/10 bg-paper p-6">
                 <p class="text-[10px] font-semibold uppercase tracking-[.18em] text-clay">Dados pessoais</p>
                 <dl class="mt-5 grid gap-4 text-sm"><div><dt class="text-xs text-ink/40">Nome</dt><dd class="mt-1 font-medium">{{ auth()->user()->name }}</dd></div><div><dt class="text-xs text-ink/40">E-mail</dt><dd class="mt-1 break-all font-medium">{{ auth()->user()->email }}</dd></div><div><dt class="text-xs text-ink/40">Cliente desde</dt><dd class="mt-1 font-medium">{{ auth()->user()->created_at->format('d/m/Y') }}</dd></div></dl>
-            </section>
-
-            <section class="border border-ink/10 bg-paper p-6">
-                <p class="text-[10px] font-semibold uppercase tracking-[.18em] text-clay">Resumo</p>
-                <div class="mt-4 flex items-end justify-between"><div><strong class="font-serif text-5xl font-semibold text-bark">{{ $ordersCount }}</strong><span class="ml-2 text-sm text-ink/50">{{ $ordersCount === 1 ? 'pedido' : 'pedidos' }}</span></div>@if ($ordersCount > 0)<a href="{{ route('orders.index') }}" class="text-xs font-semibold text-clay">Ver todos →</a>@endif</div>
             </section>
         </aside>
 
