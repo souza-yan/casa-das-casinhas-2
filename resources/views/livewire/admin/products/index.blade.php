@@ -38,24 +38,24 @@
     </section>
 
     <x-modal wire="productModal" size="3xl" center scrollable title="{{ $editingId ? 'Editar produto' : 'Cadastrar produto' }}">
-        <form wire:submit="save" class="grid gap-4 text-sm">
+        <form wire:submit="save" class="product-form grid gap-4 text-sm">
             <div class="grid gap-4 md:grid-cols-2">
-                <x-form-field label="Nome" name="name" wire:model="name" class="h-10 text-xs" />
-                <x-form-field label="Preço (R$)" name="price" type="number" step="0.01" min="0.01" wire:model="price" class="h-10 text-xs" />
+                <x-form-field label="Nome" name="name" wire:model="name" class="h-10 text-xs" required />
+                <x-form-field label="Preço (R$)" name="price" type="number" inputmode="decimal" step="0.01" min="0.01" wire:model="price" class="h-10 text-xs" required />
             </div>
 
-            <label class="grid gap-1.5 text-xs font-semibold">Descrição<textarea wire:model="description" rows="3" class="rounded-sm border border-ink/15 bg-paper px-3 py-2 text-xs font-normal outline-none transition focus:border-bark focus:ring-1 focus:ring-bark"></textarea>@error('description')<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror</label>
+            <label class="grid gap-1.5 text-xs font-semibold"><span>Descrição <span class="text-red-700" aria-hidden="true">*</span></span><textarea wire:model="description" rows="3" required class="rounded-sm border border-ink/15 bg-paper px-3 py-2 text-xs font-normal outline-none transition focus:border-bark focus:ring-1 focus:ring-bark"></textarea>@error('description')<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror</label>
 
             <div>
                 <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-semibold uppercase tracking-[.14em] text-ink/45">Dimensões da peça</p><span class="text-[10px] text-ink/40">Produção padrão: 15 dias</span></div>
                 <div class="grid grid-cols-3 gap-3">
-                    <x-form-field label="Altura (cm)" name="height_cm" type="number" step="0.01" wire:model="height_cm" class="h-10 px-3 text-xs" />
-                    <x-form-field label="Largura (cm)" name="width_cm" type="number" step="0.01" wire:model="width_cm" class="h-10 px-3 text-xs" />
-                    <x-form-field label="Comprimento (cm)" name="length_cm" type="number" step="0.01" wire:model="length_cm" class="h-10 px-3 text-xs" />
+                    <x-form-field label="Altura (cm)" name="height_cm" type="number" inputmode="decimal" step="0.01" wire:model="height_cm" class="h-10 px-3 text-xs" required />
+                    <x-form-field label="Largura (cm)" name="width_cm" type="number" inputmode="decimal" step="0.01" wire:model="width_cm" class="h-10 px-3 text-xs" required />
+                    <x-form-field label="Comprimento (cm)" name="length_cm" type="number" inputmode="decimal" step="0.01" wire:model="length_cm" class="h-10 px-3 text-xs" required />
                 </div>
             </div>
 
-            <label class="grid gap-1.5 text-xs font-semibold">Imagem<input wire:model="image" type="file" accept="image/*" class="block w-full rounded-sm border border-dashed border-ink/20 bg-stone-50 p-3 text-xs font-normal">@if ($image)<img src="{{ $image->temporaryUrl() }}" alt="Prévia da imagem" class="mt-2 aspect-video max-h-40 w-full rounded-sm object-cover">@endif @error('image')<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror</label>
+            <label class="grid gap-1.5 text-xs font-semibold"><span>Imagem @if (! $editingId)<span class="text-red-700" aria-hidden="true">*</span>@endif</span><input wire:model="image" type="file" accept="image/*" @required(! $editingId) class="block w-full rounded-sm border border-dashed border-ink/20 bg-stone-50 p-3 text-xs font-normal">@if ($image)<img src="{{ $image->temporaryUrl() }}" alt="Prévia da imagem" class="mt-2 aspect-video max-h-40 w-full rounded-sm object-cover">@endif @error('image')<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror</label>
 
             <label class="flex items-center gap-2 text-sm"><input wire:model="is_active" type="checkbox" class="rounded text-bark focus:ring-bark"> Produto ativo</label>
 
