@@ -80,7 +80,7 @@
     <h2 class="font-serif text-4xl tracking-[-.04em] sm:text-5xl">As mais pedidas</h2>
 
     @if ($slides->isNotEmpty())
-        <div class="relative mt-8 h-[320px] w-full overflow-visible sm:mt-10 md:h-[400px]">
+        <div class="relative mt-8 h-96 w-full overflow-hidden sm:mt-10 md:h-[28rem]">
             @foreach ($slides as $product)
                 <a
                     href="{{ route('products.show', $product) }}"
