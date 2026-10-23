@@ -37,8 +37,8 @@
     @keydown.escape.window="menuOpen = false; profileOpen = false"
     class="contents"
 >
-    <div class="border-b border-paper/15 bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper/75">
-        Produção artesanal em até 15 dias
+    <div class="border-b border-paper/15 bg-ink px-4 py-1.5 text-center text-sm font-medium text-paper">
+        Produzimos sua casinha em 15 dias
     </div>
 
     <div class="sticky top-0 z-50 flex h-16 items-center justify-center border-b border-clay bg-paper text-ink md:h-20">
