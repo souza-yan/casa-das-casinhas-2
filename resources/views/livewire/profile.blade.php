@@ -7,8 +7,8 @@
                 <div><h1 class="font-serif text-4xl font-semibold tracking-[-.04em] sm:text-6xl">Olá, {{ auth()->user()->name }}</h1><p class="mt-1 text-base text-ink/50">Acompanhe suas encomendas e gerencie os dados da conta.</p></div>
             </div>
             <div class="flex flex-col gap-2 sm:flex-row">
-                <button type="button" wire:click="openEditor" class="editorial-button">Editar perfil</button>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button class="h-12 w-full border border-ink px-5 text-sm font-semibold uppercase tracking-[.08em] transition hover:bg-ink hover:text-paper sm:w-auto">Sair da conta</button></form>
+                <button type="button" wire:click="openEditor" class="editorial-button h-12 w-full min-h-0 px-5 sm:w-44">Editar perfil</button>
+                <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-44">@csrf<button class="h-12 w-full border border-ink px-5 text-sm font-semibold uppercase tracking-[.08em] transition hover:bg-ink hover:text-paper">Sair da conta</button></form>
             </div>
         </div>
     </header>
