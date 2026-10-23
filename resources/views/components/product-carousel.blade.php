@@ -91,8 +91,10 @@
                     aria-label="{{ $product->name }}, R$ {{ number_format((float) $product->price, 2, ',', '.') }}"
                 >
                     <div class="aspect-[4/5] overflow-hidden bg-clay">
-                        @if ($product->image_url)
-                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}, produto artesanal em madeira" class="size-full object-cover">
+                        @if ($product->image_path && $product->image_url)
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}, produto artesanal em madeira" class="block w-full aspect-[4/5] object-cover">
+                        @else
+                            <div class="block w-full aspect-[4/5] bg-clay" aria-hidden="true"></div>
                         @endif
                     </div>
                     <div class="border-t border-clay px-3 py-2">
