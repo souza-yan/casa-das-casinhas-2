@@ -1,7 +1,7 @@
 @props(['label', 'name', 'type' => 'text', 'value' => null])
 
-<label class="grid gap-2 text-sm font-medium" for="{{ $name }}">
+<label class="grid gap-2 text-xs font-semibold" for="{{ $name }}">
     <span>{{ $label }}</span>
-    <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" value="{{ $type === 'password' ? null : $value }}" {{ $attributes->merge(['class' => 'h-12 border border-[#2a1b13]/20 bg-white/60 px-4 outline-none transition focus:border-[#4a2a16] focus:ring-1 focus:ring-[#4a2a16]']) }}>
-    @error($name)<span class="text-sm font-normal text-red-700">{{ $message }}</span>@enderror
+    <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" value="{{ $type === 'password' ? null : $value }}" {{ $attributes->merge(['class' => 'h-12 rounded-sm border border-ink/15 bg-paper px-4 text-sm font-normal outline-none transition placeholder:text-ink/30 focus:border-bark focus:ring-1 focus:ring-bark']) }}>
+    @error($name)<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror
 </label>
