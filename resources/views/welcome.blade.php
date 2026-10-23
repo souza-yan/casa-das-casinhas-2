@@ -28,11 +28,24 @@
     </section>
 
     <section id="processo" class="bg-cream px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-        <div class="mx-auto grid max-w-[1280px] gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
-            <div class="lg:sticky lg:top-28"><p class="text-sm font-semibold uppercase tracking-[.24em] text-clay">Do ateliê para sua casa</p><h2 class="mt-4 max-w-md font-serif text-5xl leading-[1.02] tracking-[-.04em] sm:text-6xl">Uma peça feita no tempo do cuidado.</h2><p class="mt-6 max-w-md text-base leading-7 text-ink/60">Cada casinha nasce de um processo manual. O desenho, o corte e a pintura tornam cada painel diferente de todos os outros.</p></div>
-            <ol class="border-t border-clay">
-                @foreach ([['01', 'Você escolhe', 'Encontre o modelo que conversa com seu espaço e com a história que deseja contar.'], ['02', 'Nós produzimos', 'A peça é preparada sob demanda, com até 15 dias para ganhar forma, textura e cor.'], ['03', 'A história chega', 'Embalamos com cuidado e enviamos com acompanhamento até a sua casa.']] as [$number, $title, $copy])
-                    <li class="grid gap-4 border-b border-clay py-8 sm:grid-cols-[80px_1fr_1.2fr] sm:items-baseline"><span class="text-sm text-ink/40">{{ $number }}</span><strong class="font-serif text-2xl font-normal">{{ $title }}</strong><p class="text-base leading-7 text-ink/55">{{ $copy }}</p></li>
+        <div class="mx-auto max-w-[1280px]">
+            <div class="max-w-3xl"><p class="text-sm font-semibold uppercase tracking-[.24em] text-clay">Do ateliê para sua casa</p><h2 class="mt-4 font-serif text-5xl leading-[1.02] tracking-[-.04em] sm:text-6xl">Uma peça feita no tempo do cuidado.</h2><p class="mt-6 max-w-2xl text-base leading-7 text-ink/60">Cada casinha nasce de um processo manual. O desenho, o corte e a pintura tornam cada painel diferente de todos os outros.</p></div>
+            <ol class="mt-14 border-t border-clay lg:mt-20">
+                @foreach ([['01', 'Você escolhe', 'Encontre o modelo que conversa com seu espaço e com a história que deseja contar.', 'object-left'], ['02', 'Nós produzimos', 'A peça é preparada sob demanda, com até 15 dias para ganhar forma, textura e cor.', 'object-center'], ['03', 'A história chega', 'Embalamos com cuidado e enviamos com acompanhamento até a sua casa.', 'object-right']] as [$number, $title, $copy, $position])
+                    <li class="grid gap-8 border-b border-clay py-10 lg:grid-cols-2 lg:items-stretch lg:gap-0 lg:py-16">
+                        <div @class(['flex flex-col justify-center lg:pr-16', 'lg:order-2 lg:pl-16 lg:pr-0' => $loop->even])>
+                            <span class="text-sm text-terracotta">{{ $number }}</span>
+                            <strong class="mt-5 max-w-md font-serif text-4xl font-normal leading-tight sm:text-5xl">{{ $title }}</strong>
+                            <p class="mt-6 max-w-lg text-base leading-8 text-ink/60">{{ $copy }}</p>
+                        </div>
+                        <div @class(['min-h-72 overflow-hidden bg-clay sm:min-h-96', 'lg:order-1' => $loop->even, 'lg:order-2' => $loop->odd])>
+                            @if ($heroProduct?->image_url)
+                                <img src="{{ $heroProduct->image_url }}" alt="{{ $title }} — detalhe da peça {{ $heroProduct->name }}" class="size-full object-cover {{ $position }}">
+                            @else
+                                <div class="grid size-full place-items-center px-8 text-center font-serif text-2xl text-ink/60">Arte feita à mão</div>
+                            @endif
+                        </div>
+                    </li>
                 @endforeach
             </ol>
         </div>
