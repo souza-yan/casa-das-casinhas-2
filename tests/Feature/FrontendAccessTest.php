@@ -29,14 +29,14 @@ class FrontendAccessTest extends TestCase
     public function test_customer_profile_shows_account_and_order_summary(): void
     {
         $customer = User::factory()->create(['name' => 'Maria Cliente']);
-        $this->createOrderFor($customer, Product::factory()->create());
+        $order = $this->createOrderFor($customer, Product::factory()->create());
 
         $this->actingAs($customer)
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Maria Cliente')
-            ->assertSee('Pedidos')
-            ->assertSee('Você possui 1 pedido.');
+            ->assertSee('Pedidos recentes')
+            ->assertSee('#'.$order->id);
     }
 
     public function test_customer_cannot_access_admin_order_details(): void

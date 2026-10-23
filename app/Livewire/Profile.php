@@ -69,6 +69,7 @@ class Profile extends Component
     {
         return view('livewire.profile', [
             'ordersCount' => auth()->user()->orders()->count(),
+            'latestOrders' => auth()->user()->orders()->latest()->take(3)->get(),
         ]);
     }
 }
