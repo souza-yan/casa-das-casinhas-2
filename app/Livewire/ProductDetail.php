@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\Role;
 use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\Layout;
@@ -25,6 +26,7 @@ class ProductDetail extends Component
 
     public function add(CartService $cart): void
     {
+        abort_if(auth()->user()?->role === Role::ADMIN, 403);
         $this->validate(['quantity' => ['required', 'integer', 'min:1', 'max:99']]);
         $cart->add($this->product, $this->quantity);
         $this->dispatch('cart-updated');

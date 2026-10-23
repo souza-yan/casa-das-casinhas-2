@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\OrderStatus;
+use App\Enums\Role;
 use App\Http\Controllers\AsaasWebhookController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Orders\Index as AdminOrdersIndex;
@@ -27,17 +28,21 @@ Route::get('/', function () {
 
 Route::get('/loja', Store::class)->name('store');
 Route::get('/produtos/{product:slug}', ProductDetail::class)->name('products.show');
-Route::get('/carrinho', Cart::class)->name('cart');
-Route::middleware('auth')->group(function (): void {
+Route::get('/carrinho', Cart::class)->middleware('customer-area')->name('cart');
+Route::middleware(['auth', 'customer-area'])->group(function (): void {
     Route::get('/checkout', Checkout::class)->name('checkout');
     Route::get('/pedidos', OrdersIndex::class)->name('orders.index');
     Route::get('/pedidos/{order}', OrderShow::class)->name('orders.show');
     Route::get('/pedidos/{order}/pagamento', OrderPayment::class)->name('orders.payment');
 });
 
-Route::view('/dashboard', 'dashboard')
-    ->middleware('auth')
-    ->name('dashboard');
+Route::get('/dashboard', function () {
+    if (auth()->user()->role === Role::ADMIN) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::get('/admin', fn () => view('admin.dashboard', ['indicators' => [
     'products' => Product::where('is_active', true)->count(),

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\Role;
 use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\Layout;
@@ -25,6 +26,7 @@ class Store extends Component
 
     public function add(Product $product, CartService $cart): void
     {
+        abort_if(auth()->user()?->role === Role::ADMIN, 403);
         $cart->add($product);
         $this->dispatch('cart-updated');
         $this->toast()->success('Produto adicionado', "{$product->name} já está no seu carrinho.")->send();
