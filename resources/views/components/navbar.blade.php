@@ -15,15 +15,21 @@
         profileOpen: false,
         visible: true,
         lastY: window.scrollY,
+        scrollThreshold: 12,
         handleScroll() {
-            const currentY = window.scrollY;
+            const currentY = Math.max(window.scrollY, 0);
 
-            if (this.menuOpen || this.profileOpen || currentY < 24) {
+            if (this.menuOpen || this.profileOpen || currentY < 80) {
                 this.visible = true;
-            } else if (Math.abs(currentY - this.lastY) > 6) {
-                this.visible = currentY < this.lastY;
+                this.lastY = currentY;
+                return;
             }
 
+            const distance = currentY - this.lastY;
+
+            if (Math.abs(distance) < this.scrollThreshold) return;
+
+            this.visible = distance < 0;
             this.lastY = currentY;
         }
     }"
