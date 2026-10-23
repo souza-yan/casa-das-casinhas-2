@@ -17,7 +17,7 @@
         <div class="overflow-x-auto border border-stone-200 bg-white">
             <table class="w-full min-w-[680px] text-left text-sm">
                 <thead class="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
-                    <tr><th class="px-4 py-3">Produto</th><th class="px-4 py-3">Preço</th><th class="px-4 py-3">Produção</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Ações</th></tr>
+                    <tr><th class="px-4 py-3">Produto</th><th class="px-4 py-3">Preço</th><th class="px-4 py-3">Produção</th><th class="px-4 py-3 text-right">Ações</th></tr>
                 </thead>
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($products as $product)
@@ -25,11 +25,10 @@
                             <td class="px-4 py-4 font-medium"><div class="flex items-center gap-3">@if ($product->image_path)<img src="{{ $product->image_url }}" alt="" class="size-11 rounded object-cover">@else<div class="size-11 rounded bg-stone-100"></div>@endif<span>{{ $product->name }}</span></div></td>
                             <td class="px-4 py-4">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</td>
                             <td class="px-4 py-4">{{ $product->production_days }} dias</td>
-                            <td class="px-4 py-4"><button wire:click="toggleActive({{ $product->id }})" class="rounded-full px-3 py-1 text-xs font-semibold {{ $product->is_active ? 'bg-green-100 text-green-800' : 'bg-stone-100 text-stone-600' }}">{{ $product->is_active ? 'Ativo' : 'Inativo' }}</button></td>
-                            <td class="px-4 py-4 text-right"><button wire:click="edit({{ $product->id }})" class="font-semibold text-bark">Editar</button><button wire:click="delete({{ $product->id }})" wire:confirm="Remover este produto do catálogo?" class="ml-4 font-semibold text-red-700">Excluir</button></td>
+                            <td class="px-4 py-4"><div class="flex justify-end gap-1"><button wire:click="edit({{ $product->id }})" class="grid size-9 place-items-center rounded-full text-bark transition hover:bg-sand/60" aria-label="Editar {{ $product->name }}" title="Editar produto"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.5 6.5 17.5 10.5M4 20l4.2-1 10.6-10.6a2.8 2.8 0 0 0-4-4L4.2 15 4 20Z"/></svg></button><button wire:click="delete({{ $product->id }})" wire:confirm="Remover este produto do catálogo?" class="grid size-9 place-items-center rounded-full text-red-700 transition hover:bg-red-50" aria-label="Excluir {{ $product->name }}" title="Excluir produto"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-4 py-10 text-center text-stone-500">Nenhum produto encontrado.</td></tr>
+                        <tr><td colspan="4" class="px-4 py-10 text-center text-stone-500">Nenhum produto encontrado.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -56,8 +55,6 @@
             </div>
 
             <label class="grid gap-1.5 text-xs font-semibold"><span>Imagem @if (! $editingId)<span class="text-red-700" aria-hidden="true">*</span>@endif</span><input wire:model="image" type="file" accept="image/*" @required(! $editingId) class="block w-full rounded-sm border border-dashed border-ink/20 bg-stone-50 p-3 text-xs font-normal">@if ($image)<img src="{{ $image->temporaryUrl() }}" alt="Prévia da imagem" class="mt-2 aspect-video max-h-40 w-full rounded-sm object-cover">@endif @error('image')<span class="text-xs font-normal text-red-700">{{ $message }}</span>@enderror</label>
-
-            <label class="flex items-center gap-2 text-sm"><input wire:model="is_active" type="checkbox" class="rounded text-bark focus:ring-bark"> Produto ativo</label>
 
             <div class="flex flex-col-reverse gap-2 border-t border-ink/10 pt-4 sm:flex-row sm:justify-end">
                 <button type="button" wire:click="cancelEdit" class="rounded-full border border-stone-300 px-5 py-2.5 text-xs font-semibold">Cancelar</button>

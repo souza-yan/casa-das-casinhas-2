@@ -58,7 +58,7 @@ class ProductManagementTest extends TestCase
             ->assertHasErrors(['name', 'description', 'price', 'height_cm', 'width_cm', 'length_cm', 'image']);
     }
 
-    public function test_admin_can_update_toggle_and_soft_delete_product(): void
+    public function test_admin_can_update_and_soft_delete_product(): void
     {
         $admin = User::factory()->admin()->create();
         $product = Product::factory()->create(['name' => 'Original', 'weight_kg' => 2.5, 'production_days' => 8]);
@@ -68,11 +68,9 @@ class ProductManagementTest extends TestCase
             ->set('name', 'Produto Editado')
             ->call('save')
             ->assertHasNoErrors()
-            ->call('toggleActive', $product->id)
             ->call('delete', $product->id);
 
         $this->assertSoftDeleted($product);
-        $this->assertFalse(Product::withTrashed()->findOrFail($product->id)->is_active);
         $this->assertSame('2.500', Product::withTrashed()->findOrFail($product->id)->weight_kg);
         $this->assertSame(Product::PRODUCTION_DAYS, Product::withTrashed()->findOrFail($product->id)->production_days);
     }

@@ -36,8 +36,6 @@ class Index extends Component
 
     public string $length_cm = '';
 
-    public bool $is_active = true;
-
     public $image = null;
 
     public function mount(): void
@@ -66,7 +64,6 @@ class Index extends Component
         $this->height_cm = $product->height_cm;
         $this->width_cm = $product->width_cm;
         $this->length_cm = $product->length_cm;
-        $this->is_active = $product->is_active;
         $this->image = null;
         $this->resetValidation();
         $this->productModal = true;
@@ -84,7 +81,6 @@ class Index extends Component
             'height_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
-            'is_active' => ['boolean'],
             'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'max:4096'],
         ]);
 
@@ -108,16 +104,6 @@ class Index extends Component
         $this->toast()->success('Alterações salvas', $message)->send();
     }
 
-    public function toggleActive(Product $product): void
-    {
-        $this->authorize('update', $product);
-        $product->update(['is_active' => ! $product->is_active]);
-        $this->toast()->success(
-            $product->is_active ? 'Produto ativado' : 'Produto desativado',
-            "O status de {$product->name} foi atualizado."
-        )->send();
-    }
-
     public function delete(Product $product): void
     {
         $this->authorize('delete', $product);
@@ -136,9 +122,8 @@ class Index extends Component
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'height_cm',
-            'width_cm', 'length_cm', 'is_active', 'image',
+            'width_cm', 'length_cm', 'image',
         ]);
-        $this->is_active = true;
         $this->resetValidation();
     }
 
