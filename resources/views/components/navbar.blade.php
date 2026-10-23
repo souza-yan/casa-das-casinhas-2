@@ -63,8 +63,8 @@
     </div>
 
     <div class="hidden h-24 items-center justify-center md:flex">
-        <a href="{{ route('home') }}" class="grid size-16 place-items-center" aria-label="Ir para a página inicial">
-            <img src="{{ asset('images/casa-das-casinhas.jpg') }}" alt="Casa das Casinhas" class="size-full object-contain">
+        <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-.04em]" aria-label="Ir para a página inicial">
+            Casa das Casinhas
         </a>
     </div>
 
@@ -119,8 +119,8 @@
             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 10h22M5 16h22M5 22h22"/></svg>
         </button>
 
-        <a href="{{ route('home') }}" class="grid size-12 place-items-center" aria-label="Ir para a página inicial">
-            <img src="{{ asset('images/casa-das-casinhas.jpg') }}" alt="Casa das Casinhas" class="size-full object-contain">
+        <a href="{{ route('home') }}" class="font-serif text-lg tracking-[-.04em]" aria-label="Ir para a página inicial">
+            Casa das Casinhas
         </a>
 
         <div class="flex items-center gap-1">
@@ -156,8 +156,8 @@
 
     <div x-show="menuOpen" x-cloak x-transition.opacity class="fixed inset-0 z-[60] min-h-screen bg-paper px-6 py-5 md:hidden">
         <div class="flex items-center justify-between border-b border-clay pb-5">
-            <a href="{{ route('home') }}" class="grid size-12 place-items-center" aria-label="Ir para a página inicial">
-                <img src="{{ asset('images/casa-das-casinhas.jpg') }}" alt="Casa das Casinhas" class="size-full object-contain">
+            <a href="{{ route('home') }}" class="font-serif text-xl tracking-[-.04em]" aria-label="Ir para a página inicial">
+                Casa das Casinhas
             </a>
             <button type="button" @click="menuOpen = false" class="grid size-11 place-items-center" aria-label="Fechar menu">
                 <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m7 7 18 18M25 7 7 25"/></svg>
