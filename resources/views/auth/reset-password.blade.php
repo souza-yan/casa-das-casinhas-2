@@ -1,8 +1,8 @@
 @extends('layouts.guest', ['title' => 'Nova senha — Casa das Casinhas'])
 
 @section('content')
-    <p class="text-[10px] font-semibold uppercase tracking-[0.22em] text-clay">Acesso</p>
-    <h1 class="mt-3 font-serif text-5xl font-semibold tracking-[-0.04em]">Defina uma nova senha</h1>
+    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-clay">Acesso</p>
+    <h1 class="mt-3 font-serif text-4xl font-semibold tracking-[-0.04em] sm:text-6xl">Defina uma nova senha</h1>
     <form method="POST" action="{{ route('password.update') }}" class="mt-8 grid gap-5">
         @csrf
         <input type="hidden" name="token" value="{{ request()->route('token') }}">
