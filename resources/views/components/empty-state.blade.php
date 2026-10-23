@@ -1,2 +1,2 @@
 @props(['title', 'action' => null, 'href' => null])
-<div {{ $attributes->class(['border border-dashed border-[#2a1b13]/20 px-6 py-12 text-center']) }}><h2 class="font-serif text-2xl">{{ $title }}</h2><div class="mx-auto mt-3 max-w-md text-sm text-[#2a1b13]/60">{{ $slot }}</div>@if($action && $href)<a href="{{ $href }}" class="mt-5 inline-block bg-[#4a2a16] px-5 py-3 text-white">{{ $action }}</a>@endif</div>
+<div {{ $attributes->class(['border border-dashed border-ink/20 px-6 py-12 text-center']) }}><h2 class="font-serif text-2xl">{{ $title }}</h2><div class="mx-auto mt-3 max-w-md text-sm text-ink/60">{{ $slot }}</div>@if($action && $href)<a href="{{ $href }}" class="mt-5 inline-block bg-terracotta px-5 py-3 text-paper">{{ $action }}</a>@endif</div>

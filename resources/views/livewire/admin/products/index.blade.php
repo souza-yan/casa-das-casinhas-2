@@ -5,16 +5,16 @@
             <h1 class="mt-2 font-serif text-4xl font-semibold">Produtos</h1>
             <p class="mt-2 text-sm text-stone-600">Gerencie as peças produzidas sob demanda.</p>
         </div>
-        <button type="button" wire:click="openCreate" class="grid size-12 shrink-0 place-items-center rounded-full bg-bark text-3xl font-light leading-none text-white shadow-sm transition hover:scale-105 hover:bg-clay" aria-label="Cadastrar novo produto" title="Novo produto">+</button>
+        <button type="button" wire:click="openCreate" class="grid size-12 shrink-0 place-items-center rounded-full bg-bark text-3xl font-light leading-none text-paper shadow-sm transition hover:scale-105 hover:bg-clay" aria-label="Cadastrar novo produto" title="Novo produto">+</button>
     </header>
 
     <section class="mt-8">
         <label class="mb-5 block">
             <span class="sr-only">Pesquisar produtos</span>
-            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Pesquisar por nome..." class="h-11 w-full rounded-sm border border-stone-300 bg-white px-4 text-sm sm:max-w-sm">
+            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Pesquisar por nome..." class="h-11 w-full rounded-sm border border-stone-300 bg-paper px-4 text-sm sm:max-w-sm">
         </label>
 
-        <div class="overflow-x-auto border border-stone-200 bg-white">
+        <div class="overflow-x-auto border border-stone-200 bg-paper">
             <table class="w-full min-w-[680px] text-left text-sm">
                 <thead class="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wider text-stone-500">
                     <tr><th class="px-4 py-3">Produto</th><th class="px-4 py-3">Preço</th><th class="px-4 py-3">Produção</th><th class="px-4 py-3 text-right">Ações</th></tr>
@@ -58,7 +58,7 @@
 
             <div class="flex flex-col-reverse gap-2 border-t border-ink/10 pt-4 sm:flex-row sm:justify-end">
                 <button type="button" wire:click="cancelEdit" class="rounded-full border border-stone-300 px-5 py-2.5 text-xs font-semibold">Cancelar</button>
-                <button type="submit" class="rounded-full bg-bark px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-clay disabled:opacity-50" wire:loading.attr="disabled"><span wire:loading.remove wire:target="save">{{ $editingId ? 'Salvar alterações' : 'Cadastrar produto' }}</span><span wire:loading wire:target="save">Salvando...</span></button>
+                <button type="submit" class="rounded-full bg-bark px-6 py-2.5 text-xs font-semibold text-paper transition hover:bg-clay disabled:opacity-50" wire:loading.attr="disabled"><span wire:loading.remove wire:target="save">{{ $editingId ? 'Salvar alterações' : 'Cadastrar produto' }}</span><span wire:loading wire:target="save">Salvando...</span></button>
             </div>
         </form>
     </x-modal>
