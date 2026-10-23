@@ -1,6 +1,26 @@
-<header x-data="{ open: false }" class="sticky top-0 z-50 border-b border-ink/10 bg-paper/95 backdrop-blur-md">
+<header
+    x-data="{
+        open: false,
+        visible: true,
+        lastY: window.scrollY,
+        handleScroll() {
+            const currentY = window.scrollY;
+
+            if (this.open || currentY < 24) {
+                this.visible = true;
+            } else if (Math.abs(currentY - this.lastY) > 6) {
+                this.visible = currentY < this.lastY;
+            }
+
+            this.lastY = currentY;
+        }
+    }"
+    @scroll.window.throttle.100ms="handleScroll()"
+    :class="visible || open ? 'translate-y-0' : '-translate-y-full'"
+    class="sticky top-0 z-50 border-b border-ink/10 bg-paper/95 transition-transform duration-300 ease-out will-change-transform backdrop-blur-md"
+>
     <nav class="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12" aria-label="Navegação principal">
-        <button type="button" @click="open = true" class="grid size-10 place-items-center md:hidden" aria-label="Abrir menu">
+        <button type="button" @click="open = true; visible = true" class="grid size-10 place-items-center md:hidden" aria-label="Abrir menu">
             <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
         <a href="{{ route('home') }}" class="group leading-none">

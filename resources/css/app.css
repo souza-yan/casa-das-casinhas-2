@@ -24,3 +24,5 @@ html { scroll-behavior: smooth; }
 body { text-rendering: optimizeLegibility; }
 ::selection { background: #d8b995; color: #2c1b12; }
 button, a { -webkit-tap-highlight-color: transparent; }
+
+[x-data^='tallstackui_toastBase'] { z-index: 100 !important; }
