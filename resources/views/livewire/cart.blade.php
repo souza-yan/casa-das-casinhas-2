@@ -9,9 +9,9 @@
                     <strong class="col-start-2 text-sm sm:col-auto">R$ {{ number_format($item['subtotal'], 2, ',', '.') }}</strong>
                 </article>
             @empty
-                <div class="py-16 text-center"><p class="font-serif text-3xl">Seu carrinho está esperando uma história.</p><p class="mt-2 text-sm text-ink/50">Escolha uma peça artesanal para começar.</p><a class="mt-6 inline-block rounded-full bg-bark px-6 py-3 text-sm font-semibold text-white" href="{{ route('store') }}">Conhecer a coleção</a></div>
+                <div class="py-16 text-center"><p class="font-serif text-3xl">Seu carrinho está esperando uma história.</p><p class="mt-2 text-sm text-ink/50">Escolha uma peça artesanal para começar.</p><a class="editorial-button mt-6" href="{{ route('store') }}">Conhecer a coleção</a></div>
             @endforelse
         </section>
-        <aside class="h-fit border border-ink/10 bg-paper p-6 sm:p-8"><p class="text-[10px] font-semibold uppercase tracking-[.2em] text-clay">Resumo do pedido</p><div class="mt-6 flex justify-between text-sm"><span class="text-ink/55">Subtotal</span><strong>R$ {{ number_format($subtotal, 2, ',', '.') }}</strong></div><p class="mt-3 text-xs leading-5 text-ink/45">O frete será calculado na próxima etapa.</p>@if ($items->isNotEmpty())<a href="{{ route('checkout') }}" class="mt-7 block rounded-full bg-bark px-5 py-3.5 text-center text-sm font-semibold text-white transition hover:bg-clay">Finalizar compra →</a>@endif<div class="mt-6 border-t border-ink/10 pt-5 text-center text-[10px] uppercase tracking-[.14em] text-ink/40">Pagamento seguro</div></aside>
+        <aside class="h-fit border border-ink/10 bg-cream p-6 sm:p-8"><p class="text-[10px] font-semibold uppercase tracking-[.2em] text-clay">Resumo do pedido</p><div class="mt-6 flex justify-between text-sm"><span class="text-ink/55">Subtotal</span><strong>R$ {{ number_format($subtotal, 2, ',', '.') }}</strong></div><p class="mt-3 text-xs leading-5 text-ink/45">O frete será calculado na próxima etapa.</p>@if ($items->isNotEmpty())<a href="{{ route('checkout') }}" class="editorial-button mt-7 w-full">Finalizar compra</a>@endif<div class="mt-6 border-t border-ink/10 pt-5 text-center text-[10px] uppercase tracking-[.14em] text-ink/40">Pagamento seguro</div></aside>
     </div>
 </div>

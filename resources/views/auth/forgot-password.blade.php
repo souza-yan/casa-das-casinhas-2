@@ -8,6 +8,6 @@
     <form method="POST" action="{{ route('password.email') }}" class="mt-8 grid gap-5">
         @csrf
         <x-form-field label="E-mail" name="email" type="email" autocomplete="email" :value="old('email')" required autofocus />
-        <button type="submit" class="h-12 rounded-full bg-bark px-5 text-sm font-semibold text-white transition hover:bg-clay">Enviar link →</button>
+        <button type="submit" class="editorial-button w-full">Enviar link</button>
     </form>
 @endsection

@@ -9,6 +9,6 @@
         <x-form-field label="E-mail" name="email" type="email" :value="old('email', request('email'))" required />
         <x-form-field label="Nova senha" name="password" type="password" autocomplete="new-password" required />
         <x-form-field label="Confirme a senha" name="password_confirmation" type="password" autocomplete="new-password" required />
-        <button type="submit" class="h-12 rounded-full bg-bark px-5 text-sm font-semibold text-white transition hover:bg-clay">Redefinir senha →</button>
+        <button type="submit" class="editorial-button w-full">Redefinir senha</button>
     </form>
 @endsection
