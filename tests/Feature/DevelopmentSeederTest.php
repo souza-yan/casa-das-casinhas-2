@@ -36,6 +36,8 @@ class DevelopmentSeederTest extends TestCase
         app(CartService::class)->add($product);
 
         $this->assertSame([$product->id => 1], session('cart.items'));
+        $this->assertSame(6, Product::query()->where('is_active', true)->count());
+        $this->assertDatabaseHas('products', ['slug' => 'favela-de-5-casas', 'price' => 250.00]);
     }
 
     public function test_it_can_be_executed_more_than_once_without_duplicates(): void
@@ -46,5 +48,6 @@ class DevelopmentSeederTest extends TestCase
         $this->assertSame(1, User::query()->where('email', 'admin@casadascasinhas.test')->count());
         $this->assertSame(1, User::query()->where('email', 'cliente@casadascasinhas.test')->count());
         $this->assertSame(1, Product::withTrashed()->where('slug', 'casas-da-vila')->count());
+        $this->assertSame(6, Product::withTrashed()->count());
     }
 }
