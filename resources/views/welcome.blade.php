@@ -13,8 +13,7 @@
     </section>
 
     <section id="produtos" class="mx-auto max-w-[1400px] scroll-mt-24 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-        <div><h2 class="font-serif text-4xl tracking-[-.04em] sm:text-6xl">Produtos</h2></div>
-        <div class="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 md:grid-cols-3 lg:gap-x-7">@forelse ($featuredProducts as $product)<x-product-card :product="$product" :interactive="false" />@empty<div class="col-span-full"><x-empty-state title="Os produtos estão sendo preparados">Execute <code>php artisan db:seed</code> para cadastrar a peça Casas da Vila.</x-empty-state></div>@endforelse</div>
+        <x-product-carousel :products="$featuredProducts" />
         <a href="{{ route('store') }}" class="editorial-button mt-12">Ver todos os produtos</a>
     </section>
 
