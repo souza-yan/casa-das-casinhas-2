@@ -31,7 +31,10 @@ class ProductSeeder extends Seeder
             ],
         );
 
-        $product->restore();
+        if ($product->trashed()) {
+            $product->restore();
+        }
+
         $this->command?->info('Produto Casas da Vila disponível para compra.');
     }
 }

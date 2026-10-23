@@ -15,7 +15,7 @@
         <section class="hidden bg-[#4a2a16] p-12 text-[#fffdf8] lg:flex lg:flex-col lg:justify-between">
             <a href="{{ route('home') }}" class="font-serif text-2xl tracking-[-0.04em]">Casa das Casinhas</a>
             <div class="max-w-lg">
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#bfdbfe]">Feito com afeto</p>
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-[#e8d3bd]">Feito com afeto</p>
                 <h1 class="mt-5 font-serif text-5xl leading-tight">Artesanato que encontra um lugar especial na sua casa.</h1>
             </div>
             <p class="text-sm text-[#fffdf8]/60">Peças produzidas sob demanda.</p>

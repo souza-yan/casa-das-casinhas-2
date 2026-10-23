@@ -55,4 +55,14 @@ php artisan storage:link
 npm run build
 ```
 
+## Dados de demonstração
+
+Em ambientes que não sejam produção, `php artisan db:seed` cria ou atualiza dados idempotentes para validar o fluxo completo:
+
+- administrador: `admin@casadascasinhas.test` / `password`;
+- cliente: `cliente@casadascasinhas.test` / `password`;
+- produto ativo: **Casas da Vila**, por R$ 289,90, disponível em `/produtos/casas-da-vila`.
+
+Os acessos podem ser personalizados pelas variáveis `ADMIN_*` e `CUSTOMER_*`. O seeder é bloqueado em produção.
+
 APIs externas devem ser testadas com `Http::fake`; não use credenciais ou operações reais nos testes.
