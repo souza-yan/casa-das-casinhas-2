@@ -13,7 +13,26 @@
     </section>
 
     <section id="produtos" class="mx-auto max-w-[1400px] scroll-mt-24 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-        <x-product-carousel :products="$featuredProducts" />
+        @php
+            $popularSlugs = ['casinha', 'vila-de-3-casas', 'favela-de-5-casas'];
+            $productsBySlug = \App\Models\Product::query()
+                ->where('is_active', true)
+                ->whereIn('slug', $popularSlugs)
+                ->get()
+                ->keyBy('slug');
+            $popularProducts = collect($popularSlugs)
+                ->map(fn (string $slug) => $productsBySlug->get($slug))
+                ->filter();
+        @endphp
+
+        <h2 class="font-serif text-4xl tracking-[-.04em] sm:text-5xl">As mais procuradas</h2>
+        @if ($popularProducts->isNotEmpty())
+            <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+                @foreach ($popularProducts as $product)
+                    <x-product-card :product="$product" :interactive="false" />
+                @endforeach
+            </div>
+        @endif
         <a href="{{ route('store') }}" class="editorial-button mt-12">Ver todos os produtos</a>
     </section>
 
