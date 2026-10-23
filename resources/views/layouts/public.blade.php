@@ -14,7 +14,7 @@
 <body class="min-h-screen bg-paper font-sans text-ink antialiased">
     <x-toast />
     <x-navbar />
-    <main>{{ $slot }}</main>
+    <main id="inicio">{{ $slot }}</main>
     <x-footer />
     @livewireScripts
 </body>
