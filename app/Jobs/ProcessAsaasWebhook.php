@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\NotificationStatus;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Models\Order;
 use App\Models\OrderNotification;
 use App\Models\Payment;
 use App\Models\WebhookEvent;
@@ -29,6 +30,7 @@ class ProcessAsaasWebhook implements ShouldQueue
                 return;
             }
             $payment = Payment::where('provider', 'asaas')->where('provider_payment_id', data_get($event->payload, 'payment.id'))->lockForUpdate()->firstOrFail();
+            $payment->setRelation('order', Order::lockForUpdate()->findOrFail($payment->order_id));
             $amount = (float) data_get($event->payload, 'payment.value');
             throw_unless(abs($amount - (float) $payment->amount) < 0.01, RuntimeException::class, 'Valor do pagamento divergente.');
             $status = match ($event->event_type) {

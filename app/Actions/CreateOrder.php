@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\OrderStatus;
+use App\Enums\SaleType;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -54,12 +55,22 @@ class CreateOrder
                 }
 
                 $lines = app(CartService::class)->lines($cart);
-                $products = Product::query()->whereIn('id', collect($lines)->pluck('product_id')->unique())->where('is_active', true)->lockForUpdate()->get()->keyBy('id');
+                $products = Product::query()->whereIn('id', collect($lines)->pluck('product_id')->unique())->where('is_active', true)->orderBy('id')->lockForUpdate()->get()->keyBy('id');
                 throw_if($products->count() !== collect($lines)->pluck('product_id')->unique()->count(), ValidationException::withMessages(['cart' => 'Um produto não está mais disponível.']));
                 foreach ($lines as $line) {
                     $product = $products->get($line['product_id']);
                     if ($product->is_customizable && blank($line['personalization_description'])) {
                         throw ValidationException::withMessages(['cart' => "Informe a personalização de {$product->name} antes de finalizar."]);
+                    }
+                }
+                foreach (collect($lines)->groupBy('product_id') as $productId => $productLines) {
+                    $product = $products->get($productId);
+                    if ($product->isStockProduct()) {
+                        $quantity = $productLines->sum('quantity');
+                        if ($quantity > $product->stock_quantity) {
+                            throw ValidationException::withMessages(['cart' => "Estoque insuficiente para {$product->name}. Disponível: {$product->stock_quantity} unidade(s)."]);
+                        }
+                        $product->decrement('stock_quantity', $quantity);
                     }
                 }
                 $subtotal = collect($lines)->sum(fn (array $line) => round((float) $products->get($line['product_id'])->price * $line['quantity'], 2));
@@ -89,6 +100,7 @@ class CreateOrder
                         'personalization_description' => $line['personalization_description'],
                         'reference_paths' => $line['reference_paths'],
                         'production_days' => $product->production_days,
+                        'sale_type' => $product->sale_type ?? SaleType::ON_DEMAND,
                     ]);
                 }
                 $order->address()->create($address);

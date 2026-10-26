@@ -29,7 +29,8 @@ enum OrderStatus: string
     {
         return in_array($next, match ($this) {
             self::PENDING_PAYMENT => [self::PAID, self::AWAITING_PERSONALIZATION_APPROVAL, self::CANCELLED],
-            self::PAID, self::AWAITING_PERSONALIZATION_APPROVAL => [self::IN_PRODUCTION, self::CANCELLED],
+            self::PAID => [self::IN_PRODUCTION, self::READY_TO_SHIP, self::CANCELLED],
+            self::AWAITING_PERSONALIZATION_APPROVAL => [self::IN_PRODUCTION, self::CANCELLED],
             self::IN_PRODUCTION => [self::READY_TO_SHIP, self::CANCELLED],
             self::READY_TO_SHIP => [self::SHIPPED, self::CANCELLED],
             self::SHIPPED => [self::DELIVERED],

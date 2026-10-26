@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CartService
 {
@@ -12,6 +13,7 @@ class CartService
 
     public function add(Product $product, int $quantity = 1, ?string $personalization = null, array $referencePaths = []): void
     {
+        $product = $product->fresh() ?? abort(404);
         abort_unless($product->is_active, 422, 'Produto indisponível.');
         $items = session(self::KEY, []);
 
@@ -28,6 +30,7 @@ class CartService
             ];
         }
 
+        $this->validateStock($items);
         session()->put(self::KEY, $items);
         session()->forget('checkout.token');
     }
@@ -46,7 +49,9 @@ class CartService
         } else {
             $items[$lineKey] = min(99, $quantity);
         }
+        $this->validateStock($items);
         session()->put(self::KEY, $items);
+        session()->forget('checkout.token');
     }
 
     public function updatePersonalization(string|int $lineKey, ?string $description): void
@@ -82,7 +87,7 @@ class CartService
         $lines = $this->lines();
         $productIds = collect($lines)->pluck('product_id')->unique()->all();
 
-        return collect($lines)->map(function (array $line) use ($productIds) {
+        return collect($lines)->map(function (array $line) {
             return $line;
         })->pipe(function (Collection $lines) use ($productIds) {
             $products = Product::query()->whereIn('id', $productIds)->where('is_active', true)->get()->keyBy('id');
@@ -129,5 +134,16 @@ class CartService
     public function subtotal(): float
     {
         return round($this->items()->sum('subtotal'), 2);
+    }
+
+    private function validateStock(array $items): void
+    {
+        $quantities = collect($this->lines($items))->groupBy('product_id')
+            ->map(fn (Collection $lines) => $lines->sum('quantity'));
+        foreach (Product::whereIn('id', $quantities->keys())->get() as $product) {
+            if ($product->isStockProduct() && $quantities[$product->id] > $product->stock_quantity) {
+                throw ValidationException::withMessages(['cart' => "Estoque insuficiente para {$product->name}. Disponível: {$product->stock_quantity} unidade(s)."]);
+            }
+        }
     }
 }

@@ -5,10 +5,13 @@ namespace App\Livewire\Admin\Products;
 use App\Enums\SaleType;
 use App\Models\Product;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -43,6 +46,9 @@ class Index extends Component
 
     public string $stock_quantity = '';
 
+    #[Locked]
+    public ?int $originalStockQuantity = null;
+
     public $image = null;
 
     public function mount(): void
@@ -74,6 +80,7 @@ class Index extends Component
         $this->is_customizable = $product->is_customizable;
         $this->sale_type = ($product->sale_type ?? SaleType::ON_DEMAND)->value;
         $this->stock_quantity = (string) $product->stock_quantity;
+        $this->originalStockQuantity = $product->stock_quantity;
         $this->image = null;
         $this->resetValidation();
         $this->productModal = true;
@@ -81,8 +88,17 @@ class Index extends Component
 
     public function save(): void
     {
-        $product = $this->editingId ? Product::query()->findOrFail($this->editingId) : new Product;
+        DB::transaction(fn () => $this->saveProduct());
+    }
+
+    private function saveProduct(): void
+    {
+        $product = $this->editingId ? Product::query()->lockForUpdate()->findOrFail($this->editingId) : new Product;
         $this->authorize($product->exists ? 'update' : 'create', $product);
+
+        if ($product->exists && $product->stock_quantity !== $this->originalStockQuantity) {
+            throw ValidationException::withMessages(['stock_quantity' => 'O estoque mudou enquanto este formulário estava aberto. Feche e abra a edição novamente para conferir a quantidade atual.']);
+        }
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -136,7 +152,7 @@ class Index extends Component
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'height_cm',
-            'width_cm', 'length_cm', 'is_customizable', 'image', 'sale_type', 'stock_quantity',
+            'width_cm', 'length_cm', 'is_customizable', 'image', 'sale_type', 'stock_quantity', 'originalStockQuantity',
         ]);
         $this->resetValidation();
     }

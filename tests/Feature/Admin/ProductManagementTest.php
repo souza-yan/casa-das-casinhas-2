@@ -49,6 +49,15 @@ class ProductManagementTest extends TestCase
         $this->assertFalse($product->fresh()->is_available);
     }
 
+    public function test_stale_admin_form_cannot_overwrite_stock_changed_by_a_sale(): void
+    {
+        $product = Product::factory()->create(['image_path' => 'products/test.png', 'sale_type' => SaleType::STOCK, 'stock_quantity' => 5]);
+        $form = Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)->call('edit', $product->id);
+        $product->decrement('stock_quantity', 2);
+        $form->set('name', 'Nome atualizado')->call('save')->assertHasErrors('stock_quantity');
+        $this->assertSame(3, $product->fresh()->stock_quantity);
+    }
+
     public function test_only_admin_can_access_product_management(): void
     {
         $this->get(route('admin.products.index'))->assertRedirect(route('login'));
