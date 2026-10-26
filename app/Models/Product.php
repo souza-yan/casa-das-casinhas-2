@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SaleType;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,8 @@ class Product extends Model
         'production_days',
         'is_customizable',
         'is_active',
+        'sale_type',
+        'stock_quantity',
     ];
 
     protected function casts(): array
@@ -43,15 +46,27 @@ class Product extends Model
             'production_days' => 'integer',
             'is_customizable' => 'boolean',
             'is_active' => 'boolean',
+            'sale_type' => SaleType::class,
+            'stock_quantity' => 'integer',
         ];
     }
 
     protected function productionDays(): Attribute
     {
         return Attribute::make(
-            get: fn (): int => self::PRODUCTION_DAYS,
+            get: fn (): int => $this->isStockProduct() ? 0 : self::PRODUCTION_DAYS,
             set: fn (): int => self::PRODUCTION_DAYS,
         );
+    }
+
+    public function isStockProduct(): bool
+    {
+        return $this->sale_type === SaleType::STOCK;
+    }
+
+    public function getIsAvailableAttribute(): bool
+    {
+        return $this->is_active && (! $this->isStockProduct() || $this->stock_quantity > 0);
     }
 
     public function getImageUrlAttribute(): ?string
