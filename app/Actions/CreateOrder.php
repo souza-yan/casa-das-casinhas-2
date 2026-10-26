@@ -97,8 +97,8 @@ class CreateOrder
                         'quantity' => $line['quantity'],
                         'unit_price' => $product->price,
                         'subtotal' => round((float) $product->price * $line['quantity'], 2),
-                        'personalization_description' => $line['personalization_description'],
-                        'reference_paths' => $line['reference_paths'],
+                        'personalization_description' => $product->isStockProduct() ? null : $line['personalization_description'],
+                        'reference_paths' => $product->isStockProduct() ? [] : $line['reference_paths'],
                         'production_days' => $product->production_days,
                         'sale_type' => $product->sale_type ?? SaleType::ON_DEMAND,
                     ]);

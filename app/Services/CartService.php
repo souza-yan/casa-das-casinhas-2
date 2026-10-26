@@ -15,6 +15,10 @@ class CartService
     {
         $product = $product->fresh() ?? abort(404);
         abort_unless($product->is_active, 422, 'Produto indisponível.');
+        if ($product->isStockProduct()) {
+            $personalization = null;
+            $referencePaths = [];
+        }
         $items = session(self::KEY, []);
 
         // Mantém o formato legado para produtos sem personalização e, assim,
@@ -97,6 +101,8 @@ class CartService
 
                 return [
                     ...$line,
+                    'personalization_description' => $product->isStockProduct() ? null : $line['personalization_description'],
+                    'reference_paths' => $product->isStockProduct() ? [] : $line['reference_paths'],
                     'product' => $product,
                     'subtotal' => round((float) $product->price * $line['quantity'], 2),
                 ];

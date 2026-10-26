@@ -18,6 +18,15 @@ class Product extends Model
 
     public const PRODUCTION_DAYS = 15;
 
+    protected static function booted(): void
+    {
+        static::saving(function (Product $product): void {
+            if ($product->isStockProduct()) {
+                $product->is_customizable = false;
+            }
+        });
+    }
+
     protected $fillable = [
         'name',
         'slug',
@@ -56,6 +65,13 @@ class Product extends Model
         return Attribute::make(
             get: fn (): int => $this->isStockProduct() ? 0 : self::PRODUCTION_DAYS,
             set: fn (): int => self::PRODUCTION_DAYS,
+        );
+    }
+
+    protected function isCustomizable(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value): bool => ! $this->isStockProduct() && (bool) $value,
         );
     }
 

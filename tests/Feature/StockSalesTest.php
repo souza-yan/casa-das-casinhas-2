@@ -166,4 +166,37 @@ class StockSalesTest extends TestCase
         $this->get(route('products.show', $product))->assertOk()
             ->assertSee('Produto esgotado.')->assertDontSee('wire:click="add"', false);
     }
+
+    public function test_stock_products_never_offer_personalization_even_with_a_legacy_flag(): void
+    {
+        $product = $this->stock();
+        Product::whereKey($product->id)->update(['is_customizable' => true]);
+        $this->assertFalse($product->fresh()->is_customizable);
+        $this->get(route('products.show', $product))->assertOk()
+            ->assertDontSee('wire:model="personalization"', false)
+            ->assertSee('wire:click="add"', false);
+
+        $product->refresh();
+        $product->is_customizable = true;
+        $product->save();
+        $this->assertSame(0, (int) $product->fresh()->getRawOriginal('is_customizable'));
+    }
+
+    public function test_stock_order_ignores_personalization_from_an_old_cart(): void
+    {
+        $product = $this->stock();
+        $cart = app(CartService::class);
+        $cart->add($product, 1, 'Instruções antigas', ['personalizations/old.png']);
+        $this->assertNull($cart->items()->sole()['personalization_description']);
+        $this->assertSame([], $cart->items()->sole()['reference_paths']);
+
+        $order = $this->order(['legacy' => [
+            'product_id' => $product->id, 'quantity' => 1,
+            'personalization_description' => 'Instruções antigas',
+            'reference_paths' => ['personalizations/old.png'],
+        ]]);
+        $this->assertNull($order->items->sole()->personalization_description);
+        $this->assertSame([], $order->items->sole()->reference_paths);
+        $this->assertFalse($order->requiresPersonalizationApproval());
+    }
 }
