@@ -1,38 +1,17 @@
 @php
     $isAdmin = auth()->check() && auth()->user()->role === \App\Enums\Role::ADMIN;
-    $isHome = request()->routeIs('home');
-    $sectionUrl = fn (string $section) => $isHome ? "#{$section}" : route('home')."#{$section}";
     $navigation = [
-        ['label' => 'Início', 'section' => 'inicio'],
-        ['label' => 'Produtos', 'section' => 'produtos'],
-        ['label' => 'Sobre nós', 'section' => 'sobre'],
-        ['label' => 'Como produzimos', 'section' => 'como-produzimos'],
+        ['label' => 'Início', 'url' => route('home'), 'active' => request()->routeIs('home')],
+        ['label' => 'Produtos', 'url' => route('store'), 'active' => request()->routeIs('store', 'products.*')],
+        ['label' => 'Sobre nós', 'url' => route('about'), 'active' => request()->routeIs('about')],
+        ['label' => 'Como produzimos', 'url' => route('production'), 'active' => request()->routeIs('production')],
     ];
-    $initialSection = $isHome ? 'inicio' : (request()->routeIs('store', 'products.*') ? 'produtos' : '');
 @endphp
 
 <div
     x-data="{
         menuOpen: false,
-        profileOpen: false,
-        activeSection: '{{ $initialSection }}',
-        isHome: {{ $isHome ? 'true' : 'false' }},
-        init() {
-            if (! this.isHome) return
-
-            const sections = ['inicio', 'produtos', 'sobre', 'como-produzimos']
-                .map(id => document.getElementById(id))
-                .filter(Boolean)
-
-            const observer = new IntersectionObserver(entries => {
-                const current = entries
-                    .filter(entry => entry.isIntersecting)
-                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
-
-                if (current) this.activeSection = current.target.id
-            }, { rootMargin: '-35% 0px -55% 0px', threshold: [0.1, 0.5] })
-            sections.forEach(section => observer.observe(section))
-        }
+        profileOpen: false
     }"
     @keydown.escape.window="menuOpen = false; profileOpen = false"
     class="contents"
@@ -61,11 +40,9 @@
             <div class="flex items-center justify-center gap-8 lg:gap-11">
                 @foreach ($navigation as $item)
                     <a
-                        href="{{ $sectionUrl($item['section']) }}"
-                        @click="activeSection = '{{ $item['section'] }}'"
-                        class="border-b py-1 text-sm font-medium transition-colors"
-                        :class="activeSection === '{{ $item['section'] }}' ? 'border-paper' : 'border-transparent hover:border-paper/50'"
-                        :aria-current="activeSection === '{{ $item['section'] }}' ? 'page' : null"
+                        href="{{ $item['url'] }}"
+                        class="border-b py-1 text-sm font-medium transition-colors {{ $item['active'] ? 'border-paper' : 'border-transparent hover:border-paper/50' }}"
+                        @if ($item['active']) aria-current="page" @endif
                     >{{ $item['label'] }}</a>
                 @endforeach
             </div>
@@ -149,9 +126,10 @@
         <div class="grid pt-8 font-serif text-4xl">
             @foreach ($navigation as $item)
                 <a
-                    href="{{ $sectionUrl($item['section']) }}"
-                    @click="menuOpen = false; activeSection = '{{ $item['section'] }}'"
+                    href="{{ $item['url'] }}"
+                    @click="menuOpen = false"
                     class="border-b border-paper/20 py-4"
+                    @if ($item['active']) aria-current="page" @endif
                 >{{ $item['label'] }}</a>
             @endforeach
         </div>

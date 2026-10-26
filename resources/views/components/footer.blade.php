@@ -7,10 +7,10 @@
             </div>
 
             <nav class="flex flex-wrap gap-x-6 gap-y-3 text-sm sm:gap-x-8" aria-label="Links do rodapé">
-                <a href="{{ route('home') }}#inicio" class="hover:text-clay">Início</a>
+                <a href="{{ route('home') }}" class="hover:text-clay">Início</a>
                 <a href="{{ route('store') }}" class="hover:text-clay">Produtos</a>
-                <a href="{{ route('home') }}#sobre" class="hover:text-clay">Sobre nós</a>
-                <a href="{{ route('home') }}#como-produzimos" class="hover:text-clay">Como produzimos</a>
+                <a href="{{ route('about') }}" class="hover:text-clay">Sobre nós</a>
+                <a href="{{ route('production') }}" class="hover:text-clay">Como produzimos</a>
 
                 @if (auth()->user()?->role === \App\Enums\Role::ADMIN)
                     <a href="{{ route('admin.dashboard') }}" class="hover:text-clay">Administração</a>

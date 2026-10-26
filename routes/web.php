@@ -26,6 +26,8 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::view('/sobre-nos', 'about')->name('about');
+Route::view('/como-produzimos', 'production')->name('production');
 Route::get('/produtos', Store::class)->name('store');
 Route::redirect('/loja', '/produtos', 301);
 Route::get('/produtos/{product:slug}', ProductDetail::class)->name('products.show');
