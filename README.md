@@ -1,6 +1,6 @@
 # Casa das Casinhas
 
-Loja de peças artesanais de madeira sob encomenda. Inclui catálogo, busca e ordenação de produtos, carrinho, checkout, acompanhamento de pedidos, perfil do cliente e administração de produtos e pedidos.
+Loja de peças artesanais de madeira sob encomenda e com produtos em estoque. Inclui catálogo, busca e ordenação de produtos, carrinho, checkout, acompanhamento de pedidos, perfil do cliente e administração de produtos e pedidos.
 
 ## Tecnologias
 
