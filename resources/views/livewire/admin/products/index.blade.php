@@ -39,19 +39,15 @@
     <x-modal wire="productModal" size="3xl" center scrollable title="{{ $editingId ? 'Editar produto' : 'Cadastrar produto' }}">
         <form wire:submit="save" class="product-form grid gap-4 text-sm">
             <div class="grid gap-4 md:grid-cols-2">
-                <label class="grid gap-1.5 font-semibold">
-                    <span>Modalidade de venda</span>
-                    <select wire:model.live="sale_type" class="rounded-sm border border-ink/15 bg-paper text-sm font-normal" required>
-                        <option value="on_demand">Sob demanda</option>
-                        <option value="stock">Em estoque</option>
-                    </select>
-                    @error('sale_type')<span class="font-normal text-red-700">{{ $message }}</span>@enderror
-                </label>
-                @if ($sale_type === 'stock')
+                <div class="flex items-center gap-3">
+                    <span class="text-sm {{ ! $in_stock ? 'font-semibold text-ink' : 'text-ink/50' }}">Sob demanda</span>
+                    <x-toggle wire:model.live="in_stock" label="Em estoque" color="primary" lg />
+                </div>
+                @if ($in_stock)
                     <x-form-field label="Quantidade disponível" name="stock_quantity" type="number" min="0" step="1" wire:model="stock_quantity" class="h-10 text-sm" required />
                 @endif
             </div>
-            <p class="text-xs text-ink/60">@if ($sale_type === 'stock') Informe as unidades disponíveis para novas vendas, sem incluir as já reservadas em pedidos. Zero indica esgotado. @else Produção sob encomenda em 15 dias, sem limite de estoque. @endif</p>
+            <p class="text-xs text-ink/60">@if ($in_stock) Informe a quantidade disponível. Zero indica esgotado. @else Produção sob encomenda em 15 dias. @endif</p>
             <div class="grid gap-4 md:grid-cols-2">
                 <x-form-field label="Nome" name="name" wire:model="name" class="h-10 text-sm" required />
                 <x-form-field label="Preço (R$)" name="price" type="number" inputmode="decimal" step="0.01" min="0.01" wire:model="price" class="h-10 text-sm" required />
@@ -60,7 +56,7 @@
             <label class="grid gap-1.5 text-sm font-semibold"><span>Descrição <span class="text-red-700" aria-hidden="true">*</span></span><textarea wire:model="description" rows="3" required class="rounded-sm border border-ink/15 bg-paper px-3 py-2 text-sm font-normal outline-none transition focus:border-bark focus:ring-1 focus:ring-bark"></textarea>@error('description')<span class="text-sm font-normal text-red-700">{{ $message }}</span>@enderror</label>
 
             <div>
-                <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-semibold uppercase tracking-[.14em] text-ink/45">Dimensões da peça</p><span class="text-[10px] text-ink/40">{{ $sale_type === 'stock' ? 'Peça pronta, sem prazo de produção' : 'Produção padrão: 15 dias' }}</span></div>
+                <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-semibold uppercase tracking-[.14em] text-ink/45">Dimensões da peça</p><span class="text-[10px] text-ink/40">{{ $in_stock ? 'Peça pronta, sem prazo de produção' : 'Produção padrão: 15 dias' }}</span></div>
                 <div class="grid grid-cols-3 gap-3">
                     <x-form-field label="Altura (cm)" name="height_cm" type="number" inputmode="decimal" step="0.01" wire:model="height_cm" class="h-10 px-3 text-sm" required />
                     <x-form-field label="Largura (cm)" name="width_cm" type="number" inputmode="decimal" step="0.01" wire:model="width_cm" class="h-10 px-3 text-sm" required />
@@ -68,7 +64,6 @@
                 </div>
             </div>
 
-            <label class="flex items-start gap-3 rounded-sm border border-ink/15 bg-paper p-3 text-sm"><input wire:model="is_customizable" type="checkbox" class="mt-1 rounded border-ink/30 text-ink focus:ring-ink"><span><strong class="block">Aceita personalização</strong><span class="mt-1 block font-normal text-ink/55">Exige que o cliente descreva as preferências antes de adicionar esta peça ao carrinho.</span></span></label>
 
             <label class="grid gap-1.5 text-sm font-semibold"><span>Imagem @if (! $editingId)<span class="text-red-700" aria-hidden="true">*</span>@endif</span><span class="text-xs font-normal text-ink/50">Use imagens em proporção 4:5 (1200 x 1500 px), JPG ou WebP, até 2 MB.</span><input wire:model="image" type="file" accept="image/jpeg,image/png,image/webp" @required(! $editingId) class="block w-full rounded-sm border border-dashed border-ink/20 bg-stone-50 p-3 text-sm font-normal">@if ($image && $image->isPreviewable())<x-product-image :src="$image->temporaryUrl()" alt="Prévia da imagem" variant="admin" :preview="true" class="mt-2 max-h-80" />@endif @error('image')<span class="text-sm font-normal text-red-700">{{ $message }}</span>@enderror</label>
 

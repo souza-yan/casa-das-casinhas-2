@@ -40,9 +40,7 @@ class Index extends Component
 
     public string $length_cm = '';
 
-    public bool $is_customizable = false;
-
-    public string $sale_type = 'on_demand';
+    public bool $in_stock = false;
 
     public string $stock_quantity = '';
 
@@ -77,8 +75,7 @@ class Index extends Component
         $this->height_cm = $product->height_cm;
         $this->width_cm = $product->width_cm;
         $this->length_cm = $product->length_cm;
-        $this->is_customizable = $product->is_customizable;
-        $this->sale_type = ($product->sale_type ?? SaleType::ON_DEMAND)->value;
+        $this->in_stock = $product->isStockProduct();
         $this->stock_quantity = (string) $product->stock_quantity;
         $this->originalStockQuantity = $product->stock_quantity;
         $this->image = null;
@@ -107,9 +104,8 @@ class Index extends Component
             'height_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
-            'is_customizable' => ['boolean'],
-            'sale_type' => ['required', Rule::enum(SaleType::class)],
-            'stock_quantity' => ['exclude_unless:sale_type,stock', 'required', 'integer', 'min:0', 'max:2147483647'],
+            'in_stock' => ['boolean'],
+            'stock_quantity' => ['exclude_unless:in_stock,true', 'required', 'integer', 'min:0', 'max:2147483647'],
             'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
@@ -121,8 +117,10 @@ class Index extends Component
             $validated['image_path'] = $newPath;
         }
 
-        unset($validated['image']);
-        $validated['stock_quantity'] = $this->sale_type === SaleType::STOCK->value ? (int) $validated['stock_quantity'] : 0;
+        unset($validated['image'], $validated['in_stock']);
+        $validated['sale_type'] = $this->in_stock ? SaleType::STOCK : SaleType::ON_DEMAND;
+        $validated['is_customizable'] = ! $this->in_stock;
+        $validated['stock_quantity'] = $this->in_stock ? (int) $validated['stock_quantity'] : 0;
         $validated['weight_kg'] = $product->exists ? $product->weight_kg : Product::DEFAULT_WEIGHT_KG;
         $validated['production_days'] = Product::PRODUCTION_DAYS;
         $validated['slug'] = $this->uniqueSlug($this->name, $product);
@@ -152,7 +150,7 @@ class Index extends Component
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'height_cm',
-            'width_cm', 'length_cm', 'is_customizable', 'image', 'sale_type', 'stock_quantity', 'originalStockQuantity',
+            'width_cm', 'length_cm', 'image', 'in_stock', 'stock_quantity', 'originalStockQuantity',
         ]);
         $this->resetValidation();
     }

@@ -96,7 +96,7 @@ Os seeders são de demonstração e recusam execução em produção. Reexecutá
 
 ## Modalidade de venda e estoque
 
-No cadastro e na edição em `/admin/produtos`, escolha **Sob demanda** ou **Em estoque**.
+No cadastro e na edição em `/admin/produtos`, use o switch **Em estoque**: desligado para **Sob demanda**, ligado para informar a quantidade disponível.
 
 - Sob demanda: produção em 15 dias, sem controle de quantidade. Os produtos anteriores permanecem nesta modalidade.
 - Em estoque: quantidade inteira obrigatória, a partir de zero. Zero mostra o produto como esgotado e impede a compra. Não há prazo de produção.
@@ -106,7 +106,7 @@ No cadastro e na edição em `/admin/produtos`, escolha **Sob demanda** ou **Em 
 - Pedidos aguardando pagamento mantêm a reserva. Não há expiração automática: cancele o pedido no painel para devolver as unidades. Reembolso de pagamento não cancela o pedido automaticamente.
 - O cancelamento devolve somente unidades de itens vendidos em estoque, usando a modalidade registrada no pedido. A devolução acontece uma única vez, inclusive se o produto tiver sido excluído logicamente.
 - Pedidos mistos mantêm o prazo de produção das peças sob demanda. Pedidos apenas de estoque podem passar de pagamento confirmado para pronto para envio.
-- A opção de personalização continua independente da modalidade de venda.
+- O cadastro não tem uma opção separada de personalização: produtos sob demanda aceitam personalização; produtos em estoque são peças prontas e não solicitam instruções nem referências.
 
 Ao atualizar uma instalação existente, execute `php artisan migrate` para adicionar os campos sem apagar os dados.
 
