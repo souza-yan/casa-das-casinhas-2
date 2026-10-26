@@ -1,59 +1,160 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Casa das Casinhas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Loja de peças artesanais de madeira sob encomenda. Inclui catálogo, busca e ordenação de produtos, carrinho, checkout, acompanhamento de pedidos, perfil do cliente e administração de produtos e pedidos.
 
-## About Laravel
+## Tecnologias
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 ou superior e Laravel 12.
+- Livewire 3, Alpine.js 3 e TallStackUI 3.
+- Tailwind CSS 4 e Vite 7.
+- MySQL para a aplicação; SQLite em memória para os testes.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Pré-requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Instale Git, Composer 2, MySQL e Node.js compatível com Vite 7 (20.19+ ou 22.12+; recomenda-se Node 22.12+). O PHP precisa das extensões exigidas pelo Composer, além de `pdo_mysql` para acessar o MySQL. Para os testes, habilite `pdo_sqlite` e `sqlite3`. Confira o PHP do terminal com `php --ini` e `php -m`.
 
-## Learning Laravel
+## Clonar e instalar
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```sh
+git clone https://github.com/souza-yan/casa-das-casinhas-2.git
+cd casa-das-casinhas-2
+composer install
+npm ci
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Crie o arquivo de configuração local **somente se `.env` ainda não existir**:
 
-## Laravel Sponsors
+```sh
+# Linux / macOS
+cp .env.example .env
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```powershell
+# Windows / PowerShell
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
+```
 
-### Premium Partners
+Crie um banco vazio no MySQL e ajuste o `.env` com os seus dados:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```dotenv
+APP_NAME="Casa das Casinhas"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
 
-## Contributing
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db-casa-das-casinhas
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Não publique o `.env` nem credenciais. Em uma instalação nova, execute:
 
-## Code of Conduct
+```sh
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+php artisan storage:link
+npm run build
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Abra http://127.0.0.1:8000. O MySQL deve estar em execução. As migrations criam também as tabelas de sessão, cache e fila usadas pela configuração padrão.
 
-## Security Vulnerabilities
+## Desenvolvimento
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Para atualizar CSS e JavaScript automaticamente, mantenha dois terminais abertos:
 
-## License
+```sh
+# Terminal 1
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```sh
+# Terminal 2
+npm run dev
+```
+
+Para processar tarefas assíncronas, abra outro terminal com `php artisan queue:work`. Alternativamente, `composer run dev` inicia servidor, fila, logs e Vite juntos em ambientes compatíveis com Laravel Pail.
+
+No PowerShell, caso `npm.ps1` seja bloqueado pela política de execução, use `npm.cmd ci`, `npm.cmd run dev` e `npm.cmd run build`.
+
+## Dados de demonstração
+
+`php artisan db:seed` cria ou atualiza cinco produtos e dois usuários locais:
+
+| Perfil | E-mail padrão | Senha padrão |
+| --- | --- | --- |
+| Administrador | admin@casadascasinhas.test | password |
+| Cliente | cliente@casadascasinhas.test | password |
+
+O administrador acessa `/admin`. Configure `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` no `.env` para alterar os dados do administrador. O cliente usa `CUSTOMER_NAME`, `CUSTOMER_EMAIL` e `CUSTOMER_PASSWORD`.
+
+Os seeders são de demonstração e recusam execução em produção. Reexecutá-los atualiza os dados dos produtos e usuários de demonstração, incluindo senhas, preços e imagens.
+
+## Imagens dos produtos
+
+As imagens de demonstração ficam em `database/seeders/assets/products/`, com nomes terminando em `-1200x1500.png`. O `ProductSeeder` copia esses arquivos para `storage/app/public/products` e registra os caminhos no banco.
+
+Depois de trocar uma imagem de demonstração, atualize o arquivo na pasta do seeder e execute:
+
+```sh
+php artisan db:seed --class=ProductSeeder
+```
+
+Os nomes precisam corresponder aos caminhos definidos em `database/seeders/ProductSeeder.php`. Imagens cadastradas pela administração são salvas no disco público. O link criado por `php artisan storage:link` permite acessar os arquivos por `/storage/products/...`.
+
+`storage` contém arquivos locais e não substitui a pasta de imagens versionadas do seeder. Inclua as novas imagens de origem no commit para que funcionem em outra instalação. As imagens estáticas das páginas ficam em `public/images`.
+
+## Integrações
+
+A navegação do catálogo não exige credenciais externas. Fluxos de pagamento, frete e notificações dependem das configurações correspondentes no `.env`:
+
+| Serviço | Configuração |
+| --- | --- |
+| Asaas | `ASAAS_URL`, `ASAAS_TOKEN`, `ASAAS_WEBHOOK_TOKEN` |
+| Melhor Envio | `MELHOR_ENVIO_URL`, `MELHOR_ENVIO_TOKEN`, `MELHOR_ENVIO_ORIGIN_ZIP_CODE`, `MELHOR_ENVIO_USER_AGENT` |
+| WhatsApp | `WHATSAPP_URL`, `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_RECIPIENT`, `WHATSAPP_TEMPLATE`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` |
+| E-mail | Variáveis `MAIL_*`; por padrão, `MAIL_MAILER=log` grava as mensagens em `storage/logs/laravel.log` |
+
+Use os ambientes sandbox durante o desenvolvimento. Consulte [docs/arquitetura.md](docs/arquitetura.md) para detalhes de regras de negócio e webhooks.
+
+## Redes sociais
+
+Os ícones do topo, menu mobile e rodapé compartilham os links de  `config/social.php`. Configure `SOCIAL_INSTAGRAM_URL`, `SOCIAL_FACEBOOK_URL` e `SOCIAL_WHATSAPP_URL` no .env. Para abrir uma conversa, use um link como `https://wa.me/55DDDNUMERO`, substituindo pelo número real com código do país e DDD, apenas dígitos. Os valores padrão usam os perfis oficiais da Casa das Casinhas e o WhatsApp +55 (12) 98896-1502.
+
+## Testes e qualidade
+
+```sh
+php artisan test
+php artisan test --filter=DevelopmentSeederTest
+vendor/bin/pint --test
+npm run build
+```
+
+O `phpunit.xml` configura SQLite em memória para isolar os testes do MySQL local. O erro `could not find driver` nesse contexto indica que falta habilitar o driver SQLite no PHP usado pelo terminal.
+
+## Problemas comuns
+
+- **Vite manifest not found:** execute `npm ci` e `npm run build`, ou mantenha `npm run dev` em execução durante o desenvolvimento. O diretório `public/build` não é versionado.
+- **Imagem não aparece:** confira o nome do arquivo, o caminho no banco e o link `public/storage`. Execute `php artisan storage:link` se o link estiver ausente; para as imagens de demonstração, execute o `ProductSeeder` após atualizar os arquivos de origem.
+- **Imagem de origem não encontrada:** confira se os arquivos de `database/seeders/assets/products` foram incluídos no clone e se os nomes coincidem com o seeder.
+- **Erro de conexão com MySQL:** confirme que o serviço está ativo, que o banco existe e que as variáveis `DB_*` estão corretas.
+- **Configuração antiga após editar `.env`:** execute `php artisan config:clear`.
+- **Application key ausente:** em uma instalação nova, execute `php artisan key:generate`.
+
+## Estrutura
+
+- `app/Livewire`: comportamento dinâmico da loja e da administração.
+- `app/Actions` e `app/Services`: regras de negócio e integrações.
+- `resources/views/components`: componentes Blade reutilizáveis.
+- `resources/views/layouts`: layouts.
+- `resources/views`: páginas e views Livewire.
+- `database/migrations` e `database/seeders`: estrutura do banco e dados de demonstração.
+- `tests`: testes automatizados.
+
+## Publicação
+
+No servidor, configure o document root para `public/`, use `APP_ENV=production` e `APP_DEBUG=false`, configure credenciais próprias e permita escrita em `storage` e `bootstrap/cache`. Instale as dependências PHP sem as de desenvolvimento, gere os assets com `npm ci && npm run build`, execute as migrations do deploy e crie o link de storage. Configure também HTTPS, e-mail, processamento da fila e as integrações utilizadas. Não execute os seeders de demonstração em produção.
