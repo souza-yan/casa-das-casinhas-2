@@ -13,11 +13,37 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'customer_name', 'customer_email', 'customer_phone', 'subtotal', 'shipping_total', 'total', 'status', 'paid_at'];
+    protected $fillable = [
+        'user_id',
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'asaas_customer_id',
+        'checkout_token',
+        'guest_access_token_hash',
+        'guest_access_expires_at',
+        'guest_email_verification_token_hash',
+        'guest_email_verification_expires_at',
+        'guest_email_verified_at',
+        'subtotal',
+        'shipping_total',
+        'total',
+        'status',
+        'paid_at',
+    ];
 
     protected function casts(): array
     {
-        return ['subtotal' => 'decimal:2', 'shipping_total' => 'decimal:2', 'total' => 'decimal:2', 'status' => OrderStatus::class, 'paid_at' => 'datetime'];
+        return [
+            'subtotal' => 'decimal:2',
+            'shipping_total' => 'decimal:2',
+            'total' => 'decimal:2',
+            'status' => OrderStatus::class,
+            'paid_at' => 'datetime',
+            'guest_access_expires_at' => 'datetime',
+            'guest_email_verification_expires_at' => 'datetime',
+            'guest_email_verified_at' => 'datetime',
+        ];
     }
 
     public function user(): BelongsTo
