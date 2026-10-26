@@ -1,0 +1,13 @@
+<div class="mx-auto max-w-[920px] px-5 py-12 sm:px-8 lg:py-20">
+    <x-page-header eyebrow="Acompanhamento seguro" title="Pedido #{{ $order->id }}">Veja o status e os detalhes da sua encomenda.</x-page-header>
+    @if (session('status'))<div class="mt-6 border border-emerald-800/15 bg-emerald-50 p-4 text-base text-emerald-900">{{ session('status') }}</div>@endif
+    <div class="mt-8 grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
+        <aside class="h-fit border border-ink/10 bg-paper p-6"><p class="text-sm font-semibold uppercase tracking-[.18em] text-ink/40">Status atual</p><div class="mt-3"><x-status-badge :status="$order->status" /></div>@if ($order->status === \App\Enums\OrderStatus::PENDING_PAYMENT)<a href="{{ route('guest.orders.payment', $order) }}" class="mt-6 block rounded-sm bg-ink px-5 py-3 text-center text-base font-semibold text-paper">Acessar pagamento →</a>@endif<p class="mt-5 text-sm leading-5 text-ink/40">O pagamento só é confirmado após a validação segura do provedor.</p></aside>
+        <section><h2 class="font-serif text-3xl font-semibold">Itens do pedido</h2><div class="mt-4 divide-y divide-ink/10 border-y border-ink/10">@foreach ($order->items as $item)<div class="flex justify-between gap-4 py-4 text-base"><span>{{ $item->quantity }}× {{ $item->product_name }}</span><strong>R$ {{ number_format((float) $item->subtotal, 2, ',', '.') }}</strong></div>@endforeach</div><div class="mt-5 ml-auto grid max-w-xs gap-2 text-base"><p class="flex justify-between"><span class="text-ink/50">Subtotal</span><span>R$ {{ number_format((float) $order->subtotal, 2, ',', '.') }}</span></p><p class="flex justify-between"><span class="text-ink/50">Frete</span><span>R$ {{ number_format((float) $order->shipping_total, 2, ',', '.') }}</span></p><p class="mt-2 flex justify-between border-t border-ink/10 pt-3 font-semibold"><span>Total</span><span>R$ {{ number_format((float) $order->total, 2, ',', '.') }}</span></p></div></section>
+    </div>
+    @if ($order->guest_email_verified_at)
+        <section class="mt-8 border border-clay bg-clay/20 p-6"><h2 class="font-serif text-2xl">Quer acompanhar seus pedidos com mais facilidade?</h2><p class="mt-2 text-base text-ink/65">Crie sua conta usando os dados deste pedido. Você só precisará definir uma senha.</p><a href="{{ route('guest.orders.account', $order) }}" class="editorial-button mt-5">Criar minha conta</a></section>
+    @else
+        <p class="mt-8 text-sm leading-6 text-ink/55">Enviamos um e-mail para {{ $order->customer_email }} com um link seguro de acompanhamento e a opção de criar sua conta.</p>
+    @endif
+</div>

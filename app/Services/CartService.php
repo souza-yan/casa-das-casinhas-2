@@ -15,6 +15,7 @@ class CartService
         $items = session(self::KEY, []);
         $items[$product->id] = min(99, max(1, ($items[$product->id] ?? 0) + $quantity));
         session()->put(self::KEY, $items);
+        session()->forget('checkout.token');
     }
 
     public function update(Product $product, int $quantity): void
@@ -39,6 +40,7 @@ class CartService
     public function clear(): void
     {
         session()->forget(self::KEY);
+        session()->forget('checkout.token');
     }
 
     public function raw(): array

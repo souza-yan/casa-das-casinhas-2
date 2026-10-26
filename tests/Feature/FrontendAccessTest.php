@@ -20,9 +20,14 @@ class FrontendAccessTest extends TestCase
         $this->get(route('cart'))->assertOk();
     }
 
-    public function test_checkout_and_orders_require_authentication(): void
+    public function test_guest_can_access_checkout_but_orders_area_requires_authentication(): void
     {
-        $this->get(route('checkout'))->assertRedirect(route('login'));
+        $product = Product::factory()->create();
+
+        $this->withSession(['cart.items' => [$product->id => 1]])
+            ->get(route('checkout'))
+            ->assertOk()
+            ->assertSee('Nome completo');
         $this->get(route('orders.index'))->assertRedirect(route('login'));
     }
 

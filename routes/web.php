@@ -2,12 +2,16 @@
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\AsaasWebhookController;
+use App\Http\Controllers\GuestOrderEmailVerificationController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Orders\Index as AdminOrdersIndex;
 use App\Livewire\Admin\Orders\Show as AdminOrderShow;
 use App\Livewire\Admin\Products\Index as ProductsIndex;
 use App\Livewire\Cart;
 use App\Livewire\Checkout;
+use App\Livewire\GuestOrders\CreateAccount as GuestOrderCreateAccount;
+use App\Livewire\GuestOrders\Payment as GuestOrderPayment;
+use App\Livewire\GuestOrders\Show as GuestOrderShow;
 use App\Livewire\Orders\Index as OrdersIndex;
 use App\Livewire\Orders\Payment as OrderPayment;
 use App\Livewire\Orders\Show as OrderShow;
@@ -32,11 +36,18 @@ Route::get('/produtos', Store::class)->name('store');
 Route::redirect('/loja', '/produtos', 301);
 Route::get('/produtos/{product:slug}', ProductDetail::class)->name('products.show');
 Route::get('/carrinho', Cart::class)->middleware('customer-area')->name('cart');
+Route::get('/checkout', Checkout::class)->middleware('customer-area')->name('checkout');
 Route::middleware(['auth', 'customer-area'])->group(function (): void {
-    Route::get('/checkout', Checkout::class)->name('checkout');
     Route::get('/pedidos', OrdersIndex::class)->name('orders.index');
     Route::get('/pedidos/{order}', OrderShow::class)->name('orders.show');
     Route::get('/pedidos/{order}/pagamento', OrderPayment::class)->name('orders.payment');
+});
+
+Route::prefix('/acompanhar-pedido/{order}')->middleware('throttle:20,1')->group(function (): void {
+    Route::get('/verificar-email/{token}', GuestOrderEmailVerificationController::class)->name('guest.orders.verify');
+    Route::get('/criar-conta', GuestOrderCreateAccount::class)->name('guest.orders.account');
+    Route::get('/pagamento', GuestOrderPayment::class)->name('guest.orders.payment');
+    Route::get('/{token?}', GuestOrderShow::class)->name('guest.orders.show');
 });
 
 Route::get('/dashboard', Profile::class)

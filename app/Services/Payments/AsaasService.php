@@ -11,11 +11,16 @@ class AsaasService
 {
     public function createCharge(Order $order): array
     {
-        $customerId = $order->user->asaas_customer_id;
+        $order->loadMissing('user');
+        $customerId = $order->user?->asaas_customer_id ?? $order->asaas_customer_id;
         if (! $customerId) {
-            $customer = $this->client()->post('/v3/customers', ['name' => $order->customer_name, 'email' => $order->customer_email, 'externalReference' => 'user:'.$order->user_id])->throw()->json();
+            $customer = $this->client()->post('/v3/customers', ['name' => $order->customer_name, 'email' => $order->customer_email, 'externalReference' => 'order:'.$order->id])->throw()->json();
             $customerId = $customer['id'];
-            $order->user->update(['asaas_customer_id' => $customerId]);
+            if ($order->user) {
+                $order->user->update(['asaas_customer_id' => $customerId]);
+            } else {
+                $order->update(['asaas_customer_id' => $customerId]);
+            }
         }
 
         return $this->client()->withHeaders(['asaas-idempotency-key' => 'order-'.$order->id])->post('/v3/payments', [
