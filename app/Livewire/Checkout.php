@@ -48,6 +48,8 @@ class Checkout extends Component
 
     public string $checkoutToken = '';
 
+    public int $step = 1;
+
     public function mount(): void
     {
         $user = auth()->user();
@@ -67,18 +69,54 @@ class Checkout extends Component
 
     protected function rules(): array
     {
+        return [...$this->personalRules(), ...$this->deliveryRules()];
+    }
+
+    private function personalRules(): array
+    {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:30'],
-            'zip_code' => ['required', 'string', 'max:9'],
-            'street' => ['required', 'string', 'max:255'],
-            'number' => ['required', 'string', 'max:30'],
-            'complement' => ['nullable', 'string', 'max:255'],
-            'district' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:255'],
-            'state' => ['required', 'string', 'size:2'],
+            'name' => ['required', 'string', 'min:3', 'max:255', "regex:/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s'’-]*$/u"],
+            'email' => ['required', 'email:rfc', 'max:255'],
+            'phone' => ['required', 'string', 'regex:/^\(\d{2}\) \d{4}-\d{4}$/'],
         ];
+    }
+
+    private function deliveryRules(): array
+    {
+        return [
+            'zip_code' => ['required', 'string', 'regex:/^\d{5}-\d{3}$/'],
+            'street' => ['required', 'string', 'min:3', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.,'ºª°-]+$/u"],
+            'number' => ['required', 'string', 'max:30', "regex:/^[\\p{L}\\p{M}\\d\\s/-]+$/u"],
+            'complement' => ['nullable', 'string', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.,'ºª°#/-]*$/u"],
+            'district' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.'’-]+$/u"],
+            'city' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\\p{L}\\p{M}\\s.'’-]+$/u"],
+            'state' => ['required', 'string', 'regex:/^[A-Z]{2}$/'],
+        ];
+    }
+
+    public function continueToDelivery(): void
+    {
+        $this->validate($this->personalRules());
+        $this->step = 2;
+    }
+
+    public function continueToPayment(): void
+    {
+        $this->validate($this->deliveryRules());
+
+        if (! $this->shippingId) {
+            $this->addError('shippingId', 'Selecione uma opção de entrega para continuar.');
+
+            return;
+        }
+
+        $this->step = 3;
+    }
+
+    public function goToStep(int $step): void
+    {
+        abort_unless(in_array($step, [1, 2], true), 404);
+        $this->step = $step;
     }
 
     public function quote(CartService $cart, MelhorEnvioService $shipping): void

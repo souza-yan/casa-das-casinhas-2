@@ -26,17 +26,24 @@ class ProductDetail extends Component
         $this->product = $product;
     }
 
-    public function add(CartService $cart): void
+    public function add(CartService $cart)
     {
         abort_if(auth()->user()?->role === Role::ADMIN, 403);
         $validated = $this->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
-            'personalization' => [$this->product->is_customizable ? 'required' : 'nullable', 'string', 'max:1500'],
+            'personalization' => ['required', 'string', 'max:1500'],
         ], [
             'personalization.required' => 'Descreva como deseja personalizar esta peça.',
         ]);
         $cart->add($this->product, $this->quantity, $validated['personalization'] ?? null);
         $this->dispatch('cart-updated');
+
+        if (! auth()->check()) {
+            $this->toast()->success('Produto adicionado', 'Preencha os dados de compra para continuar.')->flash()->send();
+
+            return redirect()->route('checkout');
+        }
+
         $this->toast()->success('Produto adicionado', "{$this->product->name} já está no seu carrinho.")->send();
     }
 
