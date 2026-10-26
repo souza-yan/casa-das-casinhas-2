@@ -52,7 +52,6 @@ class CreateAccount extends Component
         $user = User::create([
             'name' => $this->order->customer_name,
             'email' => $this->order->customer_email,
-            'email_verified_at' => now(),
             'password' => Hash::make($validated['password']),
             'role' => Role::CUSTOMER,
             'phone' => $this->order->customer_phone,
@@ -64,6 +63,7 @@ class CreateAccount extends Component
             'city' => $this->order->address->city,
             'state' => $this->order->address->state,
         ]);
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         $this->order->update(['user_id' => $user->id]);
         $access->claimVerifiedOrderFor($user);

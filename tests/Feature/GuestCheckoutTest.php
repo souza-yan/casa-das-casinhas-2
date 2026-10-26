@@ -7,6 +7,10 @@ use App\Enums\Role;
 use App\Livewire\Checkout;
 use App\Livewire\GuestOrders\CreateAccount;
 use App\Mail\GuestOrderConfirmation;
+use App\Actions\CreatePayment;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Jobs\ProcessAsaasWebhook;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -82,6 +86,29 @@ class GuestCheckoutTest extends TestCase
 
         $this->assertTrue($first->is($second));
         $this->assertSame(1, Order::count());
+    }
+
+    public function test_confirmed_guest_payment_updates_the_order_without_a_user(): void
+    {
+        Http::fake([
+            '*/v3/customers' => Http::response(['id' => 'cus_guest_1']),
+            '*/v3/payments' => Http::response(['id' => 'pay_guest_1', 'invoiceUrl' => 'https://sandbox.example/pay']),
+        ]);
+        [$order] = $this->guestOrder();
+        $payment = app(CreatePayment::class)->execute($order);
+        $event = $payment->webhookEvents()->create([
+            'provider' => 'asaas',
+            'external_event_id' => 'evt_guest_confirmed',
+            'event_type' => 'PAYMENT_CONFIRMED',
+            'payload' => ['payment' => ['id' => $payment->provider_payment_id, 'value' => (float) $payment->amount]],
+            'status' => 'pending',
+        ]);
+
+        (new ProcessAsaasWebhook($event))->handle();
+
+        $this->assertNull($order->user_id);
+        $this->assertSame(PaymentStatus::CONFIRMED, $payment->refresh()->status);
+        $this->assertSame(OrderStatus::PAID, $order->refresh()->status);
     }
 
     public function test_guest_order_cannot_be_accessed_without_its_secret_token(): void
