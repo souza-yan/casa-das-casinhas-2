@@ -2,7 +2,7 @@
     <div class="mx-auto max-w-[1400px] px-5 pb-20 pt-6 sm:px-8 lg:px-12 lg:pb-28">
         <nav class="mb-6 text-sm text-ink/45"><a href="{{ route('home') }}" class="hover:text-bark">Início</a><span class="mx-2">/</span><a href="{{ route('store') }}" class="hover:text-bark">Produtos</a><span class="mx-2">/</span><span class="text-ink">{{ $product->name }}</span></nav>
         <div class="grid gap-10 lg:grid-cols-[1.28fr_.72fr] lg:gap-20">
-            <div class="aspect-[4/3] self-start overflow-hidden rounded-sm bg-sand">@if ($product->image_path)<img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="block size-full object-cover">@else<div class="grid size-full place-items-center font-serif text-3xl">Feito à mão</div>@endif</div>
+            <div class="aspect-[4/5] self-start overflow-hidden rounded-sm bg-sand">@if ($product->image_path)<img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="block size-full object-cover">@else<div class="grid size-full place-items-center font-serif text-3xl">Feito à mão</div>@endif</div>
             <div class="self-center lg:py-8">
                 <p class="text-sm font-semibold uppercase tracking-[.22em] text-clay">Produzido sob encomenda</p>
                 <h1 class="mt-4 font-serif text-5xl leading-none tracking-[-.05em] sm:text-6xl">{{ $product->name }}</h1>
