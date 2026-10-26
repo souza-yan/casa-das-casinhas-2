@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\CartService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -52,9 +53,16 @@ class CreateOrder
                     return $existing->load(['items', 'address']);
                 }
 
-                $products = Product::query()->whereIn('id', array_keys($cart))->where('is_active', true)->lockForUpdate()->get()->keyBy('id');
-                throw_if($products->count() !== count($cart), ValidationException::withMessages(['cart' => 'Um produto não está mais disponível.']));
-                $subtotal = $products->sum(fn (Product $p) => round((float) $p->price * max(1, (int) $cart[$p->id]), 2));
+                $lines = app(CartService::class)->lines($cart);
+                $products = Product::query()->whereIn('id', collect($lines)->pluck('product_id')->unique())->where('is_active', true)->lockForUpdate()->get()->keyBy('id');
+                throw_if($products->count() !== collect($lines)->pluck('product_id')->unique()->count(), ValidationException::withMessages(['cart' => 'Um produto não está mais disponível.']));
+                foreach ($lines as $line) {
+                    $product = $products->get($line['product_id']);
+                    if ($product->is_customizable && blank($line['personalization_description'])) {
+                        throw ValidationException::withMessages(['cart' => "Informe a personalização de {$product->name} antes de finalizar."]);
+                    }
+                }
+                $subtotal = collect($lines)->sum(fn (array $line) => round((float) $products->get($line['product_id'])->price * $line['quantity'], 2));
                 $order = Order::create([
                     'user_id' => $user?->id,
                     'customer_name' => $user?->name ?? $customer['name'],
@@ -70,9 +78,18 @@ class CreateOrder
                     'total' => round($subtotal + $shippingTotal, 2),
                     'status' => OrderStatus::PENDING_PAYMENT,
                 ]);
-                foreach ($products as $product) {
-                    $quantity = max(1, (int) $cart[$product->id]);
-                    $order->items()->create(['product_id' => $product->id, 'product_name' => $product->name, 'quantity' => $quantity, 'unit_price' => $product->price, 'subtotal' => round((float) $product->price * $quantity, 2)]);
+                foreach ($lines as $line) {
+                    $product = $products->get($line['product_id']);
+                    $order->items()->create([
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'quantity' => $line['quantity'],
+                        'unit_price' => $product->price,
+                        'subtotal' => round((float) $product->price * $line['quantity'], 2),
+                        'personalization_description' => $line['personalization_description'],
+                        'reference_paths' => $line['reference_paths'],
+                        'production_days' => $product->production_days,
+                    ]);
                 }
                 $order->address()->create($address);
 

@@ -8,6 +8,7 @@ enum OrderStatus: string
 {
     case PENDING_PAYMENT = 'pending_payment';
     case PAID = 'paid';
+    case AWAITING_PERSONALIZATION_APPROVAL = 'awaiting_personalization_approval';
     case IN_PRODUCTION = 'in_production';
     case READY_TO_SHIP = 'ready_to_ship';
     case SHIPPED = 'shipped';
@@ -17,7 +18,8 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::PENDING_PAYMENT => 'Aguardando pagamento', self::PAID => 'Pago',
+            self::PENDING_PAYMENT => 'Aguardando pagamento', self::PAID => 'Pagamento confirmado',
+            self::AWAITING_PERSONALIZATION_APPROVAL => 'Aguardando aprovação da personalização',
             self::IN_PRODUCTION => 'Em produção', self::READY_TO_SHIP => 'Pronto para envio',
             self::SHIPPED => 'Enviado', self::DELIVERED => 'Entregue', self::CANCELLED => 'Cancelado',
         };
@@ -26,8 +28,8 @@ enum OrderStatus: string
     public function canTransitionTo(self $next): bool
     {
         return in_array($next, match ($this) {
-            self::PENDING_PAYMENT => [self::PAID, self::CANCELLED],
-            self::PAID => [self::IN_PRODUCTION, self::CANCELLED],
+            self::PENDING_PAYMENT => [self::PAID, self::AWAITING_PERSONALIZATION_APPROVAL, self::CANCELLED],
+            self::PAID, self::AWAITING_PERSONALIZATION_APPROVAL => [self::IN_PRODUCTION, self::CANCELLED],
             self::IN_PRODUCTION => [self::READY_TO_SHIP, self::CANCELLED],
             self::READY_TO_SHIP => [self::SHIPPED, self::CANCELLED],
             self::SHIPPED => [self::DELIVERED],

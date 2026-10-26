@@ -81,4 +81,14 @@ class Order extends Model
         $this->status->assertCanTransitionTo($status);
         $this->update(['status' => $status]);
     }
+
+    public function productionDays(): int
+    {
+        return (int) $this->items->max('production_days');
+    }
+
+    public function requiresPersonalizationApproval(): bool
+    {
+        return $this->items()->whereNotNull('personalization_description')->where('personalization_description', '!=', '')->exists();
+    }
 }

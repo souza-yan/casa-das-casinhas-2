@@ -28,6 +28,7 @@ class Product extends Model
         'width_cm',
         'length_cm',
         'production_days',
+        'is_customizable',
         'is_active',
     ];
 
@@ -40,6 +41,7 @@ class Product extends Model
             'width_cm' => 'decimal:2',
             'length_cm' => 'decimal:2',
             'production_days' => 'integer',
+            'is_customizable' => 'boolean',
             'is_active' => 'boolean',
         ];
     }

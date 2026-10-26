@@ -44,7 +44,13 @@ class ProcessAsaasWebhook implements ShouldQueue
                     $payment->update(['status' => $status, 'confirmed_at' => $status === PaymentStatus::CONFIRMED ? ($payment->confirmed_at ?? now()) : $payment->confirmed_at]);
                 }
                 if (! $terminal && $status === PaymentStatus::CONFIRMED && $payment->order->status === OrderStatus::PENDING_PAYMENT) {
-                    $payment->order->update(['status' => OrderStatus::PAID, 'paid_at' => now()]);
+                    $payment->order->load('items');
+                    $payment->order->update([
+                        'status' => $payment->order->requiresPersonalizationApproval()
+                            ? OrderStatus::AWAITING_PERSONALIZATION_APPROVAL
+                            : OrderStatus::PAID,
+                        'paid_at' => now(),
+                    ]);
                     $recipient = (string) config('services.whatsapp.recipient');
                     if ($recipient !== '') {
                         $notification = OrderNotification::firstOrCreate(
