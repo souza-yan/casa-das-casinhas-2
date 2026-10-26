@@ -3,7 +3,7 @@
 <article class="group min-w-0">
     <a href="{{ route('products.show', $product) }}" class="relative block aspect-[4/5] overflow-hidden bg-cream">
         @if ($product->image_path)
-            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="size-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]">
+            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="size-full object-contain">
         @else
             <div class="grid size-full place-items-center font-serif text-2xl text-bark">Feito à mão</div>
         @endif
