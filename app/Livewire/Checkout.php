@@ -39,6 +39,20 @@ class Checkout extends Component
 
     public ?string $error = null;
 
+    public function mount(): void
+    {
+        $user = auth()->user();
+
+        $this->phone = $user->phone ?? '';
+        $this->zip_code = $user->zip_code ?? '';
+        $this->street = $user->street ?? '';
+        $this->number = $user->number ?? '';
+        $this->complement = $user->complement;
+        $this->district = $user->district ?? '';
+        $this->city = $user->city ?? '';
+        $this->state = $user->state ?? '';
+    }
+
     protected function rules(): array
     {
         return ['phone' => ['required', 'string', 'max:30'], 'zip_code' => ['required', 'string', 'max:9'], 'street' => ['required', 'string', 'max:255'], 'number' => ['required', 'string', 'max:30'], 'complement' => ['nullable', 'string', 'max:255'], 'district' => ['required', 'string', 'max:255'], 'city' => ['required', 'string', 'max:255'], 'state' => ['required', 'string', 'size:2']];

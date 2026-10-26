@@ -17,7 +17,7 @@
         <aside>
             <section class="border border-ink/10 bg-paper p-6">
                 <p class="text-sm font-semibold uppercase tracking-[.18em] text-clay">Dados pessoais</p>
-                <dl class="mt-5 grid gap-4 text-base"><div><dt class="text-sm text-ink/40">Nome</dt><dd class="mt-1 font-medium">{{ auth()->user()->name }}</dd></div><div><dt class="text-sm text-ink/40">E-mail</dt><dd class="mt-1 break-all font-medium">{{ auth()->user()->email }}</dd></div><div><dt class="text-sm text-ink/40">Cliente desde</dt><dd class="mt-1 font-medium">{{ auth()->user()->created_at->format('d/m/Y') }}</dd></div></dl>
+                <dl class="mt-5 grid gap-4 text-base"><div><dt class="text-sm text-ink/40">Nome</dt><dd class="mt-1 font-medium">{{ auth()->user()->name }}</dd></div><div><dt class="text-sm text-ink/40">E-mail</dt><dd class="mt-1 break-all font-medium">{{ auth()->user()->email }}</dd></div><div><dt class="text-sm text-ink/40">Cliente desde</dt><dd class="mt-1 font-medium">{{ auth()->user()->created_at->format('d/m/Y') }}</dd></div><div class="border-t border-ink/10 pt-4"><dt class="text-sm text-ink/40">Endereço padrão</dt>@if (auth()->user()->zip_code)<dd class="mt-1 font-medium">{{ auth()->user()->street }}, {{ auth()->user()->number }}@if (auth()->user()->complement) · {{ auth()->user()->complement }}@endif<br>{{ auth()->user()->district }} · {{ auth()->user()->city }}/{{ auth()->user()->state }}<br>CEP {{ auth()->user()->zip_code }}</dd>@else<dd class="mt-1 text-sm text-ink/50">Nenhum endereço cadastrado.</dd>@endif</div></dl>
             </section>
         </aside>
 
@@ -38,6 +38,11 @@
     <x-modal wire="profileModal" size="2xl" center scrollable title="Editar perfil">
         <form wire:submit="updateProfile" class="grid gap-5">
             <div class="grid gap-4 sm:grid-cols-2"><x-form-field label="Nome" name="name" wire:model="name" required /><x-form-field label="E-mail" name="email" type="email" wire:model="email" required /></div>
+            <div class="border-t border-ink/10 pt-5"><h2 class="font-serif text-xl font-semibold">Endereço padrão</h2><p class="mt-1 text-sm text-ink/45">Será preenchido automaticamente na sua próxima compra.</p></div>
+            <div class="grid gap-4 sm:grid-cols-2"><x-form-field label="Telefone" name="phone" wire:model="phone" /><x-form-field label="CEP" name="zip_code" wire:model="zip_code" /></div>
+            <div class="grid gap-4 sm:grid-cols-[1fr_9rem]"><x-form-field label="Rua" name="street" wire:model="street" /><x-form-field label="Número" name="number" wire:model="number" /></div>
+            <x-form-field label="Complemento" name="complement" wire:model="complement" />
+            <div class="grid gap-4 sm:grid-cols-3"><x-form-field label="Bairro" name="district" wire:model="district" /><x-form-field label="Cidade" name="city" wire:model="city" /><x-form-field label="UF" name="state" maxlength="2" wire:model="state" /></div>
             <div class="border-t border-ink/10 pt-5"><h2 class="font-serif text-xl font-semibold">Alterar senha</h2><p class="mt-1 text-sm text-ink/45">Deixe estes campos vazios para manter a senha atual.</p></div>
             <x-form-field label="Senha atual" name="current_password" type="password" wire:model="current_password" autocomplete="current-password" />
             <div class="grid gap-4 sm:grid-cols-2"><x-form-field label="Nova senha" name="password" type="password" wire:model="password" autocomplete="new-password" /><x-form-field label="Confirmar nova senha" name="password_confirmation" type="password" wire:model="password_confirmation" autocomplete="new-password" /></div>

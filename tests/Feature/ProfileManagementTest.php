@@ -21,6 +21,14 @@ class ProfileManagementTest extends TestCase
             ->call('openEditor')
             ->set('name', 'Nome Atualizado')
             ->set('email', 'novo@example.com')
+            ->set('phone', '(11) 99999-9999')
+            ->set('zip_code', '01001-000')
+            ->set('street', 'Praça da Sé')
+            ->set('number', '100')
+            ->set('complement', 'Sala 2')
+            ->set('district', 'Sé')
+            ->set('city', 'São Paulo')
+            ->set('state', 'sp')
             ->call('updateProfile')
             ->assertHasNoErrors()
             ->assertSet('profileModal', false);
@@ -29,6 +37,14 @@ class ProfileManagementTest extends TestCase
             'id' => $customer->id,
             'name' => 'Nome Atualizado',
             'email' => 'novo@example.com',
+            'phone' => '(11) 99999-9999',
+            'zip_code' => '01001-000',
+            'street' => 'Praça da Sé',
+            'number' => '100',
+            'complement' => 'Sala 2',
+            'district' => 'Sé',
+            'city' => 'São Paulo',
+            'state' => 'SP',
         ]);
     }
 

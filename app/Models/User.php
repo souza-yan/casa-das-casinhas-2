@@ -26,6 +26,14 @@ class User extends Authenticatable
         'password',
         'role',
         'asaas_customer_id',
+        'phone',
+        'zip_code',
+        'street',
+        'number',
+        'complement',
+        'district',
+        'city',
+        'state',
     ];
 
     /**
