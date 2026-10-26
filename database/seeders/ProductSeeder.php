@@ -17,21 +17,11 @@ class ProductSeeder extends Seeder
 
         $products = [
             [
-                'slug' => 'casas-da-vila',
-                'name' => 'Casas da Vila',
-                'description' => 'Painel artesanal em madeira MDF, pintado à mão, com casinhas coloridas, igreja central e cenas que celebram a vida, a cultura e a memória das vilas brasileiras.',
-                'price' => 289.90,
-                'image_path' => 'images/products/casas-da-vila.png',
-                'height_cm' => 40,
-                'width_cm' => 80,
-                'length_cm' => 5,
-            ],
-            [
                 'slug' => 'casinha',
                 'name' => 'Casinha',
                 'description' => 'Casinha artesanal de madeira, montada e pintada individualmente.',
                 'price' => 50.00,
-                'image_path' => 'products/barracao-produto.png',
+                'image_path' => 'products/barracao-produto-1200x1500.png',
                 'height_cm' => 30,
                 'width_cm' => 40,
                 'length_cm' => 5,
@@ -41,7 +31,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Dupla de casinhas',
                 'description' => 'Conjunto artesanal com duas casinhas de madeira, montadas e pintadas individualmente.',
                 'price' => 100.00,
-                'image_path' => 'products/vila-de-2-casas.png',
+                'image_path' => 'products/vila-de-2-casas-1200x1500.png',
                 'height_cm' => 30,
                 'width_cm' => 40,
                 'length_cm' => 5,
@@ -51,7 +41,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Vila de 3 casas',
                 'description' => 'Vila artesanal com três casinhas de madeira, montadas e pintadas individualmente.',
                 'price' => 150.00,
-                'image_path' => 'products/vila-de-3-casas.png',
+                'image_path' => 'products/vila-de-3-casas-1200x1500.png',
                 'height_cm' => 30,
                 'width_cm' => 40,
                 'length_cm' => 5,
@@ -61,7 +51,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Vila de 4 casas',
                 'description' => 'Vila artesanal com quatro casinhas de madeira, montadas e pintadas individualmente.',
                 'price' => 200.00,
-                'image_path' => 'products/vila-de-4-casas.png',
+                'image_path' => 'products/vila-de-4-casas-1200x1500.png',
                 'height_cm' => 30,
                 'width_cm' => 40,
                 'length_cm' => 5,
@@ -71,7 +61,7 @@ class ProductSeeder extends Seeder
                 'name' => 'Favela de 5 casas',
                 'description' => 'Conjunto artesanal com cinco casas de madeira, montadas e pintadas individualmente.',
                 'price' => 250.00,
-                'image_path' => 'products/vila-de-5-casas.png',
+                'image_path' => 'products/vila-de-5-casas-1200x1500.png',
                 'height_cm' => 30,
                 'width_cm' => 40,
                 'length_cm' => 5,
@@ -82,11 +72,11 @@ class ProductSeeder extends Seeder
             if (str_starts_with($data['image_path'], 'products/')) {
                 $sourcePath = database_path('seeders/assets/'.$data['image_path']);
 
-                if (! is_file($sourcePath)) {
+                if (is_file($sourcePath)) {
+                    Storage::disk('public')->put($data['image_path'], file_get_contents($sourcePath));
+                } elseif (! Storage::disk('public')->exists($data['image_path'])) {
                     throw new RuntimeException("Imagem de origem não encontrada: {$sourcePath}");
                 }
-
-                Storage::disk('public')->put($data['image_path'], file_get_contents($sourcePath));
             }
 
             $product = Product::withTrashed()->updateOrCreate(

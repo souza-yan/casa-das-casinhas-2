@@ -17,7 +17,7 @@
             <label class="flex items-center gap-2"><input name="remember" type="checkbox" class="rounded border-[#2a1b13]/30 text-[#4a2a16] focus:ring-[#4a2a16]"> Lembrar de mim</label>
             <a href="{{ route('password.request') }}" class="font-semibold text-[#4a2a16] hover:underline">Esqueci a senha</a>
         </div>
-        <button type="submit" class="editorial-button w-full">Entrar</button>
+        <x-action-button type="submit" class="w-full">Entrar</x-action-button>
     </form>
     <p class="mt-7 text-center text-base text-[#2a1b13]/60">Ainda não tem conta? <a href="{{ route('register') }}" class="font-semibold text-[#4a2a16] hover:underline">Cadastre-se</a></p>
 @endsection

@@ -10,7 +10,7 @@
         <x-form-field label="E-mail" name="email" type="email" autocomplete="email" :value="old('email')" required />
         <x-form-field label="Senha" name="password" type="password" autocomplete="new-password" required />
         <x-form-field label="Confirme a senha" name="password_confirmation" type="password" autocomplete="new-password" required />
-        <button type="submit" class="editorial-button w-full">Criar conta</button>
+        <x-action-button type="submit" class="w-full">Criar conta</x-action-button>
     </form>
     <p class="mt-7 text-center text-base text-[#2a1b13]/60">Já tem uma conta? <a href="{{ route('login') }}" class="font-semibold text-[#4a2a16] hover:underline">Entrar</a></p>
 @endsection

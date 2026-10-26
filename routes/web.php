@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome', [
         'featuredProducts' => Product::where('is_active', true)->latest()->take(6)->get(),
-        'heroProduct' => Product::where('is_active', true)->where('slug', 'casas-da-vila')->first(),
     ]);
 })->name('home');
 

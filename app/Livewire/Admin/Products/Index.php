@@ -85,7 +85,7 @@ class Index extends Component
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'is_customizable' => ['boolean'],
-            'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'max:4096'],
+            'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         if ($this->image) {

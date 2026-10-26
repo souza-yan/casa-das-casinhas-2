@@ -1,7 +1,6 @@
 <x-layouts.public title="Como produzimos — Casa das Casinhas">
     <section class="bg-clay/35 px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
         <div class="mx-auto max-w-[1280px]">
-            <p class="text-sm font-semibold uppercase tracking-[.12em] text-terracotta">Do pedido à entrega</p>
             <h1 class="mt-4 max-w-4xl font-serif text-4xl leading-[1.04] tracking-[-.04em] sm:text-6xl">Como produzimos</h1>
             <p class="mt-6 max-w-2xl text-lg leading-8 text-ink/65">Cada pedido passa pelas mãos do artesão antes de chegar ao seu endereço.</p>
         </div>
@@ -18,7 +17,6 @@
                     </li>
                 @endforeach
             </ol>
-            <a href="{{ route('store') }}" class="editorial-button mt-10">Ver produtos</a>
         </div>
     </section>
 </x-layouts.public>
