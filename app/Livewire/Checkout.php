@@ -77,7 +77,7 @@ class Checkout extends Component
         return [
             'name' => ['required', 'string', 'min:3', 'max:255', "regex:/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s'’-]*$/u"],
             'email' => ['required', 'email:rfc', 'max:255'],
-            'phone' => ['required', 'string', 'regex:/^\(\d{2}\) \d{4}-\d{4}$/'],
+            'phone' => ['required', 'string', 'regex:/^(?:\d{10,11}|\(\d{2}\) \d{4,5}-\d{4})$/'],
         ];
     }
 
@@ -86,8 +86,8 @@ class Checkout extends Component
         return [
             'zip_code' => ['required', 'string', 'regex:/^\d{5}-\d{3}$/'],
             'street' => ['required', 'string', 'min:3', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.,'ºª°-]+$/u"],
-            'number' => ['required', 'string', 'max:30', "regex:/^[\\p{L}\\p{M}\\d\\s/-]+$/u"],
-            'complement' => ['nullable', 'string', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.,'ºª°#/-]*$/u"],
+            'number' => ['required', 'string', 'max:30', 'regex:~^[\\p{L}\\p{M}\\d\\s/-]+$~u'],
+            'complement' => ['nullable', 'string', 'max:255', "regex:~^[\\p{L}\\p{M}\\d\\s.,'ºª°#/-]*$~u"],
             'district' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\\p{L}\\p{M}\\d\\s.'’-]+$/u"],
             'city' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\\p{L}\\p{M}\\s.'’-]+$/u"],
             'state' => ['required', 'string', 'regex:/^[A-Z]{2}$/'],

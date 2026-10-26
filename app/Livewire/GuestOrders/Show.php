@@ -12,7 +12,7 @@ class Show extends Component
 {
     public Order $order;
 
-    public function mount(Order $order, ?string $token = null, GuestOrderAccessService $access): void
+    public function mount(Order $order, GuestOrderAccessService $access, ?string $token = null): void
     {
         abort_if($order->user_id !== null, 404);
 

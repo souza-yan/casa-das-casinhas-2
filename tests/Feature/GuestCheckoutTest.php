@@ -3,14 +3,15 @@
 namespace Tests\Feature;
 
 use App\Actions\CreateOrder;
-use App\Enums\Role;
-use App\Livewire\Checkout;
-use App\Livewire\GuestOrders\CreateAccount;
-use App\Mail\GuestOrderConfirmation;
 use App\Actions\CreatePayment;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\Role;
+use App\Enums\SaleType;
 use App\Jobs\ProcessAsaasWebhook;
+use App\Livewire\Checkout;
+use App\Livewire\GuestOrders\CreateAccount;
+use App\Mail\GuestOrderConfirmation;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -19,6 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GuestCheckoutTest extends TestCase
@@ -36,7 +38,13 @@ class GuestCheckoutTest extends TestCase
         ]);
     }
 
-    public function test_guest_can_calculate_shipping_and_create_an_order_without_an_account(): void
+    public static function saleTypes(): array
+    {
+        return ['sob demanda' => ['on_demand'], 'em estoque' => ['stock']];
+    }
+
+    #[DataProvider('saleTypes')]
+    public function test_guest_can_calculate_shipping_and_create_an_order_without_an_account(string $saleType): void
     {
         Mail::fake();
         Http::fake([
@@ -44,7 +52,7 @@ class GuestCheckoutTest extends TestCase
             '*/v3/customers' => Http::response(['id' => 'cus_guest_1']),
             '*/v3/payments' => Http::response(['id' => 'pay_guest_1', 'invoiceUrl' => 'https://sandbox.example/pay']),
         ]);
-        $product = Product::factory()->create(['price' => 100]);
+        $product = Product::factory()->create(['price' => 100, 'sale_type' => $saleType, 'stock_quantity' => $saleType === 'stock' ? 2 : 0]);
         $this->withSession(['cart.items' => [$product->id => 1]]);
 
         Livewire::test(Checkout::class)
@@ -68,6 +76,9 @@ class GuestCheckoutTest extends TestCase
         $this->assertNull($order->user_id);
         $this->assertSame('Maria Visitante', $order->customer_name);
         $this->assertSame('120.00', $order->total);
+        $this->assertSame($saleType === 'stock' ? 1 : 0, $product->fresh()->stock_quantity);
+        $this->assertSame($saleType === 'stock' ? 0 : 15, $order->productionDays());
+        $this->assertSame(SaleType::from($saleType), $order->items->sole()->sale_type);
         $this->assertNotNull($order->guest_access_token_hash);
         $this->assertNotNull($order->payments()->first()?->provider_payment_id);
         Mail::assertSent(GuestOrderConfirmation::class, fn (GuestOrderConfirmation $mail) => $mail->order->is($order));
