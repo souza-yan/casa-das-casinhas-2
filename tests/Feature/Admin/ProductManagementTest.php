@@ -18,7 +18,7 @@ class ProductManagementTest extends TestCase
 
     public function test_admin_can_choose_stock_sale_and_return_to_on_demand(): void
     {
-        $product = Product::factory()->create();
+        $product = Product::factory()->create(['image_path' => 'products/test.png']);
         $form = Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)
             ->call('edit', $product->id)
             ->set('sale_type', 'stock')
@@ -37,7 +37,7 @@ class ProductManagementTest extends TestCase
 
     public function test_stock_quantity_is_required_and_must_be_a_non_negative_integer(): void
     {
-        $product = Product::factory()->create();
+        $product = Product::factory()->create(['image_path' => 'products/test.png']);
         $form = Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)
             ->call('edit', $product->id)->set('sale_type', 'stock');
 
@@ -95,7 +95,7 @@ class ProductManagementTest extends TestCase
     public function test_admin_can_update_and_soft_delete_product(): void
     {
         $admin = User::factory()->admin()->create();
-        $product = Product::factory()->create(['name' => 'Original', 'weight_kg' => 2.5, 'production_days' => 8]);
+        $product = Product::factory()->create(['image_path' => 'products/test.png', 'name' => 'Original', 'weight_kg' => 2.5, 'production_days' => 8]);
 
         Livewire::actingAs($admin)->test(Index::class)
             ->call('edit', $product->id)
