@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\SaleType;
 use App\Livewire\Admin\Products\Index;
 use App\Models\Product;
 use App\Models\User;
@@ -14,6 +15,39 @@ use Tests\TestCase;
 class ProductManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_admin_can_choose_stock_sale_and_return_to_on_demand(): void
+    {
+        $product = Product::factory()->create();
+        $form = Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)
+            ->call('edit', $product->id)
+            ->set('sale_type', 'stock')
+            ->set('stock_quantity', '7')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame(SaleType::STOCK, $product->fresh()->sale_type);
+        $this->assertSame(7, $product->fresh()->stock_quantity);
+        $this->assertSame(0, $product->fresh()->production_days);
+
+        $form->call('edit', $product->id)->set('sale_type', 'on_demand')->call('save')->assertHasNoErrors();
+        $this->assertSame(0, $product->fresh()->stock_quantity);
+        $this->assertSame(15, $product->fresh()->production_days);
+    }
+
+    public function test_stock_quantity_is_required_and_must_be_a_non_negative_integer(): void
+    {
+        $product = Product::factory()->create();
+        $form = Livewire::actingAs(User::factory()->admin()->create())->test(Index::class)
+            ->call('edit', $product->id)->set('sale_type', 'stock');
+
+        foreach (['', '-1', '1.5'] as $quantity) {
+            $form->set('stock_quantity', $quantity)->call('save')->assertHasErrors('stock_quantity');
+        }
+
+        $form->set('stock_quantity', '0')->call('save')->assertHasNoErrors();
+        $this->assertFalse($product->fresh()->is_available);
+    }
 
     public function test_only_admin_can_access_product_management(): void
     {

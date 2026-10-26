@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Products;
 
+use App\Enums\SaleType;
 use App\Models\Product;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
@@ -38,6 +39,10 @@ class Index extends Component
 
     public bool $is_customizable = false;
 
+    public string $sale_type = 'on_demand';
+
+    public string $stock_quantity = '';
+
     public $image = null;
 
     public function mount(): void
@@ -67,6 +72,8 @@ class Index extends Component
         $this->width_cm = $product->width_cm;
         $this->length_cm = $product->length_cm;
         $this->is_customizable = $product->is_customizable;
+        $this->sale_type = ($product->sale_type ?? SaleType::ON_DEMAND)->value;
+        $this->stock_quantity = (string) $product->stock_quantity;
         $this->image = null;
         $this->resetValidation();
         $this->productModal = true;
@@ -85,6 +92,8 @@ class Index extends Component
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'is_customizable' => ['boolean'],
+            'sale_type' => ['required', Rule::enum(SaleType::class)],
+            'stock_quantity' => ['exclude_unless:sale_type,stock', 'required', 'integer', 'min:0', 'max:2147483647'],
             'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
@@ -97,6 +106,7 @@ class Index extends Component
         }
 
         unset($validated['image']);
+        $validated['stock_quantity'] = $this->sale_type === SaleType::STOCK->value ? (int) $validated['stock_quantity'] : 0;
         $validated['weight_kg'] = $product->exists ? $product->weight_kg : Product::DEFAULT_WEIGHT_KG;
         $validated['production_days'] = Product::PRODUCTION_DAYS;
         $validated['slug'] = $this->uniqueSlug($this->name, $product);
@@ -126,7 +136,7 @@ class Index extends Component
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'height_cm',
-            'width_cm', 'length_cm', 'is_customizable', 'image',
+            'width_cm', 'length_cm', 'is_customizable', 'image', 'sale_type', 'stock_quantity',
         ]);
         $this->resetValidation();
     }

@@ -3,7 +3,7 @@
         <div>
             <p class="text-sm font-semibold uppercase tracking-[.18em] text-clay">Catálogo</p>
             <h1 class="mt-2 font-serif text-4xl font-semibold">Produtos</h1>
-            <p class="mt-2 text-sm text-stone-600">Gerencie as peças produzidas sob demanda.</p>
+            <p class="mt-2 text-sm text-stone-600">Gerencie peças sob demanda e produtos em estoque.</p>
         </div>
         <button type="button" wire:click="openCreate" class="grid size-12 shrink-0 place-items-center rounded-full bg-bark text-3xl font-light leading-none text-paper shadow-sm transition hover:scale-105 hover:bg-clay" aria-label="Cadastrar novo produto" title="Novo produto">+</button>
     </header>
@@ -17,14 +17,14 @@
         <div class="overflow-x-auto border border-stone-200 bg-paper">
             <table class="w-full min-w-[680px] text-left text-sm">
                 <thead class="border-b border-stone-200 bg-stone-50 text-sm uppercase tracking-wider text-stone-500">
-                    <tr><th class="px-4 py-3">Produto</th><th class="px-4 py-3">Preço</th><th class="px-4 py-3">Produção</th><th class="px-4 py-3 text-right">Ações</th></tr>
+                    <tr><th class="px-4 py-3">Produto</th><th class="px-4 py-3">Preço</th><th class="px-4 py-3">Disponibilidade</th><th class="px-4 py-3 text-right">Ações</th></tr>
                 </thead>
                 <tbody class="divide-y divide-stone-100">
                     @forelse ($products as $product)
                         <tr wire:key="product-{{ $product->id }}">
                             <td class="px-4 py-4 font-medium"><div class="flex items-center gap-3"><x-product-image :product="$product" variant="admin" /><span>{{ $product->name }}</span></div></td>
                             <td class="px-4 py-4">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</td>
-                            <td class="px-4 py-4">{{ $product->production_days }} dias</td>
+                            <td class="px-4 py-4">@if ($product->isStockProduct()) Em estoque: {{ $product->stock_quantity }} un. @else Sob demanda · {{ $product->production_days }} dias @endif</td>
                             <td class="px-4 py-4"><div class="flex justify-end gap-1"><button wire:click="edit({{ $product->id }})" class="grid size-9 place-items-center rounded-full text-bark transition hover:bg-sand/60" aria-label="Editar {{ $product->name }}" title="Editar produto"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13.5 6.5 17.5 10.5M4 20l4.2-1 10.6-10.6a2.8 2.8 0 0 0-4-4L4.2 15 4 20Z"/></svg></button><button wire:click="delete({{ $product->id }})" wire:confirm="Remover este produto do catálogo?" class="grid size-9 place-items-center rounded-full text-red-700 transition hover:bg-red-50" aria-label="Excluir {{ $product->name }}" title="Excluir produto"><svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button></div></td>
                         </tr>
                     @empty
@@ -39,6 +39,20 @@
     <x-modal wire="productModal" size="3xl" center scrollable title="{{ $editingId ? 'Editar produto' : 'Cadastrar produto' }}">
         <form wire:submit="save" class="product-form grid gap-4 text-sm">
             <div class="grid gap-4 md:grid-cols-2">
+                <label class="grid gap-1.5 font-semibold">
+                    <span>Modalidade de venda</span>
+                    <select wire:model.live="sale_type" class="rounded-sm border border-ink/15 bg-paper text-sm font-normal" required>
+                        <option value="on_demand">Sob demanda</option>
+                        <option value="stock">Em estoque</option>
+                    </select>
+                    @error('sale_type')<span class="font-normal text-red-700">{{ $message }}</span>@enderror
+                </label>
+                @if ($sale_type === 'stock')
+                    <x-form-field label="Quantidade disponível" name="stock_quantity" type="number" min="0" step="1" wire:model="stock_quantity" class="h-10 text-sm" required />
+                @endif
+            </div>
+            <p class="text-xs text-ink/60">@if ($sale_type === 'stock') Informe as unidades disponíveis para novas vendas, sem incluir as já reservadas em pedidos. Zero indica esgotado. @else Produção sob encomenda em 15 dias, sem limite de estoque. @endif</p>
+            <div class="grid gap-4 md:grid-cols-2">
                 <x-form-field label="Nome" name="name" wire:model="name" class="h-10 text-sm" required />
                 <x-form-field label="Preço (R$)" name="price" type="number" inputmode="decimal" step="0.01" min="0.01" wire:model="price" class="h-10 text-sm" required />
             </div>
@@ -46,7 +60,7 @@
             <label class="grid gap-1.5 text-sm font-semibold"><span>Descrição <span class="text-red-700" aria-hidden="true">*</span></span><textarea wire:model="description" rows="3" required class="rounded-sm border border-ink/15 bg-paper px-3 py-2 text-sm font-normal outline-none transition focus:border-bark focus:ring-1 focus:ring-bark"></textarea>@error('description')<span class="text-sm font-normal text-red-700">{{ $message }}</span>@enderror</label>
 
             <div>
-                <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-semibold uppercase tracking-[.14em] text-ink/45">Dimensões da peça</p><span class="text-[10px] text-ink/40">Produção padrão: 15 dias</span></div>
+                <div class="mb-2 flex items-center justify-between"><p class="text-[10px] font-semibold uppercase tracking-[.14em] text-ink/45">Dimensões da peça</p><span class="text-[10px] text-ink/40">{{ $sale_type === 'stock' ? 'Peça pronta, sem prazo de produção' : 'Produção padrão: 15 dias' }}</span></div>
                 <div class="grid grid-cols-3 gap-3">
                     <x-form-field label="Altura (cm)" name="height_cm" type="number" inputmode="decimal" step="0.01" wire:model="height_cm" class="h-10 px-3 text-sm" required />
                     <x-form-field label="Largura (cm)" name="width_cm" type="number" inputmode="decimal" step="0.01" wire:model="width_cm" class="h-10 px-3 text-sm" required />
