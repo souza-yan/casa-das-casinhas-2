@@ -9,8 +9,11 @@ use App\Mail\GuestOrderConfirmation;
 use App\Services\CartService;
 use App\Services\GuestOrderAccessService;
 use App\Services\Shipping\MelhorEnvioService;
+use App\Services\Shipping\PostalCodeService;
 use Illuminate\Support\Facades\Mail;
+use InvalidArgumentException;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use TallStackUi\Traits\Interactions;
 use Throwable;
@@ -49,6 +52,17 @@ class Checkout extends Component
     public string $checkoutToken = '';
 
     public int $step = 1;
+
+    #[Locked]
+    public bool $showAddressFields = false;
+
+    #[Locked]
+    public array $resolvedAddress = [];
+
+    #[Locked]
+    public ?string $resolvedZipCode = null;
+
+    public ?string $postalCodeError = null;
 
     public function mount(): void
     {
@@ -98,6 +112,56 @@ class Checkout extends Component
     {
         $this->validate($this->personalRules());
         $this->step = 2;
+        if (strlen(preg_replace('/\D/', '', $this->zip_code)) === 8 && ! $this->showAddressFields) {
+            app()->call([$this, 'lookupAddress']);
+        }
+    }
+
+    public function updatedZipCode(): void
+    {
+        $digits = preg_replace('/\D/', '', $this->zip_code);
+        if ($this->resolvedZipCode === $digits) {
+            $this->zip_code = substr($digits, 0, 5).'-'.substr($digits, 5);
+
+            return;
+        }
+
+        $this->reset('street', 'district', 'city', 'state', 'number', 'complement', 'resolvedAddress', 'resolvedZipCode', 'showAddressFields', 'postalCodeError', 'shippingOptions', 'shippingId', 'error');
+        $this->resetValidation(['zip_code', 'street', 'district', 'city', 'state', 'number', 'complement', 'shippingId']);
+
+        if (strlen($digits) === 8) {
+            app()->call([$this, 'lookupAddress']);
+        }
+    }
+
+    public function lookupAddress(PostalCodeService $addresses, CartService $cart, MelhorEnvioService $shipping): void
+    {
+        $digits = preg_replace('/\D/', '', $this->zip_code);
+        if (strlen($digits) !== 8) {
+            return;
+        }
+        $this->zip_code = substr($digits, 0, 5).'-'.substr($digits, 5);
+        $this->reset('postalCodeError', 'shippingOptions', 'shippingId', 'error', 'resolvedAddress');
+
+        try {
+            $this->resolvedAddress = $addresses->lookup($digits);
+            foreach ($this->resolvedAddress as $field => $value) {
+                $this->{$field} = $value;
+            }
+            $this->resolvedZipCode = $digits;
+            $this->showAddressFields = true;
+        } catch (InvalidArgumentException $exception) {
+            $this->postalCodeError = $exception->getMessage();
+            $this->showAddressFields = false;
+
+            return;
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->postalCodeError = 'Não foi possível buscar o endereço. Você pode preenchê-lo abaixo ou tentar novamente.';
+            $this->showAddressFields = true;
+        }
+
+        $this->quote($cart, $shipping);
     }
 
     public function continueToPayment(): void
@@ -122,22 +186,22 @@ class Checkout extends Component
     public function quote(CartService $cart, MelhorEnvioService $shipping): void
     {
         $this->validateOnly('zip_code');
+        $this->reset('shippingOptions', 'shippingId', 'error');
 
         if (blank(config('services.melhor_envio.token')) || blank(config('services.melhor_envio.origin_zip_code'))) {
-            $this->error = 'O Melhor Envio Sandbox ainda não está configurado. Configure as credenciais para calcular o frete.';
-            $this->toast()->warning('Frete indisponível', $this->error)->send();
+            $this->error = 'O frete está indisponível no momento. Tente novamente mais tarde.';
 
             return;
         }
 
         try {
             $this->shippingOptions = $shipping->quote($this->zip_code, $cart->items());
-            $this->error = null;
-            $this->toast()->success('Frete calculado', 'Escolha uma das opções de entrega disponíveis.')->send();
+            if ($this->shippingOptions === []) {
+                $this->error = 'Nenhuma opção de entrega foi encontrada para este CEP.';
+            }
         } catch (Throwable $e) {
             report($e);
-            $this->error = 'Não foi possível consultar o Melhor Envio Sandbox agora.';
-            $this->toast()->error('Erro ao calcular o frete', $this->error)->send();
+            $this->error = 'Não foi possível calcular o frete agora. Tente novamente em instantes.';
         }
     }
 
@@ -245,6 +309,7 @@ class Checkout extends Component
             'items' => $items,
             'subtotal' => $cart->subtotal(),
             'productionDays' => (int) $items->max(fn (array $item) => $item['product']->production_days),
+            'selectedShipping' => collect($this->shippingOptions)->firstWhere('id', $this->shippingId),
         ]);
     }
 }

@@ -21,10 +21,27 @@
                 <x-action-button type="button" wire:click="continueToDelivery" class="mt-8 w-full sm:w-auto">Continuar para entrega</x-action-button>
             @elseif ($step === 2)
                 <div class="border-b border-ink/10 pb-5"><h2 class="font-serif text-3xl font-semibold">Dados de entrega</h2><p class="mt-1 text-base text-ink/45">Informe onde sua peça deve chegar e escolha o frete.</p></div>
-                <div class="mt-7 grid gap-5 sm:grid-cols-2"><x-form-field label="CEP" name="zip_code" wire:model="zip_code" inputmode="numeric" maxlength="9" pattern="\d{5}-\d{3}" placeholder="00000-000" x-on:input="const digits = $el.value.replace(/\D/g, '').slice(0, 8); $el.value = digits.length > 5 ? digits.slice(0, 5) + '-' + digits.slice(5) : digits; $wire.set('zip_code', $el.value)" required /><x-form-field label="Rua" name="street" wire:model="street" minlength="3" x-on:input="$el.value = $el.value.replace(/[^\p{L}\p{M}\d\s.,'ºª°-]/gu, '')" required /><x-form-field label="Número" name="number" wire:model="number" maxlength="30" x-on:input="$el.value = $el.value.replace(/[^\p{L}\p{M}\d\s/-]/gu, '')" required /><x-form-field label="Complemento" name="complement" wire:model="complement" maxlength="255" x-on:input="$el.value = $el.value.replace(/[^\p{L}\p{M}\d\s.,'ºª°#/-]/gu, '')" /><x-form-field label="Bairro" name="district" wire:model="district" minlength="2" x-on:input="$el.value = $el.value.replace(/[^\p{L}\p{M}\d\s.'’-]/gu, '')" required /><x-form-field label="Cidade" name="city" wire:model="city" minlength="2" x-on:input="$el.value = $el.value.replace(/[^\p{L}\p{M}\s.'’-]/gu, '')" required /><x-form-field label="UF" name="state" maxlength="2" pattern="[A-Z]{2}" wire:model="state" x-on:input="$el.value = $el.value.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2); $wire.set('state', $el.value)" required /></div>
-                <x-action-button type="button" wire:click="quote" wire:loading.attr="disabled" class="mt-6">Calcular opções de frete</x-action-button>
-                @if ($error)<p class="mt-4 bg-red-50 px-4 py-3 text-base text-red-800">{{ $error }}</p>@endif
-                @if ($shippingOptions)<fieldset class="mt-7 grid gap-3"><legend class="mb-3 font-serif text-2xl font-semibold">Escolha a entrega</legend>@foreach ($shippingOptions as $option)<label class="flex cursor-pointer items-center justify-between gap-4 border border-ink/10 bg-paper p-4 transition has-[:checked]:border-ink"><span class="flex items-center gap-3 text-base"><input wire:model="shippingId" type="radio" value="{{ $option['id'] }}" class="text-ink focus:ring-ink"><span>{{ $option['carrier'] }} — {{ $option['name'] }}<small class="mt-1 block text-ink/45">Transporte: {{ $option['delivery_days'] }} dias úteis</small></span></span><strong class="text-base">R$ {{ number_format($option['price'], 2, ',', '.') }}</strong></label>@endforeach</fieldset>@endif
+                <div class="mt-7 grid gap-5 sm:grid-cols-2">
+                    <x-form-field label="CEP" name="zip_code" wire:model.live.debounce.500ms="zip_code" inputmode="numeric" autocomplete="postal-code" maxlength="9" pattern="\d{5}-\d{3}" placeholder="00000-000" x-on:input="const digits = $el.value.replace(/\D/g, '').slice(0, 8); $el.value = digits.length > 5 ? digits.slice(0, 5) + '-' + digits.slice(5) : digits" required />
+                </div>
+                <p wire:loading wire:target="zip_code,lookupAddress,quote" class="mt-3 text-sm text-ink/60" role="status">Buscando endereço e opções de entrega...</p>
+                @if ($postalCodeError)
+                    <div class="mt-3 text-sm text-red-700" role="alert"><p>{{ $postalCodeError }}</p><button type="button" wire:click="lookupAddress" wire:loading.attr="disabled" class="mt-2 underline underline-offset-4">Tentar novamente</button></div>
+                @endif
+                @if ($showAddressFields)
+                    <div class="mt-5 grid gap-5 sm:grid-cols-2" wire:key="delivery-address-{{ $zip_code }}">
+                        <x-form-field label="Rua" name="street" wire:model="street" autocomplete="address-line1" :readonly="filled($resolvedAddress['street'] ?? null)" minlength="3" required />
+                        <x-form-field label="Bairro" name="district" wire:model="district" :readonly="filled($resolvedAddress['district'] ?? null)" minlength="2" required />
+                        <x-form-field label="Cidade" name="city" wire:model="city" autocomplete="address-level2" :readonly="filled($resolvedAddress['city'] ?? null)" minlength="2" required />
+                        <x-form-field label="UF" name="state" wire:model="state" autocomplete="address-level1" :readonly="filled($resolvedAddress['state'] ?? null)" maxlength="2" pattern="[A-Z]{2}" x-on:input="$el.value = $el.value.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2)" required />
+                        <x-form-field label="Número" name="number" wire:model="number" maxlength="30" required />
+                        <x-form-field label="Complemento" name="complement" wire:model="complement" maxlength="255" placeholder="Apartamento, bloco... (opcional)" />
+                    </div>
+                @endif
+                @if ($error)
+                    <div class="mt-4 text-sm text-red-700" role="alert"><p>{{ $error }}</p><button type="button" wire:click="lookupAddress" wire:loading.attr="disabled" class="mt-2 underline underline-offset-4">Tentar novamente</button></div>
+                @endif
+                @if ($shippingOptions)<fieldset class="mt-7 grid gap-3"><legend class="mb-3 font-serif text-2xl font-semibold">Escolha a entrega</legend>@foreach ($shippingOptions as $option)<label class="flex cursor-pointer items-center justify-between gap-4 border border-ink/10 bg-paper p-4 transition has-[:checked]:border-ink"><span class="flex items-center gap-3 text-base"><input wire:model.live="shippingId" type="radio" value="{{ $option['id'] }}" class="text-ink focus:ring-ink"><span>{{ $option['carrier'] }} — {{ $option['name'] }}<small class="mt-1 block text-ink/45">Transporte: {{ $option['delivery_days'] }} dias úteis</small></span></span><strong class="text-base">R$ {{ number_format($option['price'], 2, ',', '.') }}</strong></label>@endforeach</fieldset>@endif
                 @error('shippingId')<p class="mt-3 text-base text-red-700">{{ $message }}</p>@enderror
                 <div class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between"><x-action-button type="button" wire:click="goToStep(1)">Voltar</x-action-button><x-action-button type="button" wire:click="continueToPayment">Continuar para pagamento</x-action-button></div>
             @else
@@ -35,6 +52,20 @@
             @endif
         </section>
 
-        <aside class="h-fit border border-ink/10 bg-cream p-6 sm:p-8"><p class="text-sm font-semibold uppercase tracking-[.2em] text-clay">Seu pedido</p><div class="mt-5 divide-y divide-ink/10">@foreach ($items as $item)<div class="flex justify-between gap-4 py-3 text-base"><span class="text-ink/60">{{ $item['quantity'] }}× {{ $item['product']->name }}</span><strong class="shrink-0">R$ {{ number_format($item['subtotal'], 2, ',', '.') }}</strong></div>@endforeach</div><div class="mt-4 border-t border-ink/10 pt-4 text-base"><p class="flex justify-between"><span class="text-ink/55">Produção</span><span>{{ $productionDays > 0 ? 'Até ' . $productionDays . ' dias úteis' : 'Peças em estoque' }}</span></p><p class="mt-3 flex justify-between"><span class="text-ink/55">Transporte</span><span>{{ $shippingId ? 'Conforme opção selecionada' : 'Selecione uma opção' }}</span></p><p class="mt-3 text-sm text-ink/50">O prazo estimado total combina produção e transporte.</p></div><div class="mt-4 flex justify-between border-t border-ink/10 pt-4"><span>Subtotal</span><strong>R$ {{ number_format($subtotal, 2, ',', '.') }}</strong></div><p class="mt-3 flex justify-between text-base"><span class="text-ink/55">Frete</span><span>{{ $shippingId ? 'Calculado na seleção' : 'Selecione uma opção' }}</span></p></aside>
+        <aside class="h-fit border border-ink/10 bg-cream p-6 sm:p-8">
+            <div class="divide-y divide-ink/10">
+                @foreach ($items as $item)
+                    <div class="flex justify-between gap-4 py-3 text-base"><span class="text-ink/60">{{ $item['quantity'] }}× {{ $item['product']->name }}</span><strong class="shrink-0">R$ {{ number_format($item['subtotal'], 2, ',', '.') }}</strong></div>
+                @endforeach
+            </div>
+            @if ($productionDays > 0)
+                <p class="mt-4 flex justify-between gap-4 border-t border-ink/10 pt-4 text-sm"><span class="text-ink/55">Produção</span><span>Até {{ $productionDays }} dias úteis</span></p>
+            @endif
+            <div class="mt-4 flex justify-between border-t border-ink/10 pt-4"><span>Subtotal</span><strong>R$ {{ number_format($subtotal, 2, ',', '.') }}</strong></div>
+            @if ($selectedShipping)
+                <p class="mt-3 flex justify-between text-base"><span class="text-ink/55">Frete</span><span>R$ {{ number_format($selectedShipping['price'], 2, ',', '.') }}</span></p>
+                <div class="mt-4 flex justify-between border-t border-ink/10 pt-4"><strong>Total</strong><strong>R$ {{ number_format($subtotal + $selectedShipping['price'], 2, ',', '.') }}</strong></div>
+            @endif
+        </aside>
     </form>
 </div>

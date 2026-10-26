@@ -111,7 +111,7 @@ class PersonalizationTest extends TestCase
             ->assertSee('Adicionar uma janela amarela');
     }
 
-    public function test_checkout_shows_production_and_transport_as_separate_estimates(): void
+    public function test_checkout_keeps_production_time_without_shipping_placeholder_text(): void
     {
         $product = Product::factory()->create(['is_customizable' => false]);
 
@@ -119,7 +119,8 @@ class PersonalizationTest extends TestCase
             ->get(route('checkout'))
             ->assertOk()
             ->assertSee('Produção')
-            ->assertSee('Transporte')
+            ->assertDontSee('O prazo estimado total combina produção e transporte.')
+            ->assertDontSee('Selecione uma opção')
             ->assertSee('Até 15 dias úteis');
     }
 

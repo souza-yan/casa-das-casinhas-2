@@ -141,6 +141,16 @@ Use os ambientes sandbox durante o desenvolvimento. Consulte [docs/arquitetura.m
 
 Os ícones do topo, menu mobile e rodapé compartilham os links de  `config/social.php`. Configure `SOCIAL_INSTAGRAM_URL`, `SOCIAL_FACEBOOK_URL` e `SOCIAL_WHATSAPP_URL` no .env. Para abrir uma conversa, use um link como `https://wa.me/55DDDNUMERO`, substituindo pelo número real com código do país e DDD, apenas dígitos. Os valores padrão usam os perfis oficiais da Casa das Casinhas e o WhatsApp +55 (12) 98896-1502.
 
+## CEP e frete no checkout
+
+Na etapa de entrega, o CEP completo consulta o [ViaCEP](https://viacep.com.br/) pelo backend e preenche rua, bairro, cidade e UF. O cliente informa o número e, se necessário, o complemento. Campos não fornecidos pela consulta ficam editáveis; em caso de indisponibilidade, o preenchimento manual é liberado.
+
+A cotação do Melhor Envio também é acionada automaticamente após o CEP, sem botão de cálculo. A integração exige `MELHOR_ENVIO_TOKEN` e `MELHOR_ENVIO_ORIGIN_ZIP_CODE` configurados. Ao mudar o CEP, o endereço anterior, o número, o complemento e a seleção de frete são limpos. O frete é revalidado no servidor antes de criar o pedido.
+
+O resumo exibe subtotal e, após selecionar uma entrega, o valor do frete e o total. A consulta do ViaCEP não requer token. Os testes de integração usam respostas simuladas, sem depender de credenciais ou da rede.
+
+Se a consulta real apresentar `cURL error 60`, confira o PHP usado pelo servidor (`php --ini`) e configure `curl.cainfo` e `openssl.cafile` com um arquivo de autoridades certificadoras confiável para o ambiente. Em redes com inspeção HTTPS, esse arquivo também precisa incluir a autoridade da rede. Reinicie o servidor após ajustar o PHP. A aplicação mantém a validação SSL ativa e permite preencher o endereço manualmente quando a consulta falha.
+
 ## Testes e qualidade
 
 ```sh

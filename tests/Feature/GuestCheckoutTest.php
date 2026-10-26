@@ -48,6 +48,7 @@ class GuestCheckoutTest extends TestCase
     {
         Mail::fake();
         Http::fake([
+            'viacep.com.br/ws/*/json/' => Http::response(['logradouro' => 'Praça da Sé', 'bairro' => 'Sé', 'localidade' => 'São Paulo', 'uf' => 'SP']),
             '*/api/v2/me/shipment/calculate' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => '20.00', 'delivery_time' => 5, 'company' => ['name' => 'Correios']]]),
             '*/v3/customers' => Http::response(['id' => 'cus_guest_1']),
             '*/v3/payments' => Http::response(['id' => 'pay_guest_1', 'invoiceUrl' => 'https://sandbox.example/pay']),
@@ -65,7 +66,6 @@ class GuestCheckoutTest extends TestCase
             ->set('district', 'Sé')
             ->set('city', 'São Paulo')
             ->set('state', 'SP')
-            ->call('quote')
             ->assertSet('shippingOptions.0.id', '1')
             ->set('shippingId', '1')
             ->call('place')
