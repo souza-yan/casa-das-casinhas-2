@@ -11,6 +11,8 @@ class OrderStatusTest extends TestCase
     public function test_valid_production_flow_is_allowed(): void
     {
         $this->assertTrue(OrderStatus::PENDING_PAYMENT->canTransitionTo(OrderStatus::PAID));
+        $this->assertTrue(OrderStatus::PENDING_PAYMENT->canTransitionTo(OrderStatus::AWAITING_PERSONALIZATION_APPROVAL));
+        $this->assertTrue(OrderStatus::AWAITING_PERSONALIZATION_APPROVAL->canTransitionTo(OrderStatus::IN_PRODUCTION));
         $this->assertTrue(OrderStatus::PAID->canTransitionTo(OrderStatus::IN_PRODUCTION));
         $this->assertTrue(OrderStatus::IN_PRODUCTION->canTransitionTo(OrderStatus::READY_TO_SHIP));
         $this->assertTrue(OrderStatus::READY_TO_SHIP->canTransitionTo(OrderStatus::SHIPPED));

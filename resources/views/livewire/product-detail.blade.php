@@ -13,6 +13,17 @@
                 @if (auth()->user()?->role === \App\Enums\Role::ADMIN)
                     <a href="{{ route('admin.dashboard') }}" class="editorial-button mt-8 w-full">Voltar ao painel administrativo</a>
                 @else
+                    @if ($product->is_customizable)
+                        <section class="mt-8 border-y border-ink/10 py-6">
+                            <h2 class="font-serif text-2xl">Personalize a sua peça</h2>
+                            <p class="mt-2 text-base text-ink/65">Conte cores, nomes, referências e detalhes que deseja. O artesão analisará as instruções após a confirmação do pagamento.</p>
+                            <label class="mt-5 block text-base font-semibold">Como você quer personalizar? <span class="text-terracotta">*</span><textarea wire:model="personalization" rows="5" maxlength="1500" class="mt-2 block w-full rounded-sm border border-ink/20 bg-paper p-3 font-normal focus:border-ink focus:ring-ink" placeholder="Ex.: usar tons de azul, incluir o nome Ana e uma janela maior."></textarea></label>
+                            @error('personalization')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror
+                            <label class="mt-5 block text-base font-semibold">Imagens de referência <span class="font-normal text-ink/50">(opcional, até 3 arquivos de 5 MB)</span><input wire:model="referenceImages" type="file" accept="image/jpeg,image/png,image/webp" multiple class="mt-2 block w-full border border-ink/20 bg-paper p-3 text-sm font-normal"></label>
+                            @error('referenceImages')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror @error('referenceImages.*')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror
+                            <p class="mt-3 text-sm text-ink/50">As referências são usadas apenas para produzir seu pedido e não ficam públicas.</p>
+                        </section>
+                    @endif
                     <div class="mt-8 grid grid-cols-[88px_1fr] gap-3"><label><span class="sr-only">Quantidade</span><input wire:model="quantity" type="number" min="1" max="99" class="h-12 w-full border-ink/20 bg-paper text-center focus:border-bark focus:ring-bark"></label><button wire:click="add" wire:loading.attr="disabled" class="editorial-button disabled:opacity-50">Adicionar ao carrinho</button></div>
                 @endif
                 <div class="mt-8 grid grid-cols-3 gap-3 border-t border-ink/10 pt-6 text-center"><div><strong class="block text-sm">Feito à mão</strong><span class="mt-1 block text-sm text-ink/45">peça única</span></div><div class="border-x border-ink/10"><strong class="block text-sm">MDF</strong><span class="mt-1 block text-sm text-ink/45">material resistente</span></div><div><strong class="block text-sm">Compra segura</strong><span class="mt-1 block text-sm text-ink/45">via Asaas</span></div></div>

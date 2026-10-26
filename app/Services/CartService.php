@@ -109,7 +109,10 @@ class CartService
                     'product_id' => (int) ($item['product_id'] ?? 0),
                     'quantity' => min(99, max(1, (int) ($item['quantity'] ?? 1))),
                     'personalization_description' => filled($item['personalization_description'] ?? null) ? trim((string) $item['personalization_description']) : null,
-                    'reference_paths' => array_values(array_filter((array) ($item['reference_paths'] ?? []), 'is_string')),
+                    'reference_paths' => array_values(array_filter(
+                        (array) ($item['reference_paths'] ?? []),
+                        fn ($path) => is_string($path) && str_starts_with($path, 'personalizations/'),
+                    )),
                 ];
             }
 

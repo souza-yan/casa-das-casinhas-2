@@ -2,6 +2,7 @@
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\AsaasWebhookController;
+use App\Http\Controllers\AdminOrderItemReferenceController;
 use App\Http\Controllers\GuestOrderEmailVerificationController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Livewire\Admin\Orders\Index as AdminOrdersIndex;
@@ -65,6 +66,10 @@ Route::get('/admin/produtos', ProductsIndex::class)
     ->name('admin.products.index');
 Route::get('/admin/pedidos', AdminOrdersIndex::class)->middleware(['auth', 'admin'])->name('admin.orders.index');
 Route::get('/admin/pedidos/{order}', AdminOrderShow::class)->middleware(['auth', 'admin'])->name('admin.orders.show');
+Route::get('/admin/pedidos/{order}/itens/{item}/referencias/{reference}', AdminOrderItemReferenceController::class)
+    ->middleware(['auth', 'admin'])
+    ->whereNumber('reference')
+    ->name('admin.orders.items.references.show');
 
 Route::post('/webhooks/asaas', AsaasWebhookController::class)
     ->middleware('throttle:60,1')

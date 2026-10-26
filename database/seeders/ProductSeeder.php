@@ -95,6 +95,7 @@ class ProductSeeder extends Seeder
                     ...$data,
                     'weight_kg' => Product::DEFAULT_WEIGHT_KG,
                     'production_days' => Product::PRODUCTION_DAYS,
+                    'is_customizable' => true,
                     'is_active' => true,
                     'deleted_at' => null,
                 ],

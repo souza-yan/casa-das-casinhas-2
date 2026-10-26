@@ -36,6 +36,8 @@ class Index extends Component
 
     public string $length_cm = '';
 
+    public bool $is_customizable = false;
+
     public $image = null;
 
     public function mount(): void
@@ -64,6 +66,7 @@ class Index extends Component
         $this->height_cm = $product->height_cm;
         $this->width_cm = $product->width_cm;
         $this->length_cm = $product->length_cm;
+        $this->is_customizable = $product->is_customizable;
         $this->image = null;
         $this->resetValidation();
         $this->productModal = true;
@@ -81,6 +84,7 @@ class Index extends Component
             'height_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'width_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
             'length_cm' => ['required', 'numeric', 'min:0.1', 'max:999999.99'],
+            'is_customizable' => ['boolean'],
             'image' => [Rule::requiredIf(! $product->image_path), 'nullable', 'image', 'max:4096'],
         ]);
 
@@ -122,7 +126,7 @@ class Index extends Component
     {
         $this->reset([
             'editingId', 'name', 'description', 'price', 'height_cm',
-            'width_cm', 'length_cm', 'image',
+            'width_cm', 'length_cm', 'is_customizable', 'image',
         ]);
         $this->resetValidation();
     }

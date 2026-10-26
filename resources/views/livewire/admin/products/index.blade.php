@@ -54,6 +54,8 @@
                 </div>
             </div>
 
+            <label class="flex items-start gap-3 rounded-sm border border-ink/15 bg-paper p-3 text-sm"><input wire:model="is_customizable" type="checkbox" class="mt-1 rounded border-ink/30 text-ink focus:ring-ink"><span><strong class="block">Aceita personalização</strong><span class="mt-1 block font-normal text-ink/55">Exige que o cliente descreva as preferências antes de adicionar esta peça ao carrinho.</span></span></label>
+
             <label class="grid gap-1.5 text-sm font-semibold"><span>Imagem @if (! $editingId)<span class="text-red-700" aria-hidden="true">*</span>@endif</span><input wire:model="image" type="file" accept="image/*" @required(! $editingId) class="block w-full rounded-sm border border-dashed border-ink/20 bg-stone-50 p-3 text-sm font-normal">@if ($image)<img src="{{ $image->temporaryUrl() }}" alt="Prévia da imagem" class="mt-2 aspect-video max-h-40 w-full rounded-sm object-cover">@endif @error('image')<span class="text-sm font-normal text-red-700">{{ $message }}</span>@enderror</label>
 
             <div class="flex flex-col-reverse gap-2 border-t border-ink/10 pt-4 sm:flex-row sm:justify-end">

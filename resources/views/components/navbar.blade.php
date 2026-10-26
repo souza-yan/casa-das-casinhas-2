@@ -1,5 +1,6 @@
 @php
     $isAdmin = auth()->check() && auth()->user()->role === \App\Enums\Role::ADMIN;
+    $cartCount = collect(session('cart.items', []))->sum(fn ($item) => is_array($item) ? (int) ($item['quantity'] ?? 0) : (int) $item);
     $navigation = [
         ['label' => 'Início', 'url' => route('home'), 'active' => request()->routeIs('home')],
         ['label' => 'Produtos', 'url' => route('store'), 'active' => request()->routeIs('store', 'products.*')],
@@ -69,8 +70,8 @@
                 @unless ($isAdmin)
                     <a href="{{ route('cart') }}" class="relative grid size-11 place-items-center" aria-label="Carrinho">
                         <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h3l3 14h11a3 3 0 0 0 3-2.4L26 10H8"/><circle cx="13" cy="27" r="1.5"/><circle cx="23" cy="27" r="1.5"/></svg>
-                        @if (array_sum(session('cart.items', [])) > 0)
-                            <span class="absolute right-0 top-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-terracotta px-1 text-sm font-semibold leading-none text-paper">{{ array_sum(session('cart.items', [])) }}</span>
+                        @if ($cartCount > 0)
+                            <span class="absolute right-0 top-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-terracotta px-1 text-sm font-semibold leading-none text-paper">{{ $cartCount }}</span>
                         @endif
                     </a>
                 @endunless
@@ -106,8 +107,8 @@
             @unless ($isAdmin)
                 <a href="{{ route('cart') }}" class="relative grid size-11 place-items-center" aria-label="Carrinho">
                     <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h3l3 14h11a3 3 0 0 0 3-2.4L26 10H8"/><circle cx="13" cy="27" r="1.5"/><circle cx="23" cy="27" r="1.5"/></svg>
-                    @if (array_sum(session('cart.items', [])) > 0)
-                        <span class="absolute right-0 top-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-terracotta px-1 text-sm font-semibold leading-none text-paper">{{ array_sum(session('cart.items', [])) }}</span>
+                    @if ($cartCount > 0)
+                        <span class="absolute right-0 top-0 grid min-h-5 min-w-5 place-items-center rounded-full bg-terracotta px-1 text-sm font-semibold leading-none text-paper">{{ $cartCount }}</span>
                     @endif
                 </a>
             @endunless

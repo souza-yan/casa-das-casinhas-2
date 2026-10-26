@@ -200,8 +200,13 @@ class Checkout extends Component
 
     public function render(CartService $cart)
     {
-        abort_if($cart->items()->isEmpty(), 404);
+        $items = $cart->items();
+        abort_if($items->isEmpty(), 404);
 
-        return view('livewire.checkout', ['items' => $cart->items(), 'subtotal' => $cart->subtotal()]);
+        return view('livewire.checkout', [
+            'items' => $items,
+            'subtotal' => $cart->subtotal(),
+            'productionDays' => (int) $items->max(fn (array $item) => $item['product']->production_days),
+        ]);
     }
 }
