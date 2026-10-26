@@ -21,8 +21,11 @@ const enableScrollReveal = () => {
     }
 
     targets.forEach((target, index) => {
-        target.classList.add('reveal-on-scroll');
-        target.style.setProperty('--reveal-delay', `${Math.min(index % 3, 2) * 110}ms`);
+        target.classList.add(
+            'reveal-on-scroll',
+            index % 2 === 0 ? 'reveal-from-left' : 'reveal-from-right',
+        );
+        target.style.setProperty('--reveal-delay', `${(index % 2) * 140}ms`);
     });
 
     document.documentElement.classList.add('scroll-reveal-ready');
@@ -37,8 +40,8 @@ const enableScrollReveal = () => {
             observer.unobserve(entry.target);
         });
     }, {
-        rootMargin: '0px 0px -10% 0px',
-        threshold: 0.12,
+        rootMargin: '0px 0px -8% 0px',
+        threshold: 0.08,
     });
 
     targets.forEach((target) => observer.observe(target));
