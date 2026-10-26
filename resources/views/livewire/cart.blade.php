@@ -1,4 +1,5 @@
 <div class="mx-auto max-w-[1120px] px-5 py-12 sm:px-8 lg:py-20">
+    @error('cart')<p class="mb-4 text-sm text-red-700">{{ $message }}</p>@enderror
     <div class="flex items-end justify-between border-b border-ink/10 pb-7"><div><p class="text-sm font-semibold uppercase tracking-[.22em] text-clay">Sua seleção</p><h1 class="mt-2 font-serif text-4xl font-semibold tracking-[-.04em] sm:text-6xl">Carrinho</h1></div><a href="{{ route('store') }}" class="hidden text-base font-semibold sm:block">Continuar comprando →</a></div>
     <div class="mt-8 grid gap-12 lg:grid-cols-[1fr_340px]">
         <section class="divide-y divide-ink/10">

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Enums\Role;
 use App\Models\Product;
 use App\Services\CartService;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use TallStackUi\Traits\Interactions;
@@ -29,9 +30,10 @@ class ProductDetail extends Component
     public function add(CartService $cart)
     {
         abort_if(auth()->user()?->role === Role::ADMIN, 403);
+        $this->product->refresh();
         $validated = $this->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
-            'personalization' => ['required', 'string', 'max:1500'],
+            'personalization' => [Rule::requiredIf($this->product->is_customizable), 'nullable', 'string', 'max:1500'],
         ], [
             'personalization.required' => 'Descreva como deseja personalizar esta peça.',
         ]);

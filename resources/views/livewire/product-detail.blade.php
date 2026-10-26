@@ -6,16 +6,25 @@
             <div class="self-center lg:py-8">
                 <h1 class="font-serif text-5xl leading-none tracking-[-.05em] sm:text-6xl">{{ $product->name }}</h1>
                 <p class="mt-5 text-2xl font-semibold">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</p>
+                <p class="mt-4 text-sm text-ink/60">{{ $product->isStockProduct() ? ($product->is_available ? 'Em estoque · ' . $product->stock_quantity . ' unidade(s) disponível(is)' : 'Esgotado') : 'Sob demanda · produção em até 15 dias' }}</p>
                 <p class="mt-7 text-base leading-7 text-ink/65">{{ $product->description }}</p>
                 @if (auth()->user()?->role === \App\Enums\Role::ADMIN)
                     <x-action-button :href="route('admin.dashboard')" class="mt-8 w-full">Voltar ao painel administrativo</x-action-button>
                 @else
+                    @if ($product->is_customizable)
                     <section class="mt-8 border-y border-ink/10 py-6">
                         <h2 class="font-serif text-2xl">Personalize a sua peça <span class="text-terracotta">*</span></h2>
                         <label class="mt-5 block"><span class="sr-only">Descrição da personalização</span><textarea wire:model="personalization" rows="5" maxlength="1500" required class="block w-full rounded-sm border border-ink/20 bg-paper p-3 text-base focus:border-ink focus:ring-ink" placeholder="Ex.: usar tons de azul, incluir o nome Ana e uma janela maior."></textarea></label>
                         @error('personalization')<p class="mt-2 text-sm text-red-700">{{ $message }}</p>@enderror
                     </section>
-                    <div class="mt-8 grid grid-cols-[88px_1fr] gap-3"><label><span class="sr-only">Quantidade</span><input wire:model="quantity" type="number" min="1" max="99" class="h-12 w-full border-ink/20 bg-paper text-center focus:border-bark focus:ring-bark"></label><x-action-button wire:click="add" wire:loading.attr="disabled">{{ auth()->check() ? 'Adicionar ao carrinho' : 'Continuar para compra' }}</x-action-button></div>
+                    @endif
+                    @if ($product->is_available)
+                    <div class="mt-8 grid grid-cols-[88px_1fr] gap-3"><label><span class="sr-only">Quantidade</span><input wire:model="quantity" type="number" min="1" max="{{ $product->isStockProduct() ? min(99, $product->stock_quantity) : 99 }}" class="h-12 w-full border-ink/20 bg-paper text-center focus:border-bark focus:ring-bark"></label><x-action-button wire:click="add" wire:loading.attr="disabled">{{ auth()->check() ? 'Adicionar ao carrinho' : 'Continuar para compra' }}</x-action-button></div>
+                    @else
+                        <p class="mt-8 font-semibold text-ink/60">Produto esgotado.</p>
+                    @endif
+                    @error('cart')<p class="mt-3 text-sm text-red-700">{{ $message }}</p>@enderror
+                    @error('quantity')<p class="mt-3 text-sm text-red-700">{{ $message }}</p>@enderror
                 @endif
             </div>
         </div>

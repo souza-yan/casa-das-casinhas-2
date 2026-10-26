@@ -94,6 +94,22 @@ O administrador acessa `/admin`. Configure `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_
 
 Os seeders são de demonstração e recusam execução em produção. Reexecutá-los atualiza os dados dos produtos e usuários de demonstração, incluindo senhas, preços e imagens.
 
+## Modalidade de venda e estoque
+
+No cadastro e na edição em `/admin/produtos`, escolha **Sob demanda** ou **Em estoque**.
+
+- Sob demanda: produção em 15 dias, sem controle de quantidade. Os produtos anteriores permanecem nesta modalidade.
+- Em estoque: quantidade inteira obrigatória, a partir de zero. Zero mostra o produto como esgotado e impede a compra. Não há prazo de produção.
+- O campo de estoque representa unidades disponíveis para novas vendas, sem incluir as reservadas em pedidos.
+- O carrinho valida a soma de todas as linhas do mesmo produto, inclusive personalizadas; adicionar ao carrinho não reserva unidades.
+- Ao criar o pedido, a aplicação revalida e reduz o estoque dentro de uma transação com bloqueio dos produtos. Repetir o mesmo checkout não reduz o estoque novamente.
+- Pedidos aguardando pagamento mantêm a reserva. Não há expiração automática: cancele o pedido no painel para devolver as unidades. Reembolso de pagamento não cancela o pedido automaticamente.
+- O cancelamento devolve somente unidades de itens vendidos em estoque, usando a modalidade registrada no pedido. A devolução acontece uma única vez, inclusive se o produto tiver sido excluído logicamente.
+- Pedidos mistos mantêm o prazo de produção das peças sob demanda. Pedidos apenas de estoque podem passar de pagamento confirmado para pronto para envio.
+- A opção de personalização continua independente da modalidade de venda.
+
+Ao atualizar uma instalação existente, execute `php artisan migrate` para adicionar os campos sem apagar os dados.
+
 ## Imagens dos produtos
 
 As imagens de demonstração ficam em `database/seeders/assets/products/`, com nomes terminando em `-1200x1500.png`. O `ProductSeeder` copia esses arquivos para `storage/app/public/products` e registra os caminhos no banco.

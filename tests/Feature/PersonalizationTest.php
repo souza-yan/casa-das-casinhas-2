@@ -63,8 +63,9 @@ class PersonalizationTest extends TestCase
         $key = $cart->items()->first()['key'];
 
         Livewire::test(Cart::class)
+            ->call('editPersonalization', $key)
             ->set("personalizations.$key", 'Usar cor terracota')
-            ->call('savePersonalization', $key)
+            ->call('savePersonalization')
             ->assertHasNoErrors();
 
         $this->assertSame('Usar cor terracota', app(CartService::class)->items()->first()['personalization_description']);
