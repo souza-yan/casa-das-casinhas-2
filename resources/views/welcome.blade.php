@@ -4,7 +4,7 @@
             <div class="flex flex-col items-start">
                 <h1 class="max-w-xl font-serif text-[2.85rem] leading-[1.04] tracking-[-.045em] sm:text-6xl xl:text-[4.7rem]">Pequenas casas.<br>Grandes histórias.</h1>
                 <p class="mt-6 max-w-md text-base leading-7 text-ink/60">Painéis únicos, desenhados e pintados à mão para transformar lembranças, cores e paisagens em peças que atravessam o tempo.</p>
-                <div class="mt-9 flex flex-wrap items-center gap-6"><x-action-button :href="route('store')">Ver produtos</x-action-button><a href="{{ route('production') }}" class="editorial-link text-sm font-semibold uppercase tracking-[.1em]">Como produzimos</a></div>
+                <div class="mt-9 flex flex-wrap items-center gap-6"><x-action-button :href="route('store')">Ver produtos</x-action-button><a href="{{ route('about') }}" class="editorial-link text-sm font-semibold uppercase tracking-[.1em]">Conheça mais sobre nós</a></div>
             </div>
             <div class="flex items-start justify-center">
                 <div class="aspect-square w-full max-w-[620px] overflow-hidden rounded-full">
