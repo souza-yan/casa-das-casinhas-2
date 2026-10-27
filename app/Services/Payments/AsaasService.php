@@ -80,6 +80,11 @@ class AsaasService
         return $this->client()->get('/v3/payments/'.$id)->throw()->json();
     }
 
+    public function deleteCharge(string $id): void
+    {
+        $this->client()->delete('/v3/payments/'.$id)->throw();
+    }
+
     public function logFailure(Order $order, Throwable $exception): void
     {
         $errors = $exception instanceof RequestException

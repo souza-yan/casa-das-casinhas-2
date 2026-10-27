@@ -14,6 +14,7 @@ use App\Services\Shipping\PostalCodeService;
 use App\Services\Shipping\SuperFreteService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -116,8 +117,9 @@ class Checkout extends Component
 
     public function continueToDelivery(): void
     {
-        $this->validate($this->personalRules());
+        $this->validateWithScroll($this->personalRules());
         $this->step = 2;
+        $this->dispatch('checkout-scroll-top');
         if (strlen(preg_replace('/\D/', '', $this->zip_code)) === 8 && ! $this->showAddressFields) {
             app()->call([$this, 'lookupAddress']);
         }
@@ -163,8 +165,10 @@ class Checkout extends Component
             return;
         } catch (Throwable $exception) {
             report($exception);
-            $this->postalCodeError = 'Não foi possível buscar o endereço. Você pode preenchê-lo abaixo ou tentar novamente.';
-            $this->showAddressFields = true;
+            $this->postalCodeError = 'CEP não encontrado.';
+            $this->showAddressFields = false;
+
+            return;
         }
 
         $this->quote($cart, $shipping);
@@ -172,15 +176,18 @@ class Checkout extends Component
 
     public function continueToShipping(CartService $cart, SuperFreteService $shipping): void
     {
-        $this->validate($this->deliveryRules());
+        $this->validateWithScroll($this->deliveryRules());
 
         $this->quote($cart, $shipping);
 
         if ($this->shippingOptions === []) {
+            $this->dispatch('checkout-scroll-top');
+
             return;
         }
 
         $this->step = 3;
+        $this->dispatch('checkout-scroll-top');
     }
 
     public function continueToPayment(): void
@@ -189,17 +196,20 @@ class Checkout extends Component
 
         if (! $this->shippingId) {
             $this->addError('shippingId', 'Selecione uma opção de entrega para continuar.');
+            $this->dispatch('checkout-scroll-top');
 
             return;
         }
 
         $this->step = 4;
+        $this->dispatch('checkout-scroll-top');
     }
 
     public function goToStep(int $step): void
     {
         abort_unless(in_array($step, [1, 2, 3], true), 404);
         $this->step = $step;
+        $this->dispatch('checkout-scroll-top');
     }
 
     public function quote(CartService $cart, SuperFreteService $shipping): void
@@ -226,7 +236,7 @@ class Checkout extends Component
 
     public function place(CartService $cart, SuperFreteService $shipping, CreateOrder $createOrder, SelectShipping $selectShipping, GuestOrderAccessService $guestAccess, AsaasPaymentRedirect $paymentRedirect)
     {
-        $data = $this->validate();
+        $data = $this->validateWithScroll($this->rules());
 
         if (! $shipping->isConfiguredForQuote()) {
             $this->error = 'O SuperFrete Sandbox ainda não está configurado. Configure as credenciais para calcular o frete.';
@@ -260,7 +270,6 @@ class Checkout extends Component
         if (! $user) {
             $guestTokens = session()->remember('checkout.guest-tokens.'.$this->checkoutToken, fn () => [
                 'access' => $guestAccess->makeToken(),
-                'verification' => $guestAccess->makeToken(),
             ]);
         }
 
@@ -272,7 +281,6 @@ class Checkout extends Component
             (float) $option['price'],
             $this->checkoutToken,
             $guestTokens['access'] ?? null,
-            $guestTokens['verification'] ?? null,
         );
         $selectShipping->execute($order, $option);
         $cart->clear();
@@ -282,7 +290,7 @@ class Checkout extends Component
 
             if ($order->wasRecentlyCreated) {
                 try {
-                    Mail::to($order->customer_email)->send(new GuestOrderConfirmation($order, $guestTokens['access'], $guestTokens['verification']));
+                    Mail::to($order->customer_email)->send(new GuestOrderConfirmation($order, $guestTokens['access']));
                 } catch (Throwable $exception) {
                     report($exception);
                 }
@@ -305,6 +313,17 @@ class Checkout extends Component
             $this->toast()->warning('Pedido criado sem cobrança', AsaasService::clientMessage($exception))->flash()->send();
 
             return redirect()->route('orders.show', $order);
+        }
+    }
+
+    private function validateWithScroll(array $rules): array
+    {
+        try {
+            return $this->validate($rules);
+        } catch (ValidationException $exception) {
+            $this->dispatch('checkout-scroll-top');
+
+            throw $exception;
         }
     }
 

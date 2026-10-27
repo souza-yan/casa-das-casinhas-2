@@ -59,6 +59,18 @@ class CheckoutDeliveryTest extends TestCase
             ->assertSet('document', '249.715.637-92');
     }
 
+    public function test_validation_error_keeps_checkout_positioned_at_its_header(): void
+    {
+        Livewire::test(Checkout::class)
+            ->set('name', 'Maria Silva')
+            ->set('email', 'maria@example.com')
+            ->set('phone', '(12) 98896-1502')
+            ->set('document', '111.111.111-11')
+            ->call('continueToDelivery')
+            ->assertHasErrors(['document'])
+            ->assertDispatched('checkout-scroll-top');
+    }
+
     public function test_completed_code_fills_address_and_quotes_shipping_automatically(): void
     {
         $this->fakeServices();
@@ -69,10 +81,10 @@ class CheckoutDeliveryTest extends TestCase
             ->assertSet('showAddressFields', true)->assertSet('shippingOptions.0.price', 20.0)
             ->assertSee('name="number"', false)->assertSee('name="complement"', false);
 
+        $component->set('number', '10')->call('continueToShipping')->assertHasNoErrors()->assertSet('step', 3);
         $component->set('shippingId', '1')->assertSee('Total')->assertSee('R$ 20,00');
-        $component->set('number', '10')->call('continueToPayment')->assertHasNoErrors()->assertSet('step', 3);
         $component->set('zip_code', '01001000')->assertSet('zip_code', '01001-000');
-        Http::assertSentCount(2);
+        Http::assertSentCount(3);
     }
 
     public function test_changing_postal_code_clears_old_address_number_and_shipping_selection(): void
@@ -92,15 +104,15 @@ class CheckoutDeliveryTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    public function test_address_service_failure_allows_manual_address_and_shipping_still_runs(): void
+    public function test_address_service_failure_shows_not_found_message_without_address_fields(): void
     {
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response([], 503),
             '*/api/v0/calculator' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => 20, 'delivery_time' => 5]]),
         ]);
-        $this->deliveryForm()->set('zip_code', '01001-000')->assertSet('showAddressFields', true)
-            ->assertSet('resolvedAddress', [])->assertSet('shippingOptions.0.id', '1')
-            ->assertSee('Você pode preenchê-lo abaixo');
+        $this->deliveryForm()->set('zip_code', '01001-000')->assertSet('showAddressFields', false)
+            ->assertSet('resolvedAddress', [])->assertSet('shippingOptions', [])
+            ->assertSee('CEP não encontrado.');
     }
 
     public function test_generic_postal_code_leaves_missing_street_and_district_editable(): void
@@ -108,8 +120,8 @@ class CheckoutDeliveryTest extends TestCase
         $this->fakeServices(['logradouro' => '', 'bairro' => '', 'localidade' => 'São Paulo', 'uf' => 'SP']);
         $this->deliveryForm()->set('zip_code', '01001-000')->assertSet('showAddressFields', true)
             ->assertSet('street', '')->assertSet('district', '')->assertSet('city', 'São Paulo')
-            ->set('street', 'Rua A')->set('district', 'Centro')->set('number', '1')->set('shippingId', '1')
-            ->call('continueToPayment')->assertHasNoErrors()->assertSet('step', 3);
+            ->set('street', 'Rua A')->set('district', 'Centro')->set('number', '1')
+            ->call('continueToShipping')->assertHasNoErrors()->assertSet('step', 3);
     }
 
     public function test_missing_shipping_credentials_does_not_prevent_address_autofill(): void
@@ -126,7 +138,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response(['logradouro' => 'Rua A', 'bairro' => 'Centro', 'localidade' => 'São Paulo', 'uf' => 'SP']),
-            '*/api/v0/calculator' => Http::sequence()->pushStatus(503)->pushStatus(503)
+            '*/api/v0/calculator' => Http::sequence()->pushStatus(503)
                 ->push([['id' => 1, 'name' => 'PAC', 'price' => 20, 'delivery_time' => 5]]),
         ]);
         $component = $this->deliveryForm()->set('zip_code', '01001-000')

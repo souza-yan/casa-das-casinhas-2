@@ -28,19 +28,24 @@ class CreatePayment
                 throw $exception;
             }
 
-            if (in_array($charge['status'] ?? null, ['PENDING', 'AWAITING_RISK_ANALYSIS'], true) && filled($charge['invoiceUrl'] ?? null)) {
+            // Cobranças antigas criadas com uma forma fixa levam o cliente
+            // diretamente ao boleto, Pix ou cartão. Substitua-as por uma
+            // cobrança flexível para que a fatura apresente todas as opções
+            // habilitadas na conta Asaas.
+            if (filled($charge['billingType'] ?? null) && ($charge['billingType'] ?? null) !== 'UNDEFINED') {
+                $this->asaas->deleteCharge($existing->provider_payment_id);
+                $existing->update(['status' => PaymentStatus::FAILED]);
+            } elseif (in_array($charge['status'] ?? null, ['PENDING', 'AWAITING_RISK_ANALYSIS'], true) && filled($charge['invoiceUrl'] ?? null)) {
                 $existing->update(['payment_url' => $charge['invoiceUrl']]);
 
                 return $existing->refresh();
-            }
-
-            if (in_array($charge['status'] ?? null, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'], true)) {
+            } elseif (in_array($charge['status'] ?? null, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'], true)) {
                 $existing->update(['status' => PaymentStatus::CONFIRMED]);
 
                 throw new RuntimeException('O pagamento já foi recebido e aguarda confirmação pelo webhook.');
+            } else {
+                $existing->update(['status' => ($charge['status'] ?? null) === 'OVERDUE' ? PaymentStatus::OVERDUE : PaymentStatus::FAILED]);
             }
-
-            $existing->update(['status' => ($charge['status'] ?? null) === 'OVERDUE' ? PaymentStatus::OVERDUE : PaymentStatus::FAILED]);
         }
         $charge = $this->asaas->createCharge($order, $successUrl);
 

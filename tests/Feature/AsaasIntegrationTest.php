@@ -28,7 +28,7 @@ class AsaasIntegrationTest extends TestCase
     {
         Http::fake([
             '*/v3/customers' => Http::response(['id' => 'cus_1']),
-            '*/v3/payments' => Http::response(['id' => 'pay_1', 'invoiceUrl' => 'https://sandbox.example/pay']),
+            '*/v3/payments*' => Http::response(['id' => 'pay_1', 'status' => 'PENDING', 'billingType' => 'UNDEFINED', 'invoiceUrl' => 'https://sandbox.example/pay']),
         ]);
         $order = $this->order();
         $first = app(CreatePayment::class)->execute($order);
@@ -36,7 +36,7 @@ class AsaasIntegrationTest extends TestCase
         $this->assertTrue($first->is($second));
         $this->assertSame('pay_1', $first->provider_payment_id);
         Http::assertSent(fn ($request) => $request->url() === config('services.asaas.url').'/v3/customers'
-            && $request['cpfCnpj'] === '12345678901');
+            && $request['cpfCnpj'] === '24971563792');
         Http::assertSent(fn ($request) => $request->url() === config('services.asaas.url').'/v3/payments' && $request['value'] === (float) $order->total);
     }
 
@@ -51,6 +51,49 @@ class AsaasIntegrationTest extends TestCase
         $this->withHeader('asaas-access-token', 'webhook-secret')->postJson(route('webhooks.asaas'), $payload)->assertOk();
         $this->withHeader('asaas-access-token', 'webhook-secret')->postJson(route('webhooks.asaas'), $payload)->assertOk()->assertJson(['duplicate' => true]);
         Queue::assertPushed(ProcessAsaasWebhook::class, 1);
+    }
+
+    public function test_fixed_boleto_is_replaced_by_a_payment_with_customer_choice(): void
+    {
+        $order = $this->order();
+        $oldPayment = $order->payments()->create([
+            'provider' => 'asaas',
+            'provider_payment_id' => 'pay_boleto',
+            'method' => 'hosted',
+            'amount' => $order->total,
+            'status' => PaymentStatus::PENDING,
+            'payment_url' => 'https://sandbox.asaas.com/boleto-antigo',
+        ]);
+
+        Http::fake(function ($request) {
+            if ($request->method() === 'GET' && str_ends_with($request->url(), '/v3/payments/pay_boleto')) {
+                return Http::response([
+                    'id' => 'pay_boleto',
+                    'status' => 'PENDING',
+                    'billingType' => 'BOLETO',
+                    'invoiceUrl' => 'https://sandbox.asaas.com/boleto-antigo',
+                ]);
+            }
+
+            if (str_ends_with($request->url(), '/v3/customers')) {
+                return Http::response(['id' => 'cus_1']);
+            }
+
+            return Http::response([
+                'id' => 'pay_flexivel',
+                'billingType' => 'UNDEFINED',
+                'invoiceUrl' => 'https://sandbox.asaas.com/fatura-flexivel',
+            ]);
+        });
+
+        $newPayment = app(CreatePayment::class)->execute($order);
+
+        $this->assertSame(PaymentStatus::FAILED, $oldPayment->refresh()->status);
+        $this->assertSame('pay_flexivel', $newPayment->provider_payment_id);
+        Http::assertSent(fn ($request) => $request->method() === 'DELETE'
+            && str_ends_with($request->url(), '/v3/payments/pay_boleto'));
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/v3/payments')
+            && $request['billingType'] === 'UNDEFINED');
     }
 
     public function test_confirmation_is_idempotent_and_refund_is_recorded(): void
@@ -69,6 +112,6 @@ class AsaasIntegrationTest extends TestCase
         $user = User::factory()->create();
         $product = Product::factory()->create(['price' => 50]);
 
-        return app(CreateOrder::class)->execute($user, [$product->id => 1], ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP', 'document' => '12345678901'], '11999999999', 10);
+        return app(CreateOrder::class)->execute($user, [$product->id => 1], ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP', 'document' => '24971563792'], '11999999999', 10);
     }
 }
