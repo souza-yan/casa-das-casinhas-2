@@ -114,11 +114,6 @@ class Checkout extends Component
         ];
     }
 
-    public function updatedDocument(string $value): void
-    {
-        $this->document = ValidCpfCnpj::digits($value);
-    }
-
     public function continueToDelivery(): void
     {
         $this->validate($this->personalRules());

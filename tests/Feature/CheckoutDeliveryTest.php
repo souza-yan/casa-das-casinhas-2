@@ -52,6 +52,13 @@ class CheckoutDeliveryTest extends TestCase
             ->assertDontSee('O frete será calculado na próxima etapa.')->assertSee('Subtotal');
     }
 
+    public function test_document_mask_is_preserved_until_checkout_normalizes_it_for_persistence(): void
+    {
+        Livewire::test(Checkout::class)
+            ->set('document', '249.715.637-92')
+            ->assertSet('document', '249.715.637-92');
+    }
+
     public function test_completed_code_fills_address_and_quotes_shipping_automatically(): void
     {
         $this->fakeServices();
