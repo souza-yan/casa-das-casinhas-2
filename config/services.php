@@ -6,13 +6,27 @@ return [
         'url' => env('ASAAS_URL', 'https://api-sandbox.asaas.com'),
         'token' => env('ASAAS_TOKEN'),
         'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+        'user_agent' => env('ASAAS_USER_AGENT', 'Casa das Casinhas/1.0'),
+        'success_url' => env('ASAAS_SUCCESS_URL'),
+        'allowed_payment_hosts' => ['sandbox.asaas.com', 'www.asaas.com', 'asaas.com'],
     ],
 
-    'melhor_envio' => [
-        'url' => env('MELHOR_ENVIO_URL', 'https://sandbox.melhorenvio.com.br'),
-        'token' => env('MELHOR_ENVIO_TOKEN'),
-        'origin_zip_code' => env('MELHOR_ENVIO_ORIGIN_ZIP_CODE'),
-        'user_agent' => env('MELHOR_ENVIO_USER_AGENT', 'Casa das Casinhas contato@example.com'),
+    'superfrete' => [
+        'url' => env('SUPERFRETE_URL', 'https://sandbox.superfrete.com'),
+        'token' => env('SUPERFRETE_TOKEN'),
+        'origin' => [
+            'name' => env('SUPERFRETE_ORIGIN_NAME'),
+            'document' => env('SUPERFRETE_ORIGIN_DOCUMENT'),
+            'postal_code' => env('SUPERFRETE_ORIGIN_POSTAL_CODE'),
+            'address' => env('SUPERFRETE_ORIGIN_ADDRESS'),
+            'number' => env('SUPERFRETE_ORIGIN_NUMBER'),
+            'complement' => env('SUPERFRETE_ORIGIN_COMPLEMENT'),
+            'district' => env('SUPERFRETE_ORIGIN_DISTRICT'),
+            'city' => env('SUPERFRETE_ORIGIN_CITY'),
+            'state_abbr' => env('SUPERFRETE_ORIGIN_STATE'),
+        ],
+        'non_commercial' => env('SUPERFRETE_NON_COMMERCIAL', true),
+        'user_agent' => env('SUPERFRETE_USER_AGENT', 'Casa das Casinhas contato@example.com'),
     ],
 
     'whatsapp' => [

@@ -30,9 +30,9 @@ Pagamento, envio e notificação possuem estados independentes. Totais são reca
 
 Configure `ASAAS_URL`, `ASAAS_TOKEN` e `ASAAS_WEBHOOK_TOKEN`. Cadastre `POST /webhooks/asaas` no Sandbox e envie o mesmo token no header `asaas-access-token`. A cobrança usa página hospedada; retorno do navegador nunca confirma pagamento.
 
-## Melhor Envio Sandbox
+## SuperFrete Sandbox
 
-Configure `MELHOR_ENVIO_URL`, `MELHOR_ENVIO_TOKEN`, `MELHOR_ENVIO_ORIGIN_ZIP_CODE` e um `MELHOR_ENVIO_USER_AGENT` identificável. A estratégia inicial considera um volume: soma pesos por quantidade e usa as maiores dimensões. Ela não resolve encaixe ou múltiplos volumes; produtos incompatíveis devem futuramente usar um empacotador dedicado. Etiquetas só podem ser solicitadas em `READY_TO_SHIP`.
+Configure `SUPERFRETE_URL`, `SUPERFRETE_TOKEN`, os dados completos de `SUPERFRETE_ORIGIN_*` e um `SUPERFRETE_USER_AGENT` identificável. A cotação envia as dimensões individuais e preserva o volume retornado pela API para a emissão da etiqueta. O CPF ou CNPJ do destinatário é obrigatório no checkout e fica registrado no endereço do pedido. A etiqueta é emitida pelo admin somente quando o pedido estiver em `READY_TO_SHIP`.
 
 ## WhatsApp Cloud API
 
