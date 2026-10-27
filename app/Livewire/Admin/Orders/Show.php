@@ -4,7 +4,7 @@ namespace App\Livewire\Admin\Orders;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use App\Services\Shipping\MelhorEnvioService;
+use App\Services\Shipping\SuperFreteService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -35,26 +35,19 @@ class Show extends Component
         $this->toast()->success('Status atualizado', "O pedido agora está como {$this->order->status->label()}.")->send();
     }
 
-    public function prepareSandboxLabel(MelhorEnvioService $shipping): void
+    public function prepareSandboxLabel(SuperFreteService $shipping): void
     {
         $this->authorize('view', $this->order);
 
-        if (! app()->isLocal()) {
-            $this->integrationMessage = 'A preparação manual de etiqueta está disponível somente no ambiente local.';
-            $this->toast()->warning('Ação indisponível', $this->integrationMessage)->send();
-
-            return;
-        }
-
         try {
             $shipping->buyLabel($this->order);
-            $this->integrationMessage = 'Etiqueta adicionada ao carrinho do Melhor Envio Sandbox.';
+            $this->integrationMessage = 'Etiqueta emitida pelo SuperFrete.';
             $this->refreshOrder();
             $this->toast()->success('Etiqueta preparada', $this->integrationMessage)->send();
         } catch (Throwable $exception) {
             report($exception);
-            $this->integrationMessage = blank(config('services.melhor_envio.token'))
-                ? 'Configure o token do Melhor Envio Sandbox para preparar a etiqueta.'
+            $this->integrationMessage = ! $shipping->isConfiguredForLabel()
+                ? 'Configure o token e o endereço de origem do SuperFrete para emitir a etiqueta.'
                 : 'Não foi possível preparar a etiqueta no Sandbox. Consulte os logs.';
             $this->toast()->error('Falha ao preparar etiqueta', $this->integrationMessage)->send();
         }

@@ -12,7 +12,7 @@ class SelectShipping
     public function execute(Order $order, array $option): Shipment
     {
         return DB::transaction(function () use ($order, $option): Shipment {
-            $shipment = Shipment::updateOrCreate(['order_id' => $order->id], ['provider' => 'melhor_envio', 'service_id' => $option['id'], 'carrier' => $option['carrier'], 'price' => $option['price'], 'status' => ShipmentStatus::QUOTED]);
+            $shipment = Shipment::updateOrCreate(['order_id' => $order->id], ['provider' => 'superfrete', 'service_id' => $option['id'], 'carrier' => $option['carrier'], 'price' => $option['price'], 'quote_payload' => $option, 'status' => ShipmentStatus::QUOTED]);
             $order->update(['shipping_total' => $shipment->price, 'total' => round((float) $order->subtotal + (float) $shipment->price, 2)]);
 
             return $shipment;
