@@ -93,6 +93,68 @@ Para processar tarefas assíncronas, abra outro terminal com `php artisan queue:
 
 No PowerShell, caso `npm.ps1` seja bloqueado pela política de execução, use `npm.cmd ci`, `npm.cmd run dev` e `npm.cmd run build`.
 
+## Retomar o projeto em casa
+
+### Nesta mesma instalação
+
+O `.env`, o banco MySQL e os arquivos enviados para `storage` são locais e não fazem parte do Git. Para preservar os dados existentes, **não** copie `.env.example` sobre `.env`, não execute `php artisan key:generate` novamente e não use `migrate:fresh`. O comando `migrate` normal aplica somente migrations pendentes e mantém os registros.
+
+Depois de ligar a máquina, inicie o MySQL, abra um terminal na pasta do projeto e execute:
+
+```sh
+git pull --rebase origin main
+composer install
+npm ci
+php artisan migrate
+php artisan optimize:clear
+```
+
+Use um terminal para iniciar aplicação, fila, logs e Vite:
+
+```sh
+composer run dev
+```
+
+Use outro terminal para executar as tarefas agendadas, incluindo a recuperação horária de rastreios da SuperFrete:
+
+```sh
+php artisan schedule:work
+```
+
+Para receber webhooks durante o desenvolvimento, mantenha também o túnel HTTPS apontado para a porta do Laravel:
+
+```sh
+ngrok http 8000
+```
+
+Confira se a URL exibida pelo ngrok é a mesma de `APP_URL`, `ASAAS_SUCCESS_URL` e dos webhooks cadastrados no Asaas e na SuperFrete. Se a URL mudar, atualize esses locais e execute:
+
+```sh
+php artisan config:clear
+php artisan queue:restart
+```
+
+O webhook da SuperFrete deve apontar para `https://SEU-ENDERECO/webhooks/superfrete`. O ambiente local auditado já possui token, remetente e segredo configurados, mas esses valores permanecem apenas no `.env` e nunca devem ser commitados. Um `401` no teste abaixo é o resultado esperado, pois comprova que a rota pública está acessível e recusou uma chamada sem a assinatura da SuperFrete:
+
+```sh
+curl -i -X POST https://SEU-ENDERECO/webhooks/superfrete
+```
+
+Antes de testar uma compra completa, confirme:
+
+```sh
+php artisan about --only=environment,drivers
+php artisan route:list --name=webhooks
+php artisan schedule:list
+php artisan test --compact
+```
+
+Se `Mail` aparecer como `log`, os e-mails estarão apenas em `storage/logs/laravel.log`. Configure um SMTP real nas variáveis `MAIL_*` para entregar links de acompanhamento e códigos de rastreio aos clientes.
+
+### Em outro computador
+
+O `git pull` recupera somente arquivos versionados. Transfira o `.env` por um meio seguro, exporte e importe o banco MySQL e copie `storage/app/public` caso queira manter pedidos, usuários e uploads. Preserve o mesmo `APP_KEY` ao transportar um banco existente. Depois, execute `composer install`, `npm ci`, `php artisan migrate`, `php artisan storage:link` e os comandos de inicialização descritos acima.
+
 ## Dados de demonstração
 
 `php artisan db:seed` cria ou atualiza cinco produtos e dois usuários locais:
