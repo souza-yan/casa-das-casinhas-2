@@ -6,6 +6,7 @@
         ['label' => 'Produtos', 'url' => route('store'), 'active' => request()->routeIs('store', 'products.*')],
         ['label' => 'Sobre nós', 'url' => route('about'), 'active' => request()->routeIs('about')],
         ['label' => 'Como produzimos', 'url' => route('production'), 'active' => request()->routeIs('production')],
+        ['label' => 'Acompanhar pedido', 'url' => route('guest.orders.lookup'), 'active' => request()->routeIs('guest.orders.*')],
     ];
 @endphp
 
@@ -47,7 +48,7 @@
                             <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                         </button>
                         <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2 text-ink" role="menu">
-                            <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">Perfil</a>
+                            <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">{{ $isAdmin ? 'Painel administrativo' : 'Perfil' }}</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="block w-full px-4 py-3 text-left text-base transition hover:bg-clay/35" role="menuitem">Sair</button>
@@ -84,7 +85,7 @@
                         <svg class="size-8" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="11" r="5"/><path d="M6 28a10 10 0 0 1 20 0"/></svg>
                     </button>
                     <div x-show="profileOpen" x-cloak x-transition.opacity class="absolute right-0 top-full z-50 mt-2 w-52 rounded-sm border border-clay bg-paper p-2 text-ink" role="menu">
-                        <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">Perfil</a>
+                        <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="block px-4 py-3 text-base transition hover:bg-clay/35" role="menuitem">{{ $isAdmin ? 'Painel administrativo' : 'Perfil' }}</a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="block w-full px-4 py-3 text-left text-base transition hover:bg-clay/35" role="menuitem">Sair</button>

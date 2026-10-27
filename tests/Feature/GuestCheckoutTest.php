@@ -6,11 +6,11 @@ use App\Actions\CreateOrder;
 use App\Actions\CreatePayment;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
-use App\Enums\Role;
 use App\Enums\SaleType;
 use App\Jobs\ProcessAsaasWebhook;
 use App\Livewire\Checkout;
-use App\Livewire\GuestOrders\CreateAccount;
+use App\Livewire\GuestOrders\Lookup;
+use App\Mail\GuestOrderAccessLink;
 use App\Mail\GuestOrderConfirmation;
 use App\Models\Order;
 use App\Models\Product;
@@ -93,8 +93,8 @@ class GuestCheckoutTest extends TestCase
         $customer = ['name' => 'Maria Visitante', 'email' => 'maria@example.com', 'phone' => '11999999999'];
         $address = ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP'];
 
-        $first = app(CreateOrder::class)->create(null, [$product->id => 1], $customer, $address, 10, $checkoutToken, $access->makeToken(), $access->makeToken());
-        $second = app(CreateOrder::class)->create(null, [$product->id => 1], $customer, $address, 10, $checkoutToken, $access->makeToken(), $access->makeToken());
+        $first = app(CreateOrder::class)->create(null, [$product->id => 1], $customer, $address, 10, $checkoutToken, $access->makeToken());
+        $second = app(CreateOrder::class)->create(null, [$product->id => 1], $customer, $address, 10, $checkoutToken, $access->makeToken());
 
         $this->assertTrue($first->is($second));
         $this->assertSame(1, Order::count());
@@ -131,38 +131,95 @@ class GuestCheckoutTest extends TestCase
         $this->get(route('guest.orders.show', ['order' => $order, 'token' => $accessToken]))->assertOk();
     }
 
-    public function test_guest_can_verify_email_and_create_account_without_linking_other_orders(): void
+    public function test_guest_can_request_a_new_private_order_access_link(): void
     {
-        [$order, , $verificationToken] = $this->guestOrder(['email' => 'maria@example.com']);
-        [$otherOrder] = $this->guestOrder(['email' => 'maria@example.com']);
+        Mail::fake();
+        [$order, $oldAccessToken] = $this->guestOrder(['email' => 'consulta@example.com']);
+        $oldHash = $order->guest_access_token_hash;
 
-        $this->get(route('guest.orders.verify', ['order' => $order, 'token' => $verificationToken]))->assertRedirect(route('guest.orders.show', $order));
-
-        Livewire::test(CreateAccount::class, ['order' => $order])
-            ->set('password', 'senha-segura')
-            ->set('password_confirmation', 'senha-segura')
-            ->call('createAccount')
+        Livewire::test(Lookup::class)
+            ->set('orderNumber', '#'.$order->id)
+            ->set('email', 'CONSULTA@example.com')
+            ->call('sendLink')
             ->assertHasNoErrors()
-            ->assertRedirect(route('dashboard'));
+            ->assertSet('requestCompleted', true)
+            ->assertSee('Se os dados informados corresponderem');
 
-        $user = User::where('email', 'maria@example.com')->firstOrFail();
-        $this->assertSame(Role::CUSTOMER, $user->role);
-        $this->assertSame($user->id, $order->refresh()->user_id);
-        $this->assertNull($otherOrder->refresh()->user_id);
+        $order->refresh();
+        $this->assertNotSame($oldHash, $order->guest_access_token_hash);
+        $this->assertFalse(app(GuestOrderAccessService::class)->allowsToken($order, $oldAccessToken));
+        $this->assertTrue($order->guest_access_expires_at->isAfter(now()->addDays(179)));
+        Mail::assertSent(GuestOrderAccessLink::class, function (GuestOrderAccessLink $mail) use ($order): bool {
+            return $mail->order->is($order)
+                && app(GuestOrderAccessService::class)->allowsToken($order, $mail->accessToken);
+        });
     }
 
-    public function test_existing_account_is_not_duplicated_when_guest_email_is_verified(): void
+    public function test_order_lookup_does_not_reveal_when_the_data_does_not_match(): void
     {
-        $existing = User::factory()->create(['email' => 'existente@example.com']);
-        [$order, , $verificationToken] = $this->guestOrder(['email' => $existing->email]);
+        Mail::fake();
+        [$order] = $this->guestOrder(['email' => 'correto@example.com']);
 
-        $this->get(route('guest.orders.verify', ['order' => $order, 'token' => $verificationToken]));
+        Livewire::test(Lookup::class)
+            ->set('orderNumber', (string) $order->id)
+            ->set('email', 'incorreto@example.com')
+            ->call('sendLink')
+            ->assertHasNoErrors()
+            ->assertSet('requestCompleted', true)
+            ->assertSee('Se os dados informados corresponderem');
 
-        Livewire::test(CreateAccount::class, ['order' => $order])
-            ->assertSet('existingAccount', true)
-            ->assertSee('Já existe uma conta com este e-mail');
+        Mail::assertNothingSent();
+    }
 
-        $this->assertSame(1, User::where('email', $existing->email)->count());
+    public function test_guest_can_return_to_the_order_from_another_session_after_two_days(): void
+    {
+        [$order, $accessToken] = $this->guestOrder();
+
+        $this->travel(2)->days();
+        $this->flushSession();
+
+        $this->get(route('guest.orders.show', ['order' => $order, 'token' => $accessToken]))
+            ->assertOk()
+            ->assertSee('Pedido #'.$order->id);
+    }
+
+    public function test_payment_return_shows_standard_completion_screen_and_email_has_tracking_access(): void
+    {
+        [$order, $accessToken] = $this->guestOrder();
+
+        $this->get(route('guest.orders.show', [
+            'order' => $order,
+            'token' => $accessToken,
+            'payment_returned' => 1,
+        ]))->assertOk()
+            ->assertSee('Pedido concluído')
+            ->assertSee($order->customer_email)
+            ->assertDontSee('Itens do pedido')
+            ->assertDontSee('Aguardando aprovação da personalização');
+
+        $html = (new GuestOrderConfirmation($order, $accessToken))->render();
+
+        $this->assertStringContainsString('Resumo do pedido', $html);
+        $this->assertStringContainsString('Acompanhar pedido', $html);
+        $this->assertStringContainsString('código de rastreio', $html);
+    }
+
+    public function test_completed_guest_order_uses_success_screen_but_email_link_opens_details(): void
+    {
+        [$order, $accessToken] = $this->guestOrder();
+        $order->update(['status' => OrderStatus::AWAITING_PERSONALIZATION_APPROVAL]);
+
+        $baseParameters = ['order' => $order, 'token' => $accessToken];
+
+        $this->get(route('guest.orders.show', $baseParameters))
+            ->assertOk()
+            ->assertSee('Pedido concluído')
+            ->assertDontSee('Aguardando aprovação da personalização');
+
+        $this->get(route('guest.orders.show', [...$baseParameters, 'details' => 1]))
+            ->assertOk()
+            ->assertSee('Itens do pedido')
+            ->assertSee('Aguardando aprovação da personalização');
     }
 
     public function test_cart_is_preserved_when_guest_logs_in(): void
@@ -172,9 +229,8 @@ class GuestCheckoutTest extends TestCase
 
         $this->withSession(['cart.items' => [$product->id => 2]])
             ->post(route('login.store'), ['email' => $customer->email, 'password' => 'password'])
-            ->assertRedirect(route('home'));
-
-        $this->assertSessionHas('cart.items.'.$product->id, 2);
+            ->assertRedirect(route('home'))
+            ->assertSessionHas('cart.items.'.$product->id, 2);
     }
 
     private function guestOrder(array $customer = []): array
@@ -182,20 +238,18 @@ class GuestCheckoutTest extends TestCase
         $product = Product::factory()->create(['price' => 50]);
         $access = app(GuestOrderAccessService::class);
         $accessToken = $access->makeToken();
-        $verificationToken = $access->makeToken();
         $customer = array_merge(['name' => 'Maria Visitante', 'email' => 'visitante'.fake()->unique()->numberBetween(1, 999999).'@example.com', 'phone' => '11999999999'], $customer);
 
         $order = app(CreateOrder::class)->create(
             null,
             [$product->id => 1],
             $customer,
-            ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP'],
+            ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP', 'document' => '24971563792'],
             10,
             bin2hex(random_bytes(32)),
             $accessToken,
-            $verificationToken,
         );
 
-        return [$order, $accessToken, $verificationToken];
+        return [$order, $accessToken];
     }
 }

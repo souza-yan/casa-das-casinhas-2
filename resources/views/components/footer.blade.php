@@ -6,7 +6,10 @@
                 <p class="mt-2 text-sm leading-6 text-paper/65">Casas e paisagens de madeira montadas e pintadas à mão, disponíveis em estoque ou sob encomenda.</p>
             </div>
 
-            <x-social-links />
+            <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
+                <a href="{{ route('guest.orders.lookup') }}" class="text-sm font-semibold underline decoration-paper/40 underline-offset-4 transition hover:decoration-paper">Acompanhar pedido</a>
+                <x-social-links />
+            </div>
         </div>
 
         <div class="mt-7 flex flex-col gap-2 border-t border-paper/15 pt-5 text-sm text-paper/50 sm:flex-row sm:items-center sm:justify-between">

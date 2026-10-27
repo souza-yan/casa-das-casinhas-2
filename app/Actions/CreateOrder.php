@@ -25,7 +25,7 @@ class CreateOrder
         ], $address, $shippingTotal);
     }
 
-    public function create(?User $user, array $cart, array $customer, array $address, float $shippingTotal, ?string $checkoutToken = null, ?string $guestAccessToken = null, ?string $guestEmailVerificationToken = null): Order
+    public function create(?User $user, array $cart, array $customer, array $address, float $shippingTotal, ?string $checkoutToken = null, ?string $guestAccessToken = null): Order
     {
         throw_if($cart === [], ValidationException::withMessages(['cart' => 'O carrinho está vazio.']));
         throw_if($shippingTotal < 0, ValidationException::withMessages(['shipping' => 'Frete inválido.']));
@@ -47,14 +47,14 @@ class CreateOrder
             'state' => ['required', 'string', 'size:2'],
             'document' => ['nullable', 'string', new ValidCpfCnpj],
         ])->validate();
-        throw_if($user === null && (blank($guestAccessToken) || blank($guestEmailVerificationToken)), ValidationException::withMessages(['checkout' => 'Não foi possível preparar o acesso seguro ao pedido.']));
+        throw_if($user === null && blank($guestAccessToken), ValidationException::withMessages(['checkout' => 'Não foi possível preparar o acesso seguro ao pedido.']));
 
         if ($checkoutToken && ($existing = Order::where('checkout_token', $checkoutToken)->first())) {
             return $existing->load(['items', 'address']);
         }
 
         try {
-            return DB::transaction(function () use ($user, $cart, $customer, $address, $shippingTotal, $checkoutToken, $guestAccessToken, $guestEmailVerificationToken): Order {
+            return DB::transaction(function () use ($user, $cart, $customer, $address, $shippingTotal, $checkoutToken, $guestAccessToken): Order {
                 if ($checkoutToken && ($existing = Order::where('checkout_token', $checkoutToken)->lockForUpdate()->first())) {
                     return $existing->load(['items', 'address']);
                 }
@@ -86,9 +86,7 @@ class CreateOrder
                     'customer_phone' => $customer['phone'],
                     'checkout_token' => $checkoutToken,
                     'guest_access_token_hash' => $user ? null : hash('sha256', $guestAccessToken),
-                    'guest_access_expires_at' => $user ? null : now()->addDays(30),
-                    'guest_email_verification_token_hash' => $user ? null : hash('sha256', $guestEmailVerificationToken),
-                    'guest_email_verification_expires_at' => $user ? null : now()->addDays(7),
+                    'guest_access_expires_at' => $user ? null : now()->addDays(180),
                     'subtotal' => $subtotal,
                     'shipping_total' => $shippingTotal,
                     'total' => round($subtotal + $shippingTotal, 2),

@@ -1,10 +1,20 @@
-<div class="mx-auto max-w-[920px] px-5 py-12 sm:px-8 lg:py-20">
+<div class="mx-auto max-w-[1040px] px-5 py-12 sm:px-8 lg:py-20">
+    @if (request()->boolean('payment_returned'))
+        <section class="mx-auto max-w-2xl border border-ink/20 bg-paper px-6 py-12 text-center sm:px-12 sm:py-16">
+            <span aria-hidden="true" class="mx-auto grid size-14 place-items-center rounded-full bg-moss text-2xl font-semibold text-paper">✓</span>
+            <p class="mt-6 text-sm font-semibold uppercase tracking-[.18em] text-ink/75">Pedido #{{ $order->id }}</p>
+            <h1 class="mt-4 font-serif text-4xl font-semibold tracking-[-.03em] sm:text-5xl">Pedido concluído</h1>
+            <p class="mx-auto mt-5 max-w-xl text-base leading-7 text-ink/80">Tudo certo! Recebemos seu pedido com sucesso. Você pode consultar o status, os itens e o rastreio quando estiver disponível na área de pedidos.</p>
+            <x-action-button :href="route('orders.show', $order)" class="mt-8">Acompanhar pedido</x-action-button>
+        </section>
+    @else
     <x-page-header eyebrow="Acompanhamento" title="Pedido #{{ $order->id }}">Veja o status e os detalhes da sua encomenda.</x-page-header>
     @if (session('status'))<div class="mt-6 border border-emerald-800/15 bg-emerald-50 p-4 text-base text-emerald-900">{{ session('status') }}</div>@endif
     @if (session('payment_error'))<div class="mt-6 border border-red-800/15 bg-red-50 p-4 text-base text-red-900">{{ session('payment_error') }}</div>@endif
     @if (request()->boolean('payment_returned') && $order->status === \App\Enums\OrderStatus::PENDING_PAYMENT)<div class="mt-6 border border-clay/30 bg-clay/10 p-4 text-base text-ink">Pagamento em análise. A confirmação pode levar alguns instantes.</div>@endif
-    <div class="mt-8 grid gap-8 lg:grid-cols-[.72fr_1.28fr]">
-        <aside class="h-fit border border-ink/10 bg-paper p-6"><p class="text-sm font-semibold uppercase tracking-[.18em] text-ink/40">Status atual</p><div class="mt-3"><x-status-badge :status="$order->status" /></div>@if ($order->status === \App\Enums\OrderStatus::PENDING_PAYMENT)<a href="{{ route('orders.payment', $order) }}" class="mt-6 block rounded-full bg-bark px-5 py-3 text-center text-base font-semibold text-paper">Pagar agora →</a>@endif<p class="mt-5 text-sm leading-5 text-ink/40">O pagamento só é confirmado após a validação segura do provedor.</p></aside>
-        <section><h2 class="font-serif text-3xl font-semibold">Itens do pedido</h2><div class="mt-4 divide-y divide-ink/10 border-y border-ink/10">@foreach ($order->items as $item)<div class="py-4 text-base"><div class="flex justify-between gap-4"><span>{{ $item->quantity }}× {{ $item->product_name }}</span><strong>R$ {{ number_format((float) $item->subtotal, 2, ',', '.') }}</strong></div>@if($item->personalization_description)<p class="mt-3 whitespace-pre-line border-l border-clay pl-3 text-sm text-ink/65"><strong class="block text-ink">Sua personalização</strong>{{ $item->personalization_description }}</p>@endif</div>@endforeach</div><div class="mt-5 ml-auto grid max-w-xs gap-2 text-base"><p class="flex justify-between"><span class="text-ink/50">Documento</span><span>{{ $order->address->document_masked ?? '—' }}</span></p><p class="flex justify-between"><span class="text-ink/50">Produção</span><span>Até {{ $order->productionDays() }} dias úteis</span></p><p class="flex justify-between"><span class="text-ink/50">Transporte</span><span>Conforme frete selecionado</span></p><p class="flex justify-between"><span class="text-ink/50">Subtotal</span><span>R$ {{ number_format((float) $order->subtotal, 2, ',', '.') }}</span></p><p class="flex justify-between"><span class="text-ink/50">Frete</span><span>R$ {{ number_format((float) $order->shipping_total, 2, ',', '.') }}</span></p><p class="mt-2 flex justify-between border-t border-ink/10 pt-3 font-semibold"><span>Total</span><span>R$ {{ number_format((float) $order->total, 2, ',', '.') }}</span></p></div></section>
+    <div class="mt-8 grid items-stretch gap-8 lg:grid-cols-[minmax(300px,.9fr)_minmax(0,1.4fr)]">
+        <aside class="flex h-full flex-col border border-ink/20 bg-paper p-7"><p class="text-sm font-semibold uppercase tracking-[.18em] text-ink/75">Status do pedido</p><div class="mt-4"><x-status-badge :status="$order->status" size="large" /></div>@if ($order->status === \App\Enums\OrderStatus::PENDING_PAYMENT)<div class="mt-auto pt-8"><a href="{{ route('orders.payment', $order) }}" class="block rounded-sm bg-bark px-5 py-3 text-center text-base font-semibold text-paper">Pagar agora →</a></div>@endif</aside>
+        <x-order-details :order="$order" :tracking-message="$trackingMessage" />
     </div>
+    @endif
 </div>

@@ -24,9 +24,6 @@ class Order extends Model
         'checkout_token',
         'guest_access_token_hash',
         'guest_access_expires_at',
-        'guest_email_verification_token_hash',
-        'guest_email_verification_expires_at',
-        'guest_email_verified_at',
         'subtotal',
         'shipping_total',
         'total',
@@ -43,8 +40,6 @@ class Order extends Model
             'status' => OrderStatus::class,
             'paid_at' => 'datetime',
             'guest_access_expires_at' => 'datetime',
-            'guest_email_verification_expires_at' => 'datetime',
-            'guest_email_verified_at' => 'datetime',
         ];
     }
 

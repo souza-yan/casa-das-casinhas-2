@@ -16,7 +16,6 @@ class GuestOrderConfirmation extends Mailable
     public function __construct(
         public Order $order,
         public string $accessToken,
-        public string $emailVerificationToken,
     ) {}
 
     public function envelope(): Envelope
