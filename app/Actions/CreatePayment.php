@@ -6,18 +6,43 @@ use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\Payments\AsaasService;
+use RuntimeException;
 
 class CreatePayment
 {
     public function __construct(private AsaasService $asaas) {}
 
-    public function execute(Order $order): Payment
+    public function execute(Order $order, ?string $successUrl = null): Payment
     {
         $existing = $order->payments()->where('provider', 'asaas')->where('status', PaymentStatus::PENDING)->latest()->first();
         if ($existing?->provider_payment_id) {
-            return $existing;
+            try {
+                $charge = $this->asaas->findCharge($existing->provider_payment_id);
+            } catch (\Throwable $exception) {
+                $this->asaas->logFailure($order, $exception);
+                // Sem uma URL local não é seguro tentar criar outra cobrança após uma falha de consulta.
+                if (filled($existing->payment_url)) {
+                    return $existing;
+                }
+
+                throw $exception;
+            }
+
+            if (in_array($charge['status'] ?? null, ['PENDING', 'AWAITING_RISK_ANALYSIS'], true) && filled($charge['invoiceUrl'] ?? null)) {
+                $existing->update(['payment_url' => $charge['invoiceUrl']]);
+
+                return $existing->refresh();
+            }
+
+            if (in_array($charge['status'] ?? null, ['RECEIVED', 'CONFIRMED', 'RECEIVED_IN_CASH'], true)) {
+                $existing->update(['status' => PaymentStatus::CONFIRMED]);
+
+                throw new RuntimeException('O pagamento já foi recebido e aguarda confirmação pelo webhook.');
+            }
+
+            $existing->update(['status' => ($charge['status'] ?? null) === 'OVERDUE' ? PaymentStatus::OVERDUE : PaymentStatus::FAILED]);
         }
-        $charge = $this->asaas->createCharge($order);
+        $charge = $this->asaas->createCharge($order, $successUrl);
 
         return Payment::updateOrCreate(['provider' => 'asaas', 'provider_payment_id' => $charge['id']], [
             'order_id' => $order->id, 'method' => 'hosted', 'amount' => $order->total,

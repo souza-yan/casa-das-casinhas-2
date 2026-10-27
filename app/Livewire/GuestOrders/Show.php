@@ -12,6 +12,8 @@ class Show extends Component
 {
     public Order $order;
 
+    public ?string $accessToken = null;
+
     public function mount(Order $order, GuestOrderAccessService $access, ?string $token = null): void
     {
         abort_if($order->user_id !== null, 404);
@@ -19,6 +21,7 @@ class Show extends Component
         if ($token) {
             abort_unless($access->allowsToken($order, $token), 404);
             $access->grantSessionAccess($order);
+            $this->accessToken = $token;
         }
 
         abort_unless($access->hasSessionAccess($order), 403);
