@@ -35,6 +35,8 @@ class AsaasIntegrationTest extends TestCase
         $second = app(CreatePayment::class)->execute($order);
         $this->assertTrue($first->is($second));
         $this->assertSame('pay_1', $first->provider_payment_id);
+        Http::assertSent(fn ($request) => $request->url() === config('services.asaas.url').'/v3/customers'
+            && $request['cpfCnpj'] === '12345678901');
         Http::assertSent(fn ($request) => $request->url() === config('services.asaas.url').'/v3/payments' && $request['value'] === (float) $order->total);
     }
 
@@ -67,6 +69,6 @@ class AsaasIntegrationTest extends TestCase
         $user = User::factory()->create();
         $product = Product::factory()->create(['price' => 50]);
 
-        return app(CreateOrder::class)->execute($user, [$product->id => 1], ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP'], '11999999999', 10);
+        return app(CreateOrder::class)->execute($user, [$product->id => 1], ['zip_code' => '01001-000', 'street' => 'Rua A', 'number' => '1', 'district' => 'Centro', 'city' => 'São Paulo', 'state' => 'SP', 'document' => '12345678901'], '11999999999', 10);
     }
 }

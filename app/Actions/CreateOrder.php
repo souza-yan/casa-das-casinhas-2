@@ -7,6 +7,7 @@ use App\Enums\SaleType;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Rules\ValidCpfCnpj;
 use App\Services\CartService;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,9 @@ class CreateOrder
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
         ])->validate();
+        $address['document'] = filled($address['document'] ?? null)
+            ? ValidCpfCnpj::digits((string) $address['document'])
+            : null;
         Validator::make($address, [
             'zip_code' => ['required', 'string', 'max:9'],
             'street' => ['required', 'string', 'max:255'],
@@ -41,6 +45,7 @@ class CreateOrder
             'district' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:255'],
             'state' => ['required', 'string', 'size:2'],
+            'document' => ['nullable', 'string', new ValidCpfCnpj],
         ])->validate();
         throw_if($user === null && (blank($guestAccessToken) || blank($guestEmailVerificationToken)), ValidationException::withMessages(['checkout' => 'Não foi possível preparar o acesso seguro ao pedido.']));
 
