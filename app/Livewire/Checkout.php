@@ -3,13 +3,16 @@
 namespace App\Livewire;
 
 use App\Actions\CreateOrder;
-use App\Actions\CreatePayment;
 use App\Actions\SelectShipping;
 use App\Mail\GuestOrderConfirmation;
+use App\Rules\ValidCpfCnpj;
 use App\Services\CartService;
 use App\Services\GuestOrderAccessService;
-use App\Services\Shipping\MelhorEnvioService;
+use App\Services\Payments\AsaasPaymentRedirect;
+use App\Services\Payments\AsaasService;
 use App\Services\Shipping\PostalCodeService;
+use App\Services\Shipping\SuperFreteService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
 use Livewire\Attributes\Layout;
@@ -28,6 +31,8 @@ class Checkout extends Component
     public string $email = '';
 
     public string $phone = '';
+
+    public string $document = '';
 
     public string $zip_code = '';
 
@@ -92,6 +97,7 @@ class Checkout extends Component
             'name' => ['required', 'string', 'min:3', 'max:255', "regex:/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s'’-]*$/u"],
             'email' => ['required', 'email:rfc', 'max:255'],
             'phone' => ['required', 'string', 'regex:/^(?:\d{10,11}|\(\d{2}\) \d{4,5}-\d{4})$/'],
+            'document' => ['required', 'string', new ValidCpfCnpj],
         ];
     }
 
@@ -106,6 +112,11 @@ class Checkout extends Component
             'city' => ['required', 'string', 'min:2', 'max:255', "regex:/^[\\p{L}\\p{M}\\s.'’-]+$/u"],
             'state' => ['required', 'string', 'regex:/^[A-Z]{2}$/'],
         ];
+    }
+
+    public function updatedDocument(string $value): void
+    {
+        $this->document = ValidCpfCnpj::digits($value);
     }
 
     public function continueToDelivery(): void
@@ -134,7 +145,7 @@ class Checkout extends Component
         }
     }
 
-    public function lookupAddress(PostalCodeService $addresses, CartService $cart, MelhorEnvioService $shipping): void
+    public function lookupAddress(PostalCodeService $addresses, CartService $cart, SuperFreteService $shipping): void
     {
         $digits = preg_replace('/\D/', '', $this->zip_code);
         if (strlen($digits) !== 8) {
@@ -164,9 +175,22 @@ class Checkout extends Component
         $this->quote($cart, $shipping);
     }
 
-    public function continueToPayment(): void
+    public function continueToShipping(CartService $cart, SuperFreteService $shipping): void
     {
         $this->validate($this->deliveryRules());
+
+        $this->quote($cart, $shipping);
+
+        if ($this->shippingOptions === []) {
+            return;
+        }
+
+        $this->step = 3;
+    }
+
+    public function continueToPayment(): void
+    {
+        abort_unless($this->step === 3, 404);
 
         if (! $this->shippingId) {
             $this->addError('shippingId', 'Selecione uma opção de entrega para continuar.');
@@ -174,21 +198,21 @@ class Checkout extends Component
             return;
         }
 
-        $this->step = 3;
+        $this->step = 4;
     }
 
     public function goToStep(int $step): void
     {
-        abort_unless(in_array($step, [1, 2], true), 404);
+        abort_unless(in_array($step, [1, 2, 3], true), 404);
         $this->step = $step;
     }
 
-    public function quote(CartService $cart, MelhorEnvioService $shipping): void
+    public function quote(CartService $cart, SuperFreteService $shipping): void
     {
         $this->validateOnly('zip_code');
         $this->reset('shippingOptions', 'shippingId', 'error');
 
-        if (blank(config('services.melhor_envio.token')) || blank(config('services.melhor_envio.origin_zip_code'))) {
+        if (! $shipping->isConfiguredForQuote()) {
             $this->error = 'O frete está indisponível no momento. Tente novamente mais tarde.';
 
             return;
@@ -205,12 +229,12 @@ class Checkout extends Component
         }
     }
 
-    public function place(CartService $cart, MelhorEnvioService $shipping, CreateOrder $createOrder, SelectShipping $selectShipping, CreatePayment $createPayment, GuestOrderAccessService $guestAccess)
+    public function place(CartService $cart, SuperFreteService $shipping, CreateOrder $createOrder, SelectShipping $selectShipping, GuestOrderAccessService $guestAccess, AsaasPaymentRedirect $paymentRedirect)
     {
         $data = $this->validate();
 
-        if (blank(config('services.melhor_envio.token')) || blank(config('services.melhor_envio.origin_zip_code'))) {
-            $this->error = 'O Melhor Envio Sandbox ainda não está configurado. Configure as credenciais para calcular o frete.';
+        if (! $shipping->isConfiguredForQuote()) {
+            $this->error = 'O SuperFrete Sandbox ainda não está configurado. Configure as credenciais para calcular o frete.';
             $this->toast()->warning('Frete indisponível', $this->error)->send();
 
             return;
@@ -235,6 +259,7 @@ class Checkout extends Component
             return;
         }
         $address = collect($data)->only(['zip_code', 'street', 'number', 'complement', 'district', 'city', 'state'])->all();
+        $address['document'] = ValidCpfCnpj::digits($data['document']);
         $user = auth()->user();
         $guestTokens = null;
         if (! $user) {
@@ -257,15 +282,6 @@ class Checkout extends Component
         $selectShipping->execute($order, $option);
         $cart->clear();
 
-        $paymentCreated = false;
-
-        try {
-            $createPayment->execute($order);
-            $paymentCreated = true;
-        } catch (Throwable $exception) {
-            report($exception);
-        }
-
         if (! $user) {
             $guestAccess->grantSessionAccess($order);
 
@@ -277,27 +293,40 @@ class Checkout extends Component
                 }
             }
 
-            $message = $paymentCreated
-                ? 'Pedido criado. Enviamos um link seguro de acompanhamento para seu e-mail.'
-                : 'Pedido criado. Você poderá retomar o pagamento nesta página quando o Asaas estiver disponível.';
-            $this->toast()->success('Pedido criado', $message)->flash()->send();
+            try {
+                return $paymentRedirect->for($order, $this->guestPaymentReturnUrl($order, $guestTokens['access']));
+            } catch (Throwable $exception) {
+                Log::warning('Não foi possível iniciar pagamento de convidado no checkout.', ['order_id' => $order->id, 'exception' => $exception::class]);
+                $this->toast()->warning('Pedido criado sem cobrança', AsaasService::clientMessage($exception))->flash()->send();
 
-            return redirect()->route('guest.orders.show', ['order' => $order, 'token' => $guestTokens['access']]);
+                return redirect()->route('guest.orders.show', ['order' => $order, 'token' => $guestTokens['access']]);
+            }
         }
 
-        if ($paymentCreated) {
-            $this->toast()->success('Pedido criado', 'Continue no ambiente seguro do Asaas para pagar.')->flash()->send();
+        try {
+            return $paymentRedirect->for($order, $this->customerPaymentReturnUrl($order));
+        } catch (Throwable $exception) {
+            Log::warning('Não foi possível iniciar pagamento no checkout.', ['order_id' => $order->id, 'exception' => $exception::class]);
+            $this->toast()->warning('Pedido criado sem cobrança', AsaasService::clientMessage($exception))->flash()->send();
 
-            return redirect()->route('orders.payment', $order);
+            return redirect()->route('orders.show', $order);
         }
+    }
 
-        $warning = blank(config('services.asaas.token'))
-            ? 'Pedido criado, mas o Asaas Sandbox ainda não está configurado. Você poderá gerar a cobrança nesta página depois da configuração.'
-            : 'Pedido criado, mas não foi possível gerar a cobrança no Asaas Sandbox. Tente novamente na página do pedido.';
+    private function customerPaymentReturnUrl($order): ?string
+    {
+        $baseUrl = rtrim((string) config('services.asaas.success_url'), '/');
 
-        $this->toast()->warning('Pedido criado sem cobrança', $warning)->flash()->send();
+        return filled($baseUrl) ? $baseUrl.'/pedidos/'.$order->id.'?payment_returned=1' : null;
+    }
 
-        return redirect()->route('orders.payment', $order);
+    private function guestPaymentReturnUrl($order, string $token): ?string
+    {
+        $baseUrl = rtrim((string) config('services.asaas.success_url'), '/');
+
+        return filled($baseUrl)
+            ? $baseUrl.'/acompanhar-pedido/'.$order->id.'/'.$token.'?payment_returned=1'
+            : null;
     }
 
     public function render(CartService $cart)

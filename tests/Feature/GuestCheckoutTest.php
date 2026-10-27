@@ -32,8 +32,8 @@ class GuestCheckoutTest extends TestCase
         parent::setUp();
 
         config([
-            'services.melhor_envio.token' => 'sandbox-token',
-            'services.melhor_envio.origin_zip_code' => '01310-100',
+            'services.superfrete.token' => 'sandbox-token',
+            'services.superfrete.origin.postal_code' => '01310-100',
             'services.asaas.token' => 'sandbox-token',
         ]);
     }
@@ -49,7 +49,7 @@ class GuestCheckoutTest extends TestCase
         Mail::fake();
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response(['logradouro' => 'Praça da Sé', 'bairro' => 'Sé', 'localidade' => 'São Paulo', 'uf' => 'SP']),
-            '*/api/v2/me/shipment/calculate' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => '20.00', 'delivery_time' => 5, 'company' => ['name' => 'Correios']]]),
+            '*/api/v0/calculator' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => '20.00', 'delivery_time' => 5, 'company' => ['name' => 'Correios']]]),
             '*/v3/customers' => Http::response(['id' => 'cus_guest_1']),
             '*/v3/payments' => Http::response(['id' => 'pay_guest_1', 'invoiceUrl' => 'https://sandbox.example/pay']),
         ]);
@@ -60,6 +60,7 @@ class GuestCheckoutTest extends TestCase
             ->set('name', 'Maria Visitante')
             ->set('email', 'maria@example.com')
             ->set('phone', '11999999999')
+            ->set('document', '24971563792')
             ->set('zip_code', '01001-000')
             ->set('street', 'Praça da Sé')
             ->set('number', '1')

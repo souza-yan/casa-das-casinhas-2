@@ -17,7 +17,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         parent::setUp();
         Http::preventStrayRequests();
-        config(['services.melhor_envio.token' => 'test-token', 'services.melhor_envio.origin_zip_code' => '01310-100']);
+        config(['services.superfrete.token' => 'test-token', 'services.superfrete.origin.postal_code' => '01310-100']);
         $product = Product::factory()->create();
         $this->withSession(['cart.items' => [$product->id => 1]]);
     }
@@ -25,7 +25,7 @@ class CheckoutDeliveryTest extends TestCase
     private function deliveryForm()
     {
         return Livewire::test(Checkout::class)->set('name', 'Maria Silva')
-            ->set('email', 'maria@example.com')->set('phone', '12988961502')
+            ->set('email', 'maria@example.com')->set('phone', '12988961502')->set('document', '24971563792')
             ->call('continueToDelivery');
     }
 
@@ -33,7 +33,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response($address ?: ['logradouro' => 'Praça da Sé', 'bairro' => 'Sé', 'localidade' => 'São Paulo', 'uf' => 'SP']),
-            '*/api/v2/me/shipment/calculate' => Http::response($shipping ?: [['id' => 1, 'name' => 'PAC', 'price' => '20.00', 'delivery_time' => 5, 'company' => ['name' => 'Correios']]]),
+            '*/api/v0/calculator' => Http::response($shipping ?: [['id' => 1, 'name' => 'PAC', 'price' => '20.00', 'delivery_time' => 5, 'company' => ['name' => 'Correios']]]),
         ]);
     }
 
@@ -89,7 +89,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response([], 503),
-            '*/api/v2/me/shipment/calculate' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => 20, 'delivery_time' => 5]]),
+            '*/api/v0/calculator' => Http::response([['id' => 1, 'name' => 'PAC', 'price' => 20, 'delivery_time' => 5]]),
         ]);
         $this->deliveryForm()->set('zip_code', '01001-000')->assertSet('showAddressFields', true)
             ->assertSet('resolvedAddress', [])->assertSet('shippingOptions.0.id', '1')
@@ -108,7 +108,7 @@ class CheckoutDeliveryTest extends TestCase
     public function test_missing_shipping_credentials_does_not_prevent_address_autofill(): void
     {
         $this->fakeServices();
-        config(['services.melhor_envio.token' => null]);
+        config(['services.superfrete.token' => null]);
         $this->deliveryForm()->set('zip_code', '01001-000')->assertSet('street', 'Praça da Sé')
             ->assertSet('showAddressFields', true)->assertSet('shippingOptions', [])
             ->assertSee('O frete está indisponível no momento');
@@ -119,7 +119,7 @@ class CheckoutDeliveryTest extends TestCase
     {
         Http::fake([
             'viacep.com.br/ws/*/json/' => Http::response(['logradouro' => 'Rua A', 'bairro' => 'Centro', 'localidade' => 'São Paulo', 'uf' => 'SP']),
-            '*/api/v2/me/shipment/calculate' => Http::sequence()->pushStatus(503)->pushStatus(503)
+            '*/api/v0/calculator' => Http::sequence()->pushStatus(503)->pushStatus(503)
                 ->push([['id' => 1, 'name' => 'PAC', 'price' => 20, 'delivery_time' => 5]]),
         ]);
         $component = $this->deliveryForm()->set('zip_code', '01001-000')
