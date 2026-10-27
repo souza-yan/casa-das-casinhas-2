@@ -2,10 +2,14 @@
 
 namespace App\Services\Shipping;
 
+use App\Enums\NotificationStatus;
 use App\Enums\OrderStatus;
 use App\Enums\ShipmentStatus;
+use App\Jobs\SendOrderTrackingEmail;
 use App\Models\Order;
+use App\Models\OrderNotification;
 use App\Models\Product;
+use App\Models\Shipment;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -89,13 +93,118 @@ class SuperFreteService
         ]);
 
         try {
-            $label = $this->client()->get("/api/v0/order/info/{$providerShipmentId}")->throw()->json();
-            $shipment->update(['tracking_code' => data_get($label, 'tracking')]);
+            $shipment->refresh();
+            $this->syncTracking($shipment);
+            $this->syncLabelUrl($shipment);
         } catch (\Throwable $exception) {
             report($exception);
         }
 
         return $checkout;
+    }
+
+    public function syncTracking(Shipment $shipment): ?string
+    {
+        throw_if(blank($shipment->provider_shipment_id), RuntimeException::class, 'A etiqueta ainda não possui identificador no SuperFrete.');
+
+        $label = $this->client()->get('/api/v0/order/info/'.$shipment->provider_shipment_id)->throw()->json();
+        $this->applyProviderData($shipment, $label);
+
+        return $shipment->fresh()->tracking_code;
+    }
+
+    public function syncLabelUrl(Shipment $shipment): ?string
+    {
+        throw_if(blank($shipment->provider_shipment_id), RuntimeException::class, 'A etiqueta ainda não possui identificador no SuperFrete.');
+
+        $response = $this->client()->post('/api/v0/tag/print', [
+            'orders' => [$shipment->provider_shipment_id],
+        ])->throw()->json();
+        $labelUrl = $this->safeUrl(data_get($response, 'url'));
+
+        if ($labelUrl) {
+            $shipment->update(['label_url' => $labelUrl]);
+        }
+
+        return $shipment->fresh()->label_url;
+    }
+
+    public function applyProviderData(Shipment $shipment, array $data): Shipment
+    {
+        $previousTrackingCode = $shipment->tracking_code;
+        $trackingCode = collect([
+            data_get($data, 'tracking'),
+            data_get($data, 'tracking_code'),
+            data_get($data, 'trackingCode'),
+            data_get($data, 'data.tracking'),
+            data_get($data, 'data.tracking_code'),
+            data_get($data, 'order.tracking'),
+        ])->first(fn ($value) => filled($value));
+        $providerStatus = strtolower((string) data_get($data, 'status', data_get($data, 'data.status', '')));
+        $shipmentStatus = match ($providerStatus) {
+            'posted' => ShipmentStatus::SHIPPED,
+            'delivered' => ShipmentStatus::DELIVERED,
+            'canceled', 'cancelled' => ShipmentStatus::CANCELLED,
+            'released', 'generated' => ShipmentStatus::LABEL_PURCHASED,
+            default => $shipment->status,
+        };
+
+        $shipment->update(array_filter([
+            'tracking_code' => filled($trackingCode) ? trim((string) $trackingCode) : $shipment->tracking_code,
+            'tracking_url' => $this->safeUrl(data_get($data, 'tracking_url', data_get($data, 'data.tracking_url'))),
+            'provider_status' => $providerStatus ?: $shipment->provider_status,
+            'tracking_synced_at' => now(),
+            'posted_at' => data_get($data, 'posted_at', data_get($data, 'data.posted_at', $shipment->posted_at)),
+            'delivered_at' => data_get($data, 'delivered_at', data_get($data, 'data.delivered_at', $shipment->delivered_at)),
+            'status' => $shipmentStatus,
+        ], fn ($value) => $value !== null));
+
+        $this->syncOrderStatus($shipment->fresh());
+
+        if (blank($previousTrackingCode) && filled($shipment->fresh()->tracking_code)) {
+            $this->queueTrackingNotification($shipment->fresh());
+        }
+
+        return $shipment->fresh();
+    }
+
+    private function syncOrderStatus(Shipment $shipment): void
+    {
+        $order = $shipment->order()->with('items')->firstOrFail();
+
+        if (in_array($shipment->status, [ShipmentStatus::SHIPPED, ShipmentStatus::DELIVERED], true)
+            && $order->status === OrderStatus::READY_TO_SHIP) {
+            $order->transitionTo(OrderStatus::SHIPPED);
+            $order->refresh()->load('items');
+        }
+
+        if ($shipment->status === ShipmentStatus::DELIVERED && $order->status === OrderStatus::SHIPPED) {
+            $order->transitionTo(OrderStatus::DELIVERED);
+        }
+    }
+
+    private function queueTrackingNotification(Shipment $shipment): void
+    {
+        $order = $shipment->order()->firstOrFail();
+        $notification = OrderNotification::firstOrCreate(
+            ['order_id' => $order->id, 'type' => 'tracking_available', 'channel' => 'email', 'recipient' => $order->customer_email],
+            ['status' => NotificationStatus::PENDING],
+        );
+
+        if ($notification->wasRecentlyCreated) {
+            SendOrderTrackingEmail::dispatch($notification)->afterCommit();
+        }
+    }
+
+    private function safeUrl(mixed $url): ?string
+    {
+        if (! is_string($url) || blank($url)) {
+            return null;
+        }
+
+        $url = str_starts_with($url, 'http://') || str_starts_with($url, 'https://') ? $url : 'https://'.ltrim($url, '/');
+
+        return filter_var($url, FILTER_VALIDATE_URL) && parse_url($url, PHP_URL_SCHEME) === 'https' ? $url : null;
     }
 
     private function origin(): array

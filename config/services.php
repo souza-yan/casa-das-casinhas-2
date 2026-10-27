@@ -27,6 +27,8 @@ return [
         ],
         'non_commercial' => env('SUPERFRETE_NON_COMMERCIAL', true),
         'user_agent' => env('SUPERFRETE_USER_AGENT', 'Casa das Casinhas contato@example.com'),
+        'tracking_url' => env('SUPERFRETE_TRACKING_URL', 'https://superfrete.com/rastreio-de-encomendas'),
+        'webhook_secret' => env('SUPERFRETE_WEBHOOK_SECRET'),
     ],
 
     'whatsapp' => [

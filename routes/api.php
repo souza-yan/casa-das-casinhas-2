@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\AsaasWebhookController;
+use App\Http\Controllers\SuperFreteWebhookController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['webhook.json', 'throttle:60,1'])->group(function (): void {
     Route::post('/webhooks/asaas', AsaasWebhookController::class)->name('webhooks.asaas');
+    Route::post('/webhooks/superfrete', SuperFreteWebhookController::class)->name('webhooks.superfrete');
     Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'update'])->name('webhooks.whatsapp.update');
 });
 
