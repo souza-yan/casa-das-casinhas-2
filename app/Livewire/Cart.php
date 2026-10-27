@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\Product;
 use App\Services\CartService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;

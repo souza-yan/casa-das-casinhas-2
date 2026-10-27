@@ -1,0 +1,10 @@
+[Unit]
+Description=Executa o scheduler da Casa das Casinhas a cada minuto
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+Persistent=true
+Unit=casa-das-casinhas-scheduler.service
+
+[Install]
+WantedBy=timers.target

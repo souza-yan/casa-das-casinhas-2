@@ -1,0 +1,9 @@
+[Unit]
+Description=Casa das Casinhas - Laravel scheduler
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/casa-das-casinhas
+ExecStart=/usr/bin/php artisan schedule:run

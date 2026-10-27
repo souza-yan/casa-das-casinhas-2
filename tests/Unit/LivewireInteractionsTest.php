@@ -7,7 +7,6 @@ use App\Livewire\Admin\Orders\Show as AdminOrder;
 use App\Livewire\Admin\Products\Index as AdminProducts;
 use App\Livewire\Cart;
 use App\Livewire\Checkout;
-use App\Livewire\Orders\Payment;
 use App\Livewire\ProductDetail;
 use App\Livewire\Profile;
 use App\Livewire\Store;
@@ -30,7 +29,6 @@ class LivewireInteractionsTest extends TestCase
             [ProductDetail::class],
             [Cart::class],
             [Checkout::class],
-            [Payment::class],
             [Profile::class],
             [AdminProducts::class],
             [AdminOrders::class],
